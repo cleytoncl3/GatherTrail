@@ -90,7 +90,14 @@ end
 
 local skills = { mine = { has = false, skill = 0 }, herb = { has = false, skill = 0 }, skin = { has = false, skill = 0 } }
 
-local function Lower(x) return x and x:lower() or "" end
+-- Clientes novos devolvem "valores secretos" (GUID, nome...) em varias situacoes.
+-- Eles nao podem ser comparados nem indexados pelo addon: sempre ignorar.
+local issecret = issecretvalue or function() return false end
+
+local function Lower(x)
+    if not x or issecret(x) then return "" end
+    return x:lower()
+end
 
 local kindNames = {}
 local function BuildKindNames()
@@ -476,13 +483,19 @@ local function Tick()
     end
 end
 
-local elapsed = 0
+local elapsed, tickErr = 0, false
 local driver = CreateFrame("Frame")
 driver:SetScript("OnUpdate", function(_, dt)
     elapsed = elapsed + dt
     if elapsed < 0.03 then return end
     elapsed = 0
-    if db then Tick() end
+    if db then
+        local ok, err = pcall(Tick)
+        if not ok and not tickErr then
+            tickErr = true
+            Print("erro interno (Tick): " .. tostring(err))
+        end
+    end
 end)
 
 ---------------------------------------------------------------- opcoes
@@ -700,7 +713,7 @@ local function IsSkinnableUnit(unit)
         local text = fs and fs:GetText()
         if text then
             for _, str in ipairs(skinStrings) do
-                if text == str then return true end
+                if not issecret(text) and text == str then return true end
             end
         end
     end
@@ -716,10 +729,13 @@ local function AddCorpse(unit, guid, a, b, inst, precise)
             return
         end
     end
-    local level = UnitLevel(unit) or 1
+    local level = UnitLevel(unit)
+    if not level or issecret(level) then level = 1 end
+    local uname = UnitName(unit)
+    if issecret(uname) then uname = nil end
     local map, mx, my = MapPos()
     corpses[#corpses + 1] = {
-        kind = "skin", guid = guid, name = UnitName(unit), icon = SKIN_ICON,
+        kind = "skin", guid = guid, name = uname, icon = SKIN_ICON,
         a = a, b = b, inst = inst, map = map, mx = mx, my = my,
         req = SkinReq(level), precise = precise,
         exp = time() + db.skinCorpseSecs,
@@ -731,7 +747,7 @@ end
 local function CheckUnit(unit, precise)
     if not (UnitExists(unit) and UnitIsDead(unit)) or UnitIsPlayer(unit) then return end
     local guid = UnitGUID(unit)
-    if not guid or not guid:find("^Creature") then return end
+    if not guid or issecret(guid) or not guid:find("^Creature") then return end
     if IsSkinnableUnit(unit) then
         local a, b, inst = PlayerPos()
         AddCorpse(unit, guid, a, b, inst, precise)
@@ -767,7 +783,7 @@ ev:RegisterEvent("LOOT_OPENED")
 ev:RegisterEvent("LOOT_CLOSED")
 ev:RegisterEvent("PLAYER_TARGET_CHANGED")
 ev:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
-ev:SetScript("OnEvent", function(_, event, ...)
+local function Handle(_, event, ...)
     if event == "ADDON_LOADED" then
         if (...) ~= ADDON then return end
         GatherTrailDB = GatherTrailDB or ForagerOreDB or {}
@@ -796,6 +812,7 @@ ev:SetScript("OnEvent", function(_, event, ...)
     elseif event == "UNIT_SPELLCAST_SENT" then
         local unit, _, _, spellID = ...
         if unit ~= "player" or not db then return end
+        if issecret(spellID) then return end
         local kind = castKind[Lower(SpellName(spellID))]
         if kind and kind ~= "skin" then
             local a, b, inst = PlayerPos()
@@ -807,11 +824,13 @@ ev:SetScript("OnEvent", function(_, event, ...)
     elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
         local unit, _, spellID = ...
         if unit ~= "player" or not db then return end
+        if issecret(spellID) then return end
         if castKind[Lower(SpellName(spellID))] == "skin" then RemoveNearestCorpse() end
     elseif event == "LOOT_OPENED" then
         if not db then return end
         -- cadaver: guarda o guid para checar depois se da para esfolar
         local guid = GetLootSourceInfo and GetLootSourceInfo(1)
+        if guid and issecret(guid) then guid = nil end
         if guid and guid:find("^Creature") then
             lootGUID = guid
             local a, b, inst = PlayerPos()
@@ -858,5 +877,14 @@ ev:SetScript("OnEvent", function(_, event, ...)
         if db then CheckUnit("target", false) end
     elseif event == "UPDATE_MOUSEOVER_UNIT" then
         if db then CheckUnit("mouseover", false) end
+    end
+end
+
+local reported
+ev:SetScript("OnEvent", function(self, event, ...)
+    local ok, err = pcall(Handle, self, event, ...)
+    if not ok and not reported then
+        reported = true
+        Print("erro interno (" .. tostring(event) .. "): " .. tostring(err))
     end
 end)
