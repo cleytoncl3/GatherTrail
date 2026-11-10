@@ -646,6 +646,33 @@ SlashCmdList.GATHERTRAIL = function(msg)
     elseif cmd == "clear" then
         wipe(db.nodes)
         Print("veios apagados.")
+    elseif cmd == "probe" then
+        -- diagnostico: o que o cliente expoe de pontos no minimapa?
+        Print("--- probe ---")
+        if C_Minimap and C_Minimap.GetNumTrackingTypes then
+            for i = 1, C_Minimap.GetNumTrackingTypes() do
+                local info = C_Minimap.GetTrackingInfo(i)
+                if info and info.active then Print("tracking ativo: " .. tostring(info.name)) end
+            end
+        end
+        if not (C_VignetteInfo and C_VignetteInfo.GetVignettes) then
+            Print("C_VignetteInfo nao existe neste cliente.")
+            return
+        end
+        local guids = C_VignetteInfo.GetVignettes() or {}
+        Print(#guids .. " vignettes visiveis")
+        local map = C_Map and C_Map.GetBestMapForUnit and C_Map.GetBestMapForUnit("player")
+        for i, g in ipairs(guids) do
+            if i > 25 then Print("...") break end
+            local v = C_VignetteInfo.GetVignetteInfo(g)
+            if v then
+                local pos = map and C_VignetteInfo.GetVignettePosition(g, map)
+                local x, y = 0, 0
+                if pos then x, y = pos:GetXY() end
+                Print(("%s | atlas=%s | obj=%s | %.1f,%.1f"):format(tostring(v.name), tostring(v.atlasName),
+                    tostring(v.objectGUID and v.objectGUID:match("^(%a+)")), x * 100, y * 100))
+            end
+        end
     elseif cmd == "debug" then
         Print(("pontos=%d cadaveres=%d mine=%d herb=%d skin=%d cache=%d"):format(#db.nodes, #corpses, skills.mine.skill, skills.herb.skill, skills.skin.skill, #cache))
     else
