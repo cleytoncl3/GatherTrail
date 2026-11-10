@@ -35,7 +35,6 @@ local en = {
 
     SKIPPED_FOREVER = "point removed forever (/gt unskip undoes it).",
     SKIPPED_TEMP = "point skipped for a while.",
-    LEARNED_HOVER = "learned from the mouse: %s",
 
     ARROW_TEXT = "%s - %d yards",
     TEST_TEXT = "TEST MODE: drag me",
@@ -63,6 +62,7 @@ local en = {
     OPT_RANGE = "Detection range",
     OPT_HIDE = "Hide gathered node for (respawn)",
     OPT_SCALE = "Arrow size",
+    OPT_ALPHA = "Icon opacity",
     OPT_LOCK = "Arrow locked (uncheck to drag)",
     UNIT_YD = " yd",
     UNIT_S = " s",
@@ -124,7 +124,6 @@ local es = {
 
     SKIPPED_FOREVER = "punto eliminado para siempre (/gt unskip lo deshace).",
     SKIPPED_TEMP = "punto saltado por un tiempo.",
-    LEARNED_HOVER = "aprendido con el ratón: %s",
 
     ARROW_TEXT = "%s - %d yardas",
     TEST_TEXT = "MODO DE PRUEBA: arrástrame",
@@ -152,6 +151,7 @@ local es = {
     OPT_RANGE = "Alcance de detección",
     OPT_HIDE = "Ocultar nodo recolectado durante (reaparición)",
     OPT_SCALE = "Tamaño de la flecha",
+    OPT_ALPHA = "Opacidad de los iconos",
     OPT_LOCK = "Flecha bloqueada (desmarca para arrastrar)",
     UNIT_YD = " yd",
     UNIT_S = " s",
@@ -213,7 +213,6 @@ local pt = {
 
     SKIPPED_FOREVER = "ponto removido para sempre (/gt unskip desfaz).",
     SKIPPED_TEMP = "ponto pulado por um tempo.",
-    LEARNED_HOVER = "aprendido pelo mouse: %s",
 
     ARROW_TEXT = "%s - %d jardas",
     TEST_TEXT = "MODO DE TESTE: arraste",
@@ -241,6 +240,7 @@ local pt = {
     OPT_RANGE = "Alcance de detecção",
     OPT_HIDE = "Esconder veio minerado por (respawn)",
     OPT_SCALE = "Tamanho da seta",
+    OPT_ALPHA = "Opacidade dos ícones",
     OPT_LOCK = "Seta travada (desmarque para arrastar)",
     UNIT_YD = " jd",
     UNIT_S = " s",

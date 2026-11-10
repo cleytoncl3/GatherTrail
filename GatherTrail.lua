@@ -80,6 +80,7 @@ local DEFAULTS = {
     scanButton = true,    -- botao Scan sempre visivel junto da seta
     minimapButton = true,
     minimapAngle = 225,
+    pinAlpha = 70,        -- opacidade dos icones (porcento)
     skipSecs = 1800,      -- tempo que um veio pulado fica escondido
     hoverLearn = true,    -- aprende veios passando o mouse no minimapa
 }
@@ -349,6 +350,7 @@ local function StylePin(pin, node, can)
         end
         pin.round = round
     end
+    pin:SetAlpha((db.pinAlpha or 100) / 100)
     pin.node, pin.can = node, can
 end
 
@@ -724,7 +726,6 @@ local function HoverLearn(pa, pb, inst, rot, ypp)
         a = na, b = nb, inst = inst, t = time(), learned = "hover",
     }
     cacheAt = 0
-    Print(L.LEARNED_HOVER:format(text))
 end
 
 local function Tick()
@@ -862,7 +863,7 @@ end
 local function BuildOptions()
     if options then return options end
     local f = TryCreate("Frame", "GatherTrailOptions", UIParent, { "BasicFrameTemplateWithInset", "DialogBoxFrame" })
-    f:SetSize(360, 710)
+    f:SetSize(360, 760)
     f:SetPoint("LEFT", UIParent, "LEFT", 60, 0)
     f:SetMovable(true)
     f:EnableMouse(true)
@@ -950,6 +951,7 @@ local function BuildOptions()
     y = y - 6
     Slider(L.OPT_RANGE, "range", 50, 2000, 50, L.UNIT_YD, ForceUpdate)
     Slider(L.OPT_HIDE, "hideMinedSecs", 0, 900, 30, L.UNIT_S, ForceUpdate)
+    Slider(L.OPT_ALPHA, "pinAlpha", 20, 100, 5, "%", ForceUpdate)
     Slider(L.OPT_SCALE, "arrowScale", 50, 200, 10, "%", ApplyArrowPos)
 
     local lock = TryCreate("CheckButton", nil, f, { "UICheckButtonTemplate", "ChatConfigCheckButtonTemplate" })
