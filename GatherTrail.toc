@@ -12,3 +12,4 @@
 ## X-License: MIT
 
 GatherTrail.lua
+Bindings.xml

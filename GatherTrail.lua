@@ -70,10 +70,18 @@ local DEFAULTS = {
     arrowLocked = true,
     arrowScale = 100,     -- porcento
     useSeed = true,       -- usa o banco inicial (addon GatherTrailData)
+    minimapButton = true,
+    minimapAngle = 225,
+    skipSecs = 1800,      -- tempo que um veio pulado fica escondido
     hoverLearn = true,    -- aprende veios passando o mouse no minimapa
 }
 
+BINDING_HEADER_GATHERTRAIL = "GatherTrail"
+BINDING_NAME_GATHERTRAIL_SKIP = "Pular ponto atual"
+
 local db
+local currentTarget
+local SkipTarget, UpdateMMButton -- definidos mais abaixo
 local MAX_PINS = 50
 local DIAM_IN = { 300, 240, 192, 150, 120, 96 }
 local DIAM_OUT = { 466.67, 400, 333.33, 266.67, 200, 133.33 }
@@ -192,6 +200,15 @@ local function Print(msg)
 end
 
 ---------------------------------------------------------------- gravacao
+
+local function NodeKey(n)
+    return floor(n.a + 0.5) .. ":" .. floor(n.b + 0.5)
+end
+
+local function IsSkipped(n)
+    local e = db.skipped and db.skipped[NodeKey(n)]
+    return e and e > time()
+end
 
 ---------------------------------------------------------------- banco inicial (GatherTrailData)
 -- Tabelas do GatherMate2_Data: [mapID][XXXXYYYY00] = nodeID. Convertidas sob demanda,
@@ -336,11 +353,35 @@ arrow.pin = MakePin(arrow, 22)
 arrow.pin:SetPoint("BOTTOM", arrow, "TOP", 0, 2)
 arrow.text = arrow:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 arrow.text:SetPoint("TOP", arrow, "BOTTOM", 0, -2)
+
+do
+    local ok, b = pcall(CreateFrame, "Button", nil, arrow, "UIPanelButtonTemplate")
+    if not ok or not b then
+        b = CreateFrame("Button", nil, arrow)
+        b.fs = b:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+        b.fs:SetAllPoints()
+        b.SetText = function(self, t) self.fs:SetText(t) end
+    end
+    b:SetSize(64, 20)
+    b:SetPoint("TOP", arrow.text, "BOTTOM", 0, -3)
+    b:SetText("Pular")
+    b:SetScript("OnClick", function() if SkipTarget then SkipTarget(IsShiftKeyDown()) end end)
+    b:SetScript("OnEnter", function(self)
+        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+        GameTooltip:AddLine("Pular este ponto", 1, 1, 1)
+        GameTooltip:AddLine("Mostra o proximo mais perto.", 0.8, 0.8, 0.8)
+        GameTooltip:AddLine("Shift+clique: nunca mais mostrar este ponto.", 0.8, 0.8, 0.8)
+        GameTooltip:AddLine("Shift+arrastar a seta: mover.", 0.8, 0.8, 0.8)
+        GameTooltip:Show()
+    end)
+    b:SetScript("OnLeave", function() GameTooltip:Hide() end)
+    arrow.skip = b
+end
 arrow:Hide()
 
 arrow:RegisterForDrag("LeftButton")
 arrow:SetScript("OnDragStart", function(self)
-    if not db.arrowLocked then self:StartMoving() end
+    if not db.arrowLocked or IsShiftKeyDown() then self:StartMoving() end
 end)
 arrow:SetScript("OnDragStop", function(self)
     self:StopMovingOrSizing()
@@ -357,7 +398,7 @@ local function ApplyArrowPos()
         arrow:SetPoint("CENTER", UIParent, "CENTER", 0, 180)
     end
     arrow:SetScale(db.arrowScale / 100)
-    arrow:EnableMouse(not db.arrowLocked)
+    arrow:EnableMouse(true)
 end
 
 ---------------------------------------------------------------- mapa-mundi
@@ -409,7 +450,7 @@ local function UpdateWorldMap(pa, pb, inst)
     local w, h = worldFrame:GetWidth(), worldFrame:GetHeight()
     local now, used, r2 = time(), 0, db.range * db.range
     local function consider(n)
-        if n.map == mapID and n.inst == inst and n.mx and KindOn(n.kind or "mine") then
+        if n.map == mapID and n.inst == inst and n.mx and KindOn(n.kind or "mine") and not IsSkipped(n) then
             local da, dw = n.a - pa, n.b - pb
             if da * da + dw * dw <= r2 then
                 local hidden = db.hideMinedSecs > 0 and n.mined and (now - n.mined) < db.hideMinedSecs
@@ -441,7 +482,7 @@ local function Rebuild(pa, pb, inst)
     local r = db.range * 1.3
     local r2, now = r * r, time()
     for _, n in ipairs(db.nodes) do
-        if n.inst == inst and KindOn(n.kind or "mine") then
+        if n.inst == inst and KindOn(n.kind or "mine") and not IsSkipped(n) then
             local da, dw = n.a - pa, n.b - pb
             if da * da + dw * dw <= r2 then
                 local hidden = db.hideMinedSecs > 0 and n.mined and (now - n.mined) < db.hideMinedSecs
@@ -456,7 +497,7 @@ local function Rebuild(pa, pb, inst)
             local real = {}
             for _, n in ipairs(cache) do real[#real + 1] = n end
             for _, n in ipairs(seed) do
-                if n.inst == inst and KindOn(n.kind) then
+                if n.inst == inst and KindOn(n.kind) and not IsSkipped(n) then
                     local da, dw = n.a - pa, n.b - pb
                     if da * da + dw * dw <= r2 then
                         local dup = false
@@ -481,6 +522,20 @@ local function Rebuild(pa, pb, inst)
             if da * da + dw * dw <= r2 then cache[#cache + 1] = c end
         end
     end
+end
+
+SkipTarget = function(permanent)
+    local n = currentTarget
+    if not n or not db then return end
+    db.skipped = db.skipped or {}
+    db.skipped[NodeKey(n)] = permanent and 2147483647 or (time() + db.skipSecs)
+    cacheAt = 0
+    worldDirty = true
+    Print(permanent and "ponto removido para sempre (/gt unskip desfaz)." or "ponto pulado por um tempo.")
+end
+
+function GatherTrail_Skip()
+    if SkipTarget then SkipTarget(false) end
 end
 
 local function HideAll()
@@ -621,6 +676,7 @@ local function Tick()
 
     local target, td, tcan = bestY, bestYd, true
     if not target and db.arrowToRed and bestR then target, td, tcan = bestR, bestRd, false end
+    currentTarget = target
 
     if target and db.arrow then
         local dN, dW = target.a - pa, target.b - pb
@@ -692,7 +748,7 @@ end
 local function BuildOptions()
     if options then return options end
     local f = TryCreate("Frame", "GatherTrailOptions", UIParent, { "BasicFrameTemplateWithInset", "DialogBoxFrame" })
-    f:SetSize(360, 620)
+    f:SetSize(360, 650)
     f:SetPoint("CENTER")
     f:SetMovable(true)
     f:EnableMouse(true)
@@ -769,6 +825,7 @@ local function BuildOptions()
     Check("Usar banco inicial de locais (GatherTrailData)", "useSeed", ForceUpdate)
     Check("Aprender veios passando o mouse no minimapa", "hoverLearn")
     Check("Seta direcional na tela", "arrow")
+    Check("Mostrar botao no minimapa", "minimapButton", function() if UpdateMMButton then UpdateMMButton() end end)
     Check("Linha no minimapa ate o veio", "line")
     Check("Icones no minimapa", "minimapPins")
     Check("Icones no mapa-mundi (M)", "mapPins", ForceUpdate)
@@ -809,6 +866,16 @@ local function BuildOptions()
         Print("veios apagados.")
     end)
 
+    local unskip = TryCreate("Button", nil, f, { "UIPanelButtonTemplate" })
+    unskip:SetSize(150, 24)
+    unskip:SetPoint("BOTTOM", 0, 44)
+    unskip:SetText("Limpar pontos pulados")
+    unskip:SetScript("OnClick", function()
+        db.skipped = {}
+        ForceUpdate()
+        Print("pontos pulados voltaram a aparecer.")
+    end)
+
     function f:Refresh()
         for _, r in ipairs(refreshers) do r() end
         local function sk(k) return skills[k].has and ("skill " .. skills[k].skill) or "nao tem" end
@@ -824,6 +891,86 @@ local function ToggleOptions()
     if f:IsShown() then f:Hide() else f:Show() end
 end
 
+---------------------------------------------------------------- botao do minimapa
+
+local mmButton
+
+local function PlaceMMButton()
+    if not mmButton then return end
+    local ang = math.rad(db.minimapAngle or 225)
+    local r = Minimap:GetWidth() / 2 + 5
+    local x, y = cos(ang) * r, sin(ang) * r
+    if GetMinimapShape and GetMinimapShape() == "SQUARE" then
+        local h = Minimap:GetWidth() / 2 + 5
+        x = math.max(-h, math.min(h, x * 1.4142))
+        y = math.max(-h, math.min(h, y * 1.4142))
+    end
+    mmButton:ClearAllPoints()
+    mmButton:SetPoint("CENTER", Minimap, "CENTER", x, y)
+end
+
+UpdateMMButton = function()
+    if not (db and Minimap) then return end
+    if not mmButton then
+        local b = CreateFrame("Button", "GatherTrailMinimapButton", Minimap)
+        b:SetSize(31, 31)
+        b:SetFrameStrata("MEDIUM")
+        b:SetFrameLevel(Minimap:GetFrameLevel() + 8)
+        b:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+        b:RegisterForDrag("LeftButton")
+        local bg = b:CreateTexture(nil, "BACKGROUND")
+        bg:SetSize(20, 20)
+        bg:SetTexture("Interface\\Minimap\\UI-Minimap-Background")
+        bg:SetPoint("TOPLEFT", 7, -5)
+        local icon = b:CreateTexture(nil, "ARTWORK")
+        icon:SetSize(17, 17)
+        icon:SetTexture("Interface\\Icons\\INV_Pick_02")
+        icon:SetTexCoord(0.05, 0.95, 0.05, 0.95)
+        icon:SetPoint("TOPLEFT", 7, -6)
+        b.icon = icon
+        local border = b:CreateTexture(nil, "OVERLAY")
+        border:SetSize(53, 53)
+        border:SetTexture("Interface\\Minimap\\MiniMap-TrackingBorder")
+        border:SetPoint("TOPLEFT")
+        b:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight")
+
+        b:SetScript("OnClick", function(_, button)
+            if button == "RightButton" then
+                db.enabled = not db.enabled
+                UpdateMMButton()
+                Print(db.enabled and "ativado." or "desativado (clique direito no icone para ativar).")
+            else
+                ToggleOptions()
+            end
+        end)
+        b:SetScript("OnDragStart", function(self)
+            self:SetScript("OnUpdate", function()
+                local mx, my = Minimap:GetCenter()
+                local cx, cy = GetCursorPosition()
+                local sc = Minimap:GetEffectiveScale()
+                db.minimapAngle = math.deg(atan2(cy / sc - my, cx / sc - mx))
+                PlaceMMButton()
+            end)
+        end)
+        b:SetScript("OnDragStop", function(self) self:SetScript("OnUpdate", nil) end)
+        b:SetScript("OnEnter", function(self)
+            GameTooltip:SetOwner(self, "ANCHOR_LEFT")
+            GameTooltip:AddLine("GatherTrail", 1, 0.82, 0)
+            GameTooltip:AddLine("Clique esquerdo: opcoes", 1, 1, 1)
+            GameTooltip:AddLine("Clique direito: ativar/desativar", 1, 1, 1)
+            GameTooltip:AddLine("Arraste: mover o icone", 0.7, 0.7, 0.7)
+            GameTooltip:AddLine(db.enabled and "Estado: ATIVADO" or "Estado: DESATIVADO",
+                db.enabled and 0.3 or 1, db.enabled and 1 or 0.3, 0.3)
+            GameTooltip:Show()
+        end)
+        b:SetScript("OnLeave", function() GameTooltip:Hide() end)
+        mmButton = b
+    end
+    mmButton.icon:SetDesaturated(not db.enabled)
+    PlaceMMButton()
+    if db.minimapButton then mmButton:Show() else mmButton:Hide() end
+end
+
 SLASH_GATHERTRAIL1 = "/gt"
 SLASH_GATHERTRAIL2 = "/gathertrail"
 SlashCmdList.GATHERTRAIL = function(msg)
@@ -837,6 +984,16 @@ SlashCmdList.GATHERTRAIL = function(msg)
         db.arrowLocked = not db.arrowLocked
         ApplyArrowPos()
         Print(db.arrowLocked and "seta travada" or "seta destravada: arraste para mover")
+    elseif cmd == "skip" then
+        SkipTarget(arg == "always")
+    elseif cmd == "unskip" then
+        db.skipped = {}
+        cacheAt = 0 worldDirty = true
+        Print("pontos pulados voltaram a aparecer.")
+    elseif cmd == "toggle" then
+        db.enabled = not db.enabled
+        UpdateMMButton()
+        Print(db.enabled and "ativado." or "desativado.")
     elseif cmd == "clear" then
         wipe(db.nodes)
         Print("veios apagados.")
@@ -976,10 +1133,12 @@ local function Handle(_, event, ...)
             if db[k] == nil then db[k] = v end
         end
         db.nodes = db.nodes or {}
+        db.skipped = db.skipped or {}
     elseif event == "PLAYER_LOGIN" then
         BuildCastNames()
         RefreshSkill()
         ApplyArrowPos()
+        UpdateMMButton()
         SetupWorldMap()
         if not worldFrame then
             local waiter = CreateFrame("Frame")

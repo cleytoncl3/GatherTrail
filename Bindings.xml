@@ -1,0 +1,3 @@
+<Bindings>
+	<Binding name="GATHERTRAIL_SKIP" header="GATHERTRAIL" category="ADDONS">GatherTrail_Skip()</Binding>
+</Bindings>
