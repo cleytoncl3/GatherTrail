@@ -304,7 +304,7 @@ local function SetupWorldMap()
                     self.can and 0.3 or 1, self.can and 1 or 0.3, 0.3)
             end
             if n.mined then
-                GameTooltip:AddLine(("Minerado ha %d min"):format((time() - n.mined) / 60), 0.7, 0.7, 0.7)
+                GameTooltip:AddLine(("Coletado ha %d min"):format((time() - n.mined) / 60), 0.7, 0.7, 0.7)
             end
             GameTooltip:Show()
         end)
@@ -443,6 +443,7 @@ local function Tick()
         local c = tcan and YELLOW or RED
         arrow.tex:SetVertexColor(c[1], c[2], c[3])
         StylePin(arrow.pin, target, tcan)
+        arrow.pin:Show()
         arrow.text:SetText(("%s - %d jardas"):format(KINDS[target.kind or "mine"].label, td))
         arrow:Show()
 
