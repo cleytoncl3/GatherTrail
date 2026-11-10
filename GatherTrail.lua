@@ -428,12 +428,23 @@ do
     sb:SetScript("OnLeave", function() GameTooltip:Hide() end)
     sb:Hide()
     arrow.scan = sb
+
+    for _, btn in ipairs({ b, sb }) do
+        btn:RegisterForDrag("LeftButton")
+        btn:SetScript("OnDragStart", function()
+            if not db.arrowLocked or IsShiftKeyDown() or db.testMode then arrow:StartMoving() end
+        end)
+        btn:SetScript("OnDragStop", function()
+            local stop = arrow:GetScript("OnDragStop")
+            if stop then stop(arrow) end
+        end)
+    end
 end
 arrow:Hide()
 
 arrow:RegisterForDrag("LeftButton")
 arrow:SetScript("OnDragStart", function(self)
-    if not db.arrowLocked or IsShiftKeyDown() then self:StartMoving() end
+    if not db.arrowLocked or IsShiftKeyDown() or db.testMode then self:StartMoving() end
 end)
 arrow:SetScript("OnDragStop", function(self)
     self:StopMovingOrSizing()
@@ -714,7 +725,7 @@ local function HoverLearn(pa, pb, inst, rot, ypp)
 end
 
 local function Tick()
-    if not db.enabled then HideAll() return end
+    if not db.enabled and not db.testMode then HideAll() return end
     EnsureMinimap()
     local pa, pb, inst = PlayerPos()
     if not pa then HideAll() return end
@@ -770,9 +781,9 @@ local function Tick()
     local target, td, tcan = bestY, bestYd, true
     if not target and db.arrowToRed and bestR then target, td, tcan = bestR, bestRd, false end
     currentTarget = target
-    if db.scanButton then arrow.scan:Show() else arrow.scan:Hide() end
+    if db.scanButton or db.testMode then arrow.scan:Show() else arrow.scan:Hide() end
 
-    if target and db.arrow then
+    if target and db.arrow and not db.testMode then
         local dN, dW = target.a - pa, target.b - pb
         local theta = atan2(dW, dN)
         arrow.tex:SetRotation(theta - facing)
@@ -799,12 +810,12 @@ local function Tick()
         elseif miniLine then
             miniLine:Hide()
         end
-    elseif not db.arrowLocked then
+    elseif db.testMode or not db.arrowLocked then
         -- previa para poder posicionar a seta
         arrow.tex:SetRotation(0)
         arrow.tex:SetVertexColor(1, 1, 1)
         arrow.pin:Hide()
-        arrow.text:SetText("Arraste para mover")
+        arrow.text:SetText(db.testMode and "MODO DE TESTE: arraste" or "Arraste para mover")
         arrow:Show()
         if miniLine then miniLine:Hide() end
     else
@@ -848,8 +859,8 @@ end
 local function BuildOptions()
     if options then return options end
     local f = TryCreate("Frame", "GatherTrailOptions", UIParent, { "BasicFrameTemplateWithInset", "DialogBoxFrame" })
-    f:SetSize(360, 680)
-    f:SetPoint("CENTER")
+    f:SetSize(360, 710)
+    f:SetPoint("LEFT", UIParent, "LEFT", 60, 0)
     f:SetMovable(true)
     f:EnableMouse(true)
     f:RegisterForDrag("LeftButton")
@@ -918,6 +929,7 @@ local function BuildOptions()
 
     local function ForceUpdate() cacheAt = 0 worldDirty = true end
 
+    Check("MODO DE TESTE: mostrar seta e Scan para mover", "testMode")
     Check("Ativar addon", "enabled")
     Check("Rastrear Mineracao", "trackMine", ForceUpdate)
     Check("Rastrear Herbalismo", "trackHerb", ForceUpdate)
@@ -1088,6 +1100,10 @@ SlashCmdList.GATHERTRAIL = function(msg)
         db.arrowLocked = not db.arrowLocked
         ApplyArrowPos()
         Print(db.arrowLocked and "seta travada" or "seta destravada: arraste para mover")
+    elseif cmd == "test" then
+        db.testMode = not db.testMode
+        Print(db.testMode and "modo de teste ligado: arraste a seta ou os botoes. /gt test desliga." or "modo de teste desligado.")
+        if options and options:IsShown() then options:Refresh() end
     elseif cmd == "scan" then
         ScanNow()
     elseif cmd == "skip" then
@@ -1240,6 +1256,7 @@ local function Handle(_, event, ...)
         end
         db.nodes = db.nodes or {}
         db.skipped = db.skipped or {}
+        db.testMode = false
     elseif event == "PLAYER_LOGIN" then
         BuildCastNames()
         RefreshSkill()

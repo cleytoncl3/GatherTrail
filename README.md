@@ -38,6 +38,7 @@ O addon só mostra informação. Ele não automatiza nenhuma ação do personage
 | `/gt` ou `/gathertrail` | abre a janela de opções |
 | `/gt range 800` | define o alcance (jardas) |
 | `/gt lock` | trava/destrava a seta (destravada, arraste para mover) |
+| `/gt test` | modo de teste: mostra a seta e o botao Scan mesmo sem minerio, para voce arrastar para onde quiser |
 | `/gt scan` | atualiza agora e mostra no chat o que ha no alcance (minerios, ervas, cadaveres) |
 | `/gt skip` | pula o ponto atual e mostra o proximo mais perto (`/gt skip always` remove para sempre) |
 | `/gt unskip` | os pontos pulados voltam a aparecer |
