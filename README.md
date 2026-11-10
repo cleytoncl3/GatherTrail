@@ -52,12 +52,6 @@ Na janela de opções: ligar/desligar cada profissão, seta, linha, ícones do m
 - **Mover a seta:** Shift+arrastar (ou destrave com `/gt lock`).
 - **Icone no minimapa:** clique esquerdo abre as opcoes, clique direito ativa/desativa, arraste para mudar de posicao.
 
-## Controles
-
-- **Botao Pular** embaixo da seta (Shift+clique remove o ponto para sempre) e tecla configuravel em Teclas > AddOns > GatherTrail.
-- **Mover a seta:** Shift+arrastar (ou destrave com `/gt lock`).
-- **Icone no minimapa:** clique esquerdo abre as opcoes, clique direito ativa/desativa, arraste para mudar de posicao.
-
 ## Instalação e atualização
 
 1. Baixe o repositório e coloque a pasta como `Interface/AddOns/GatherTrail`.
