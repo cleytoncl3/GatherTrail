@@ -21,6 +21,7 @@ O cliente Classic **não deixa addons ler os pontos de tracking do minimapa** (F
 ## Como funciona por dentro
 
 - **Mineração e Herbalismo:** ao lançar o feitiço da profissão, guarda sua posição. Quando abre o loot de um *objeto do mundo* com o minério/erva esperado, o ponto é salvo (a identificação é pelo ID do item, então funciona em qualquer idioma). Pontos a menos de 15 jardas do mesmo tipo são unidos.
+- **Aprender pelo mouse:** o jogo desenha os veios do rastreamento no minimapa e mostra o nome numa dica ao passar o mouse, mas nao entrega a posicao a nenhum addon. Quando a dica do minimapa mostra um minerio ou erva conhecido, o GatherTrail calcula a posicao pelo cursor (centro, zoom e rotacao do minimapa) e grava o ponto, sem precisar coletar. A precisao e de alguns metros.
 - **Respawn:** o ponto recém-coletado fica escondido por um tempo ajustável (300 s por padrão).
 - **Esfolamento:** quando você lota uma criatura, ou passa o mouse/alvo em um cadáver, o addon lê a dica do jogo ("Esfolável"). Se estiver esfolável, o cadáver entra na lista por cerca de 7 minutos e sai quando você esfola ou ele expira. Esses cadáveres não ficam salvos. A posição é a sua no momento do loot (boa); se você só mirou de longe, é aproximada. Cadáveres que você nunca viu ou lotou não aparecem.
 - **Skill:** lida da sua janela de habilidades. A skill necessária vem de uma tabela por item (Cobre a Titânio, Peacebloom a Mana Thistle) e, no esfolamento, do nível da criatura.

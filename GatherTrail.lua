@@ -66,6 +66,7 @@ local DEFAULTS = {
     hideMinedSecs = 300,  -- esconde um veio recem-minerado (respawn)
     arrowLocked = true,
     arrowScale = 100,     -- porcento
+    hoverLearn = true,    -- aprende veios passando o mouse no minimapa
 }
 
 local db
@@ -388,6 +389,82 @@ local function HideAll()
     for _, p in ipairs(miniPins) do p:Hide() end
 end
 
+---------------------------------------------------------------- aprender pelo mouse
+-- O jogo desenha os veios do rastreamento no minimapa e mostra o nome numa dica
+-- quando o mouse passa por cima, mas nao entrega a posicao. Entao, quando a dica
+-- do minimapa mostra um veio/erva conhecido, a posicao e calculada pelo cursor.
+
+local materials, materialsAt = {}, 0
+
+local function BuildMaterials()
+    wipe(materials)
+    local missing = false
+    for id in pairs(ORE_REQ) do
+        local name = C_Item and C_Item.GetItemNameByID and C_Item.GetItemNameByID(id) or (GetItemInfo and GetItemInfo(id))
+        if not name then
+            missing = true
+            if C_Item and C_Item.RequestLoadItemDataByID then C_Item.RequestLoadItemDataByID(id) end
+        else
+            local m = Lower(name)
+            local kind = HERB_REQ[id] and "herb" or "mine"
+            if kind == "mine" then
+                m = (m:gsub("^min.-rio d[eao]s? ", ""))
+                m = (m:gsub(" ore$", ""))
+                m = (m:gsub("^ore of ", ""))
+            end
+            if #m >= 3 then materials[#materials + 1] = { m = m, id = id, kind = kind } end
+        end
+    end
+    table.sort(materials, function(x, y) return #x.m > #y.m end)
+    return not missing
+end
+
+local hoverOK
+local hoverAt = 0
+local function HoverLearn(pa, pb, inst, rot, ypp)
+    if not db.hoverLearn then return end
+    local t = GetTime()
+    if t - hoverAt < 0.15 then return end
+    hoverAt = t
+    if not Minimap:IsMouseOver() or not GameTooltip:IsShown() then return end
+    local fs = GameTooltipTextLeft1
+    local text = fs and fs:GetText()
+    if not text or issecret(text) then return end
+    text = Lower(text)
+
+    if not hoverOK and t - materialsAt > 5 then
+        materialsAt = t
+        hoverOK = BuildMaterials()
+    end
+    local hit
+    for _, e in ipairs(materials) do
+        if text:find(e.m, 1, true) then hit = e break end
+    end
+    if not hit or not KindOn(hit.kind) then return end
+
+    local cx, cy = GetCursorPosition()
+    local s = Minimap:GetEffectiveScale()
+    local mx, my = Minimap:GetCenter()
+    if not (cx and mx) then return end
+    local dx, dy = cx / s - mx, cy / s - my
+    local d = sqrt(dx * dx + dy * dy) * ypp
+    local theta = atan2(-dx, dy) + rot
+    local na, nb = pa + d * cos(theta), pb + d * sin(theta)
+
+    for _, n in ipairs(db.nodes) do
+        if n.inst == inst and n.ore == hit.id and (n.kind or "mine") == hit.kind then
+            local da, dw = n.a - na, n.b - nb
+            if da * da + dw * dw < 20 * 20 then return end
+        end
+    end
+    db.nodes[#db.nodes + 1] = {
+        ore = hit.id, kind = hit.kind, req = ORE_REQ[hit.id] or 0,
+        a = na, b = nb, inst = inst, t = time(), learned = "hover",
+    }
+    cacheAt = 0
+    Print("aprendido pelo mouse: " .. text)
+end
+
 local function Tick()
     if not db.enabled then HideAll() return end
     EnsureMinimap()
@@ -411,6 +488,8 @@ local function Tick()
         mmYards = diam / 2
         ypp = mmYards / (Minimap:GetWidth() / 2)
     end
+
+    if miniFrame then HoverLearn(pa, pb, inst, rot, ypp) end
 
     local bestY, bestYd, bestR, bestRd
     local used = 0
@@ -513,7 +592,7 @@ end
 local function BuildOptions()
     if options then return options end
     local f = TryCreate("Frame", "GatherTrailOptions", UIParent, { "BasicFrameTemplateWithInset", "DialogBoxFrame" })
-    f:SetSize(360, 560)
+    f:SetSize(360, 590)
     f:SetPoint("CENTER")
     f:SetMovable(true)
     f:EnableMouse(true)
@@ -587,6 +666,7 @@ local function BuildOptions()
     Check("Rastrear Mineracao", "trackMine", ForceUpdate)
     Check("Rastrear Herbalismo", "trackHerb", ForceUpdate)
     Check("Rastrear Esfolamento (cadaveres)", "trackSkin", ForceUpdate)
+    Check("Aprender veios passando o mouse no minimapa", "hoverLearn")
     Check("Seta direcional na tela", "arrow")
     Check("Linha no minimapa ate o veio", "line")
     Check("Icones no minimapa", "minimapPins")
