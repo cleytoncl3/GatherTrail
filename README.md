@@ -4,6 +4,10 @@ Addon de coleta para WoW Classic / WoW Forever. Ele te guia até **minérios, er
 
 É um addon independente e funciona sozinho. Combina bem com addons de tracking, como o Forager, mas não usa nenhum código dele.
 
+## Idiomas / Languages / Idiomas
+
+O addon detecta o idioma do jogo e já inicia nele: **Português (ptBR)**, **English** (padrão para qualquer outro idioma) e **Español (esES/esMX)**. Menus, opções, dicas e mensagens do chat são traduzidos. / The addon detects the game client language and starts in it: Portuguese, English (default) and Spanish. / El addon detecta el idioma del juego y arranca en él: portugués, inglés (por defecto) y español.
+
 ## Para que serve
 
 O cliente Classic **não deixa addons ler os pontos de tracking do minimapa** (Find Minerals, Find Herbs). Por isso o GatherTrail aprende os locais sozinho, como o GatherMate: toda vez que você coleta um recurso, a posição é gravada. Quanto mais você joga, mais ele sabe. Os recursos renascem no mesmo lugar, então os pontos continuam úteis.

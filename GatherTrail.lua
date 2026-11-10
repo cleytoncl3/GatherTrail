@@ -8,7 +8,8 @@
 -- Alcance ajustavel em /gt. O addon apenas MOSTRA informacao: nao automatiza
 -- nenhuma acao do personagem.
 
-local ADDON = ...
+local ADDON, ns = ...
+local L = ns.L
 
 local sqrt, atan2, sin, cos, floor, min = math.sqrt, math.atan2 or function(y, x) return math.atan(y, x) end, math.sin, math.cos, math.floor, math.min
 
@@ -52,10 +53,10 @@ local KIND_ICON = {
 }
 -- kind -> { spells que nomeiam o cast e a skill, classe/subclasse do item no loot }
 local KINDS = {
-    mine = { cast = { 2575 }, skill = { 2575 }, cls = 7, sub = 7, label = "Mineracao" },
-    herb = { cast = { 2366 }, skill = { 2366, 2368, 3570, 11993, 28695, 50300 }, cls = 7, sub = 9, label = "Herbalismo",
+    mine = { cast = { 2575 }, skill = { 2575 }, cls = 7, sub = 7, label = L.KIND_mine },
+    herb = { cast = { 2366 }, skill = { 2366, 2368, 3570, 11993, 28695, 50300 }, cls = 7, sub = 9, label = L.KIND_herb,
              names = { "herbalism", "herbalismo", "herboristeria", "herboristería", "herboristerie", "kräuterkunde", "erboristeria" } },
-    skin = { cast = { 8613 }, skill = { 8613 }, label = "Esfolamento",
+    skin = { cast = { 8613 }, skill = { 8613 }, label = L.KIND_skin,
              names = { "skinning", "esfolamento", "desuello", "dépeçage", "kürschnerei", "scuoiatura" } },
 }
 
@@ -84,7 +85,7 @@ local DEFAULTS = {
 }
 
 BINDING_HEADER_GATHERTRAIL = "GatherTrail"
-BINDING_NAME_GATHERTRAIL_SKIP = "Pular ponto atual"
+BINDING_NAME_GATHERTRAIL_SKIP = L.BINDING_SKIP
 
 local db
 local currentTarget
@@ -390,14 +391,14 @@ do
     end
     b:SetSize(64, 20)
     b:SetPoint("TOP", arrow.text, "BOTTOM", 0, -3)
-    b:SetText("Pular")
+    b:SetText(L.SKIP_BTN)
     b:SetScript("OnClick", function() if SkipTarget then SkipTarget(IsShiftKeyDown()) end end)
     b:SetScript("OnEnter", function(self)
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-        GameTooltip:AddLine("Pular este ponto", 1, 1, 1)
-        GameTooltip:AddLine("Mostra o proximo mais perto.", 0.8, 0.8, 0.8)
-        GameTooltip:AddLine("Shift+clique: nunca mais mostrar este ponto.", 0.8, 0.8, 0.8)
-        GameTooltip:AddLine("Shift+arrastar a seta: mover.", 0.8, 0.8, 0.8)
+        GameTooltip:AddLine(L.SKIP_TIP1, 1, 1, 1)
+        GameTooltip:AddLine(L.SKIP_TIP2, 0.8, 0.8, 0.8)
+        GameTooltip:AddLine(L.SKIP_TIP3, 0.8, 0.8, 0.8)
+        GameTooltip:AddLine(L.SKIP_TIP4, 0.8, 0.8, 0.8)
         GameTooltip:Show()
     end)
     b:SetScript("OnLeave", function() GameTooltip:Hide() end)
@@ -416,13 +417,13 @@ do
     sb:SetSize(64, 20)
     sb:SetPoint("TOP", b, "BOTTOM", 0, -3)
     sb:SetFrameStrata("MEDIUM")
-    sb:SetText("Scan")
+    sb:SetText(L.SCAN_BTN)
     sb:SetScript("OnClick", function() if ScanNow then ScanNow() end end)
     sb:SetScript("OnEnter", function(self)
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-        GameTooltip:AddLine("Scan", 1, 1, 1)
-        GameTooltip:AddLine("Atualiza agora e mostra no chat o que ha", 0.8, 0.8, 0.8)
-        GameTooltip:AddLine("de minerios, ervas e cadaveres no alcance.", 0.8, 0.8, 0.8)
+        GameTooltip:AddLine(L.SCAN_TIP1, 1, 1, 1)
+        GameTooltip:AddLine(L.SCAN_TIP2, 0.8, 0.8, 0.8)
+        GameTooltip:AddLine(L.SCAN_TIP3, 0.8, 0.8, 0.8)
         GameTooltip:Show()
     end)
     sb:SetScript("OnLeave", function() GameTooltip:Hide() end)
@@ -483,14 +484,14 @@ local function SetupWorldMap()
             local n = self.node
             if not n then return end
             GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-            local name = n.kind == "skin" and ("Esfolar: " .. (n.name or "criatura")) or (n.ore and GetItemInfo and GetItemInfo(n.ore)) or KINDS[n.kind or "mine"].label
+            local name = n.kind == "skin" and L.SKIN_PREFIX:format(n.name or L.CREATURE) or (n.ore and GetItemInfo and GetItemInfo(n.ore)) or KINDS[n.kind or "mine"].label
             GameTooltip:AddLine(name, 1, 1, 1)
             if (n.req or 0) > 0 then
-                GameTooltip:AddLine(("Skill necessaria: %d (a sua: %d)"):format(n.req, skills[n.kind or "mine"].skill),
+                GameTooltip:AddLine(L.REQ_SKILL:format(n.req, skills[n.kind or "mine"].skill),
                     self.can and 0.3 or 1, self.can and 1 or 0.3, 0.3)
             end
             if n.mined then
-                GameTooltip:AddLine(("Coletado ha %d min"):format((time() - n.mined) / 60), 0.7, 0.7, 0.7)
+                GameTooltip:AddLine(L.MINED_AGO:format((time() - n.mined) / 60), 0.7, 0.7, 0.7)
             end
             GameTooltip:Show()
         end)
@@ -595,13 +596,13 @@ SkipTarget = function(permanent)
     db.skipped[NodeKey(n)] = permanent and 2147483647 or (time() + db.skipSecs)
     cacheAt = 0
     worldDirty = true
-    Print(permanent and "ponto removido para sempre (/gt unskip desfaz)." or "ponto pulado por um tempo.")
+    Print(permanent and L.SKIPPED_FOREVER or L.SKIPPED_TEMP)
 end
 
 ScanNow = function()
     if not db then return end
     local pa, pb, inst = PlayerPos()
-    if not pa then Print("posicao indisponivel agora.") return end
+    if not pa then Print(L.POS_UNAVAILABLE) return end
     Rebuild(pa, pb, inst)
     cacheAt, lastInst = GetTime(), inst
     worldDirty = true
@@ -623,17 +624,17 @@ ScanNow = function()
     local parts = {}
     for _, k in ipairs({ "mine", "herb", "skin" }) do
         if cnt[k][1] > 0 and KindOn(k) then
-            parts[#parts + 1] = ("%s %d (%d que voce pode pegar)"):format(KINDS[k].label, cnt[k][1], cnt[k][2])
+            parts[#parts + 1] = L.SCAN_PART:format(KINDS[k].label, cnt[k][1], cnt[k][2])
         end
     end
     if #parts == 0 then
-        Print(("scan (%d jardas): nada conhecido por perto. Aumente o alcance em /gt."):format(db.range))
+        Print(L.SCAN_NONE:format(db.range))
         return
     end
-    Print(("scan (%d jardas): %s."):format(db.range, table.concat(parts, "; ")))
+    Print(L.SCAN_RESULT:format(db.range, table.concat(parts, "; ")))
     if bestN then
         local name = bestN.kind ~= "skin" and bestN.ore and GetItemInfo and GetItemInfo(bestN.ore) or KINDS[bestN.kind or "mine"].label
-        Print(("mais perto que voce pode pegar: %s a %d jardas."):format(name, bestD))
+        Print(L.SCAN_NEAREST:format(name, bestD))
     end
 end
 
@@ -668,6 +669,8 @@ local function BuildMaterials()
             local kind = HERB_REQ[id] and "herb" or "mine"
             if kind == "mine" then
                 m = (m:gsub("^min.-rio d[eao]s? ", ""))
+                m = (m:gsub("^mineral d[eao]s? ", ""))
+                m = (m:gsub("^mena d[eao]s? ", ""))
                 m = (m:gsub(" ore$", ""))
                 m = (m:gsub("^ore of ", ""))
             end
@@ -721,7 +724,7 @@ local function HoverLearn(pa, pb, inst, rot, ypp)
         a = na, b = nb, inst = inst, t = time(), learned = "hover",
     }
     cacheAt = 0
-    Print("aprendido pelo mouse: " .. text)
+    Print(L.LEARNED_HOVER:format(text))
 end
 
 local function Tick()
@@ -795,9 +798,9 @@ local function Tick()
         if target.kind ~= "skin" and target.ore and GetItemInfo then
             label = GetItemInfo(target.ore) or label
         elseif target.name then
-            label = "Esfolar: " .. target.name
+            label = L.SKIN_PREFIX:format(target.name)
         end
-        arrow.text:SetText(("%s - %d jardas"):format(label, td))
+        arrow.text:SetText(L.ARROW_TEXT:format(label, td))
         arrow:Show()
 
         if miniFrame and db.line and td > 6 then
@@ -815,7 +818,7 @@ local function Tick()
         arrow.tex:SetRotation(0)
         arrow.tex:SetVertexColor(1, 1, 1)
         arrow.pin:Hide()
-        arrow.text:SetText(db.testMode and "MODO DE TESTE: arraste" or "Arraste para mover")
+        arrow.text:SetText(db.testMode and L.TEST_TEXT or L.DRAG_TEXT)
         arrow:Show()
         if miniLine then miniLine:Hide() end
     else
@@ -839,7 +842,7 @@ driver:SetScript("OnUpdate", function(_, dt)
         local ok, err = pcall(Tick)
         if not ok and not tickErr then
             tickErr = true
-            Print("erro interno (Tick): " .. tostring(err))
+            Print(L.ERR_TICK:format(tostring(err)))
         end
     end
 end)
@@ -869,7 +872,7 @@ local function BuildOptions()
     f:SetFrameStrata("DIALOG")
     local title = f:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     title:SetPoint("TOP", 0, -8)
-    title:SetText("Forager - Guia de Minerios")
+    title:SetText(L.OPT_TITLE)
     f:Hide()
     tinsert(UISpecialFrames, "GatherTrailOptions")
 
@@ -929,32 +932,32 @@ local function BuildOptions()
 
     local function ForceUpdate() cacheAt = 0 worldDirty = true end
 
-    Check("MODO DE TESTE: mostrar seta e Scan para mover", "testMode")
-    Check("Ativar addon", "enabled")
-    Check("Rastrear Mineracao", "trackMine", ForceUpdate)
-    Check("Rastrear Herbalismo", "trackHerb", ForceUpdate)
-    Check("Rastrear Esfolamento (cadaveres)", "trackSkin", ForceUpdate)
-    Check("Usar banco inicial de locais (GatherTrailData)", "useSeed", ForceUpdate)
-    Check("Aprender veios passando o mouse no minimapa", "hoverLearn")
-    Check("Seta direcional na tela", "arrow")
-    Check("Botao Scan sempre visivel", "scanButton")
-    Check("Mostrar botao no minimapa", "minimapButton", function() if UpdateMMButton then UpdateMMButton() end end)
-    Check("Linha no minimapa ate o veio", "line")
-    Check("Icones no minimapa", "minimapPins")
-    Check("Icones no mapa-mundi (M)", "mapPins", ForceUpdate)
-    Check("Mostrar veios vermelhos (skill insuficiente)", "showRed", ForceUpdate)
-    Check("Seta tambem para vermelhos se nao houver amarelo", "arrowToRed")
+    Check(L.OPT_TEST, "testMode")
+    Check(L.OPT_ENABLED, "enabled")
+    Check(L.OPT_MINE, "trackMine", ForceUpdate)
+    Check(L.OPT_HERB, "trackHerb", ForceUpdate)
+    Check(L.OPT_SKIN, "trackSkin", ForceUpdate)
+    Check(L.OPT_SEED, "useSeed", ForceUpdate)
+    Check(L.OPT_HOVER, "hoverLearn")
+    Check(L.OPT_ARROW, "arrow")
+    Check(L.OPT_SCANBTN, "scanButton")
+    Check(L.OPT_MMBTN, "minimapButton", function() if UpdateMMButton then UpdateMMButton() end end)
+    Check(L.OPT_LINE, "line")
+    Check(L.OPT_MMPINS, "minimapPins")
+    Check(L.OPT_MAPPINS, "mapPins", ForceUpdate)
+    Check(L.OPT_RED, "showRed", ForceUpdate)
+    Check(L.OPT_ARROWRED, "arrowToRed")
     y = y - 6
-    Slider("Alcance de deteccao", "range", 50, 2000, 50, " jd", ForceUpdate)
-    Slider("Esconder veio minerado por (respawn)", "hideMinedSecs", 0, 900, 30, " s", ForceUpdate)
-    Slider("Tamanho da seta", "arrowScale", 50, 200, 10, "%", ApplyArrowPos)
+    Slider(L.OPT_RANGE, "range", 50, 2000, 50, L.UNIT_YD, ForceUpdate)
+    Slider(L.OPT_HIDE, "hideMinedSecs", 0, 900, 30, L.UNIT_S, ForceUpdate)
+    Slider(L.OPT_SCALE, "arrowScale", 50, 200, 10, "%", ApplyArrowPos)
 
     local lock = TryCreate("CheckButton", nil, f, { "UICheckButtonTemplate", "ChatConfigCheckButtonTemplate" })
     lock:SetSize(24, 24)
     lock:SetPoint("TOPLEFT", 16, y)
     local lfs = lock:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     lfs:SetPoint("LEFT", lock, "RIGHT", 4, 0)
-    lfs:SetText("Seta travada (desmarque para arrastar)")
+    lfs:SetText(L.OPT_LOCK)
     lock:SetScript("OnClick", function(self)
         db.arrowLocked = self:GetChecked() and true or false
         ApplyArrowPos()
@@ -971,28 +974,28 @@ local function BuildOptions()
     local clear = TryCreate("Button", nil, f, { "UIPanelButtonTemplate" })
     clear:SetSize(150, 24)
     clear:SetPoint("BOTTOM", 0, 14)
-    clear:SetText("Apagar veios salvos")
+    clear:SetText(L.BTN_CLEAR)
     clear:SetScript("OnClick", function()
         wipe(db.nodes)
         ForceUpdate()
         f:Refresh()
-        Print("veios apagados.")
+        Print(L.MSG_CLEARED)
     end)
 
     local unskip = TryCreate("Button", nil, f, { "UIPanelButtonTemplate" })
     unskip:SetSize(150, 24)
     unskip:SetPoint("BOTTOM", 0, 44)
-    unskip:SetText("Limpar pontos pulados")
+    unskip:SetText(L.BTN_UNSKIP)
     unskip:SetScript("OnClick", function()
         db.skipped = {}
         ForceUpdate()
-        Print("pontos pulados voltaram a aparecer.")
+        Print(L.MSG_UNSKIPPED)
     end)
 
     function f:Refresh()
         for _, r in ipairs(refreshers) do r() end
-        local function sk(k) return skills[k].has and ("skill " .. skills[k].skill) or "nao tem" end
-        info:SetText(("Pontos memorizados: %d\nMineracao: %s | Herbalismo: %s | Esfolamento: %s"):format(#db.nodes, sk("mine"), sk("herb"), sk("skin")))
+        local function sk(k) return skills[k].has and L.HAS_SKILL:format(skills[k].skill) or L.NO_SKILL end
+        info:SetText(L.INFO:format(#db.nodes, sk("mine"), sk("herb"), sk("skin")))
     end
     f:SetScript("OnShow", f.Refresh)
     options = f
@@ -1053,7 +1056,7 @@ UpdateMMButton = function()
             elseif button == "RightButton" then
                 db.enabled = not db.enabled
                 UpdateMMButton()
-                Print(db.enabled and "ativado." or "desativado (clique direito no icone para ativar).")
+                Print(db.enabled and L.MSG_ENABLED or L.MSG_DISABLED_MM)
             else
                 ToggleOptions()
             end
@@ -1071,11 +1074,11 @@ UpdateMMButton = function()
         b:SetScript("OnEnter", function(self)
             GameTooltip:SetOwner(self, "ANCHOR_LEFT")
             GameTooltip:AddLine("GatherTrail", 1, 0.82, 0)
-            GameTooltip:AddLine("Clique esquerdo: opcoes", 1, 1, 1)
-            GameTooltip:AddLine("Clique direito: ativar/desativar", 1, 1, 1)
-            GameTooltip:AddLine("Clique do meio: scan", 1, 1, 1)
-            GameTooltip:AddLine("Arraste: mover o icone", 0.7, 0.7, 0.7)
-            GameTooltip:AddLine(db.enabled and "Estado: ATIVADO" or "Estado: DESATIVADO",
+            GameTooltip:AddLine(L.MM_LEFT, 1, 1, 1)
+            GameTooltip:AddLine(L.MM_RIGHT, 1, 1, 1)
+            GameTooltip:AddLine(L.MM_MIDDLE, 1, 1, 1)
+            GameTooltip:AddLine(L.MM_DRAG, 0.7, 0.7, 0.7)
+            GameTooltip:AddLine(db.enabled and L.MM_ON or L.MM_OFF,
                 db.enabled and 0.3 or 1, db.enabled and 1 or 0.3, 0.3)
             GameTooltip:Show()
         end)
@@ -1095,14 +1098,14 @@ SlashCmdList.GATHERTRAIL = function(msg)
     if cmd == "range" and tonumber(arg) then
         db.range = math.max(50, math.min(2000, tonumber(arg)))
         cacheAt = 0 worldDirty = true
-        Print("alcance: " .. db.range .. " jardas")
+        Print(L.MSG_RANGE:format(db.range))
     elseif cmd == "lock" then
         db.arrowLocked = not db.arrowLocked
         ApplyArrowPos()
-        Print(db.arrowLocked and "seta travada" or "seta destravada: arraste para mover")
+        Print(db.arrowLocked and L.MSG_LOCKED or L.MSG_UNLOCKED)
     elseif cmd == "test" then
         db.testMode = not db.testMode
-        Print(db.testMode and "modo de teste ligado: arraste a seta ou os botoes. /gt test desliga." or "modo de teste desligado.")
+        Print(db.testMode and L.MSG_TEST_ON or L.MSG_TEST_OFF)
         if options and options:IsShown() then options:Refresh() end
     elseif cmd == "scan" then
         ScanNow()
@@ -1111,14 +1114,14 @@ SlashCmdList.GATHERTRAIL = function(msg)
     elseif cmd == "unskip" then
         db.skipped = {}
         cacheAt = 0 worldDirty = true
-        Print("pontos pulados voltaram a aparecer.")
+        Print(L.MSG_UNSKIPPED)
     elseif cmd == "toggle" then
         db.enabled = not db.enabled
         UpdateMMButton()
-        Print(db.enabled and "ativado." or "desativado.")
+        Print(db.enabled and L.MSG_ENABLED or L.MSG_DISABLED)
     elseif cmd == "clear" then
         wipe(db.nodes)
-        Print("veios apagados.")
+        Print(L.MSG_CLEARED)
     elseif cmd == "probe" then
         -- diagnostico: o que o cliente expoe de pontos no minimapa?
         Print("--- probe ---")
@@ -1351,6 +1354,6 @@ ev:SetScript("OnEvent", function(self, event, ...)
     local ok, err = pcall(Handle, self, event, ...)
     if not ok and not reported then
         reported = true
-        Print("erro interno (" .. tostring(event) .. "): " .. tostring(err))
+        Print(L.ERR_EVENT:format(tostring(event), tostring(err)))
     end
 end)
