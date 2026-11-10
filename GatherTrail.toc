@@ -6,6 +6,7 @@
 ## Author: cleytoncl3
 ## Version: 1.0.0
 ## SavedVariables: GatherTrailDB, ForagerOreDB
+## OptionalDeps: GatherTrailData
 ## IconTexture: Interface\Icons\INV_Pick_02
 ## X-Category: Professions
 ## X-License: MIT

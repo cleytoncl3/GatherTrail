@@ -30,6 +30,9 @@ local ORE_REQ = {
     [36909] = 350, -- Cobalto
     [36912] = 400, -- Saronita
     [36910] = 450, -- Titanio
+    [4278] = 75,   -- Pedra de Sangue Menor
+    [3340] = 65,   -- Incendicita
+    [5833] = 150,  -- Indurio
 }
 
 local HERB_REQ = {
@@ -66,6 +69,7 @@ local DEFAULTS = {
     hideMinedSecs = 300,  -- esconde um veio recem-minerado (respawn)
     arrowLocked = true,
     arrowScale = 100,     -- porcento
+    useSeed = true,       -- usa o banco inicial (addon GatherTrailData)
     hoverLearn = true,    -- aprende veios passando o mouse no minimapa
 }
 
@@ -188,6 +192,75 @@ local function Print(msg)
 end
 
 ---------------------------------------------------------------- gravacao
+
+---------------------------------------------------------------- banco inicial (GatherTrailData)
+-- Tabelas do GatherMate2_Data: [mapID][XXXXYYYY00] = nodeID. Convertidas sob demanda,
+-- uma zona por vez, para as mesmas coordenadas de mundo que UnitPosition usa.
+
+local SEED_ITEM = {
+    mine = {
+        [201] = 2770, [202] = 2771, [203] = 2772, [204] = 2775, [209] = 2775, [205] = 2776, [210] = 2776,
+        [206] = 3858, [207] = 3858, [208] = 7911, [211] = 7911, [212] = 10620, [213] = 10620, [214] = 10620,
+        [215] = 10620, [217] = 11370, [218] = 4278, [219] = 3340, [220] = 5833,
+    },
+    herb = {
+        [401] = 2447, [402] = 765, [403] = 2449, [404] = 785, [405] = 2450, [407] = 3820, [408] = 2453,
+        [409] = 3355, [410] = 3369, [411] = 3356, [412] = 3357, [413] = 3818, [414] = 3821, [415] = 3358,
+        [416] = 3819, [417] = 4625, [418] = 8831, [420] = 8836, [421] = 8838, [422] = 8839, [423] = 8845,
+        [424] = 8846, [425] = 13464, [426] = 13463, [427] = 13465, [428] = 13466, [429] = 13467, [431] = 13468,
+    },
+}
+local SEED_GLOBAL = { mine = "GatherMateData2MineDB", herb = "GatherMateData2HerbDB" }
+
+local seedCache = {}
+local coordSwap -- nil = ainda nao calibrado; true: a = world.y, b = world.x
+
+local function Calibrate(a, b, map, mx, my)
+    if coordSwap ~= nil then return true end
+    if not (C_Map and C_Map.GetWorldPosFromMapPos and CreateVector2D and map and a) then return false end
+    local _, wp = C_Map.GetWorldPosFromMapPos(map, CreateVector2D(mx, my))
+    if not wp then return false end
+    local x, y = wp.x, wp.y
+    local e1 = math.abs(a - x) + math.abs(b - y)
+    local e2 = math.abs(a - y) + math.abs(b - x)
+    if math.abs(e1 - e2) < 10 then return false end -- ambiguo: tenta de novo mais tarde
+    coordSwap = e2 < e1
+    return true
+end
+
+local function SeedFor(map)
+    local cached = seedCache[map]
+    if cached ~= nil then return cached or nil end
+    local a, b, inst = PlayerPos()
+    local pm, mx, my = MapPos()
+    if not (a and pm == map and Calibrate(a, b, pm, mx, my)) then return nil end
+    local list = {}
+    seedCache[map] = list
+    local load = (C_AddOns and C_AddOns.LoadAddOn) or LoadAddOn
+    if load then pcall(load, "GatherTrailData") end
+    for kind, glob in pairs(SEED_GLOBAL) do
+        local zone = _G[glob] and _G[glob][map]
+        if zone then
+            for key, nid in pairs(zone) do
+                local ore = SEED_ITEM[kind][nid]
+                if ore then
+                    local x = floor(key / 1000000) / 10000
+                    local y = (floor(key / 100) % 10000) / 10000
+                    local _, wp = C_Map.GetWorldPosFromMapPos(map, CreateVector2D(x, y))
+                    if wp then
+                        local na, nb = wp.x, wp.y
+                        if coordSwap then na, nb = wp.y, wp.x end
+                        list[#list + 1] = {
+                            kind = kind, ore = ore, req = ORE_REQ[ore] or 0,
+                            a = na, b = nb, inst = inst, map = map, mx = x, my = y, seed = true,
+                        }
+                    end
+                end
+            end
+        end
+    end
+    return list
+end
 
 local corpses = {} -- esfolaveis: so em memoria, somem sozinhos
 local pending -- { t = GetTime(), a, b, inst, map, mx, my }
@@ -335,7 +408,7 @@ local function UpdateWorldMap(pa, pb, inst)
     local mapID = WorldMapFrame:GetMapID()
     local w, h = worldFrame:GetWidth(), worldFrame:GetHeight()
     local now, used, r2 = time(), 0, db.range * db.range
-    for _, n in ipairs(db.nodes) do
+    local function consider(n)
         if n.map == mapID and n.inst == inst and n.mx and KindOn(n.kind or "mine") then
             local da, dw = n.a - pa, n.b - pb
             if da * da + dw * dw <= r2 then
@@ -351,6 +424,10 @@ local function UpdateWorldMap(pa, pb, inst)
                 end
             end
         end
+    end
+    for _, n in ipairs(db.nodes) do consider(n) end
+    if db.useSeed and seedCache[mapID] then
+        for _, n in ipairs(seedCache[mapID]) do consider(n) end
     end
 end
 
@@ -369,6 +446,29 @@ local function Rebuild(pa, pb, inst)
             if da * da + dw * dw <= r2 then
                 local hidden = db.hideMinedSecs > 0 and n.mined and (now - n.mined) < db.hideMinedSecs
                 if not hidden then cache[#cache + 1] = n end
+            end
+        end
+    end
+    if db.useSeed then
+        local map = C_Map and C_Map.GetBestMapForUnit and C_Map.GetBestMapForUnit("player")
+        local seed = map and SeedFor(map)
+        if seed then
+            local real = {}
+            for _, n in ipairs(cache) do real[#real + 1] = n end
+            for _, n in ipairs(seed) do
+                if n.inst == inst and KindOn(n.kind) then
+                    local da, dw = n.a - pa, n.b - pb
+                    if da * da + dw * dw <= r2 then
+                        local dup = false
+                        for _, m in ipairs(real) do
+                            if m.ore == n.ore and not m.seed then
+                                local xa, xb = m.a - n.a, m.b - n.b
+                                if xa * xa + xb * xb < 25 * 25 then dup = true break end
+                            end
+                        end
+                        if not dup then cache[#cache + 1] = n end
+                    end
+                end
             end
         end
     end
@@ -592,7 +692,7 @@ end
 local function BuildOptions()
     if options then return options end
     local f = TryCreate("Frame", "GatherTrailOptions", UIParent, { "BasicFrameTemplateWithInset", "DialogBoxFrame" })
-    f:SetSize(360, 590)
+    f:SetSize(360, 620)
     f:SetPoint("CENTER")
     f:SetMovable(true)
     f:EnableMouse(true)
@@ -666,6 +766,7 @@ local function BuildOptions()
     Check("Rastrear Mineracao", "trackMine", ForceUpdate)
     Check("Rastrear Herbalismo", "trackHerb", ForceUpdate)
     Check("Rastrear Esfolamento (cadaveres)", "trackSkin", ForceUpdate)
+    Check("Usar banco inicial de locais (GatherTrailData)", "useSeed", ForceUpdate)
     Check("Aprender veios passando o mouse no minimapa", "hoverLearn")
     Check("Seta direcional na tela", "arrow")
     Check("Linha no minimapa ate o veio", "line")
@@ -767,6 +868,9 @@ SlashCmdList.GATHERTRAIL = function(msg)
             end
         end
     elseif cmd == "debug" then
+        local ns_ = 0
+        for _, l in pairs(seedCache) do ns_ = ns_ + #l end
+        Print(("banco inicial: %d pontos carregados, calibrado=%s"):format(ns_, tostring(coordSwap)))
         Print(("pontos=%d cadaveres=%d mine=%d herb=%d skin=%d cache=%d"):format(#db.nodes, #corpses, skills.mine.skill, skills.herb.skill, skills.skin.skill, #cache))
     else
         ToggleOptions()
