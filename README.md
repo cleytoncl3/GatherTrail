@@ -38,6 +38,7 @@ O addon só mostra informação. Ele não automatiza nenhuma ação do personage
 | `/gt` ou `/gathertrail` | abre a janela de opções |
 | `/gt range 800` | define o alcance (jardas) |
 | `/gt lock` | trava/destrava a seta (destravada, arraste para mover) |
+| `/gt scan` | atualiza agora e mostra no chat o que ha no alcance (minerios, ervas, cadaveres) |
 | `/gt skip` | pula o ponto atual e mostra o proximo mais perto (`/gt skip always` remove para sempre) |
 | `/gt unskip` | os pontos pulados voltam a aparecer |
 | `/gt toggle` | ativa/desativa o addon |
@@ -49,6 +50,7 @@ Na janela de opções: ligar/desligar cada profissão, seta, linha, ícones do m
 ## Controles
 
 - **Botao Pular** embaixo da seta (Shift+clique remove o ponto para sempre) e tecla configuravel em Teclas > AddOns > GatherTrail.
+- **Botao Scan** fica sempre visivel junto da seta (ou clique do meio no icone do minimapa): atualiza na hora e lista o que existe no alcance. A lista tambem se atualiza sozinha o tempo todo (a cada 0,5 s), entao o botao e so uma conferencia manual.
 - **Mover a seta:** Shift+arrastar (ou destrave com `/gt lock`).
 - **Icone no minimapa:** clique esquerdo abre as opcoes, clique direito ativa/desativa, arraste para mudar de posicao.
 

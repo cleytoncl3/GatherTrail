@@ -76,6 +76,7 @@ local DEFAULTS = {
     arrowLocked = true,
     arrowScale = 100,     -- porcento
     useSeed = true,       -- usa o banco inicial (addon GatherTrailData)
+    scanButton = true,    -- botao Scan sempre visivel junto da seta
     minimapButton = true,
     minimapAngle = 225,
     skipSecs = 1800,      -- tempo que um veio pulado fica escondido
@@ -87,7 +88,7 @@ BINDING_NAME_GATHERTRAIL_SKIP = "Pular ponto atual"
 
 local db
 local currentTarget
-local SkipTarget, UpdateMMButton -- definidos mais abaixo
+local SkipTarget, UpdateMMButton, ScanNow -- definidos mais abaixo
 local MAX_PINS = 50
 local DIAM_IN = { 300, 240, 192, 150, 120, 96 }
 local DIAM_OUT = { 466.67, 400, 333.33, 266.67, 200, 133.33 }
@@ -401,6 +402,32 @@ do
     end)
     b:SetScript("OnLeave", function() GameTooltip:Hide() end)
     arrow.skip = b
+
+    local sb
+    local ok2, made = pcall(CreateFrame, "Button", nil, UIParent, "UIPanelButtonTemplate")
+    if ok2 and made then
+        sb = made
+    else
+        sb = CreateFrame("Button", nil, UIParent)
+        sb.fs = sb:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+        sb.fs:SetAllPoints()
+        sb.SetText = function(self, t) self.fs:SetText(t) end
+    end
+    sb:SetSize(64, 20)
+    sb:SetPoint("TOP", b, "BOTTOM", 0, -3)
+    sb:SetFrameStrata("MEDIUM")
+    sb:SetText("Scan")
+    sb:SetScript("OnClick", function() if ScanNow then ScanNow() end end)
+    sb:SetScript("OnEnter", function(self)
+        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+        GameTooltip:AddLine("Scan", 1, 1, 1)
+        GameTooltip:AddLine("Atualiza agora e mostra no chat o que ha", 0.8, 0.8, 0.8)
+        GameTooltip:AddLine("de minerios, ervas e cadaveres no alcance.", 0.8, 0.8, 0.8)
+        GameTooltip:Show()
+    end)
+    sb:SetScript("OnLeave", function() GameTooltip:Hide() end)
+    sb:Hide()
+    arrow.scan = sb
 end
 arrow:Hide()
 
@@ -423,6 +450,7 @@ local function ApplyArrowPos()
         arrow:SetPoint("CENTER", UIParent, "CENTER", 0, 180)
     end
     arrow:SetScale(db.arrowScale / 100)
+    if arrow.scan then arrow.scan:SetScale(db.arrowScale / 100) end
     arrow:EnableMouse(true)
 end
 
@@ -559,12 +587,52 @@ SkipTarget = function(permanent)
     Print(permanent and "ponto removido para sempre (/gt unskip desfaz)." or "ponto pulado por um tempo.")
 end
 
+ScanNow = function()
+    if not db then return end
+    local pa, pb, inst = PlayerPos()
+    if not pa then Print("posicao indisponivel agora.") return end
+    Rebuild(pa, pb, inst)
+    cacheAt, lastInst = GetTime(), inst
+    worldDirty = true
+    local cnt = { mine = { 0, 0 }, herb = { 0, 0 }, skin = { 0, 0 } }
+    local bestN, bestD
+    for _, n in ipairs(cache) do
+        local dN, dW = n.a - pa, n.b - pb
+        local d = sqrt(dN * dN + dW * dW)
+        if d <= db.range then
+            local k = n.kind or "mine"
+            local can = NodeCan(n)
+            cnt[k][1] = cnt[k][1] + 1
+            if can then
+                cnt[k][2] = cnt[k][2] + 1
+                if not bestD or d < bestD then bestN, bestD = n, d end
+            end
+        end
+    end
+    local parts = {}
+    for _, k in ipairs({ "mine", "herb", "skin" }) do
+        if cnt[k][1] > 0 and KindOn(k) then
+            parts[#parts + 1] = ("%s %d (%d que voce pode pegar)"):format(KINDS[k].label, cnt[k][1], cnt[k][2])
+        end
+    end
+    if #parts == 0 then
+        Print(("scan (%d jardas): nada conhecido por perto. Aumente o alcance em /gt."):format(db.range))
+        return
+    end
+    Print(("scan (%d jardas): %s."):format(db.range, table.concat(parts, "; ")))
+    if bestN then
+        local name = bestN.kind ~= "skin" and bestN.ore and GetItemInfo and GetItemInfo(bestN.ore) or KINDS[bestN.kind or "mine"].label
+        Print(("mais perto que voce pode pegar: %s a %d jardas."):format(name, bestD))
+    end
+end
+
 function GatherTrail_Skip()
     if SkipTarget then SkipTarget(false) end
 end
 
 local function HideAll()
     arrow:Hide()
+    arrow.scan:Hide()
     if miniLine then miniLine:Hide() end
     for _, p in ipairs(miniPins) do p:Hide() end
 end
@@ -702,6 +770,7 @@ local function Tick()
     local target, td, tcan = bestY, bestYd, true
     if not target and db.arrowToRed and bestR then target, td, tcan = bestR, bestRd, false end
     currentTarget = target
+    if db.scanButton then arrow.scan:Show() else arrow.scan:Hide() end
 
     if target and db.arrow then
         local dN, dW = target.a - pa, target.b - pb
@@ -779,7 +848,7 @@ end
 local function BuildOptions()
     if options then return options end
     local f = TryCreate("Frame", "GatherTrailOptions", UIParent, { "BasicFrameTemplateWithInset", "DialogBoxFrame" })
-    f:SetSize(360, 650)
+    f:SetSize(360, 680)
     f:SetPoint("CENTER")
     f:SetMovable(true)
     f:EnableMouse(true)
@@ -856,6 +925,7 @@ local function BuildOptions()
     Check("Usar banco inicial de locais (GatherTrailData)", "useSeed", ForceUpdate)
     Check("Aprender veios passando o mouse no minimapa", "hoverLearn")
     Check("Seta direcional na tela", "arrow")
+    Check("Botao Scan sempre visivel", "scanButton")
     Check("Mostrar botao no minimapa", "minimapButton", function() if UpdateMMButton then UpdateMMButton() end end)
     Check("Linha no minimapa ate o veio", "line")
     Check("Icones no minimapa", "minimapPins")
@@ -947,7 +1017,7 @@ UpdateMMButton = function()
         b:SetSize(31, 31)
         b:SetFrameStrata("MEDIUM")
         b:SetFrameLevel(Minimap:GetFrameLevel() + 8)
-        b:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+        b:RegisterForClicks("LeftButtonUp", "RightButtonUp", "MiddleButtonUp")
         b:RegisterForDrag("LeftButton")
         local bg = b:CreateTexture(nil, "BACKGROUND")
         bg:SetSize(20, 20)
@@ -966,7 +1036,9 @@ UpdateMMButton = function()
         b:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight")
 
         b:SetScript("OnClick", function(_, button)
-            if button == "RightButton" then
+            if button == "MiddleButton" then
+                ScanNow()
+            elseif button == "RightButton" then
                 db.enabled = not db.enabled
                 UpdateMMButton()
                 Print(db.enabled and "ativado." or "desativado (clique direito no icone para ativar).")
@@ -989,6 +1061,7 @@ UpdateMMButton = function()
             GameTooltip:AddLine("GatherTrail", 1, 0.82, 0)
             GameTooltip:AddLine("Clique esquerdo: opcoes", 1, 1, 1)
             GameTooltip:AddLine("Clique direito: ativar/desativar", 1, 1, 1)
+            GameTooltip:AddLine("Clique do meio: scan", 1, 1, 1)
             GameTooltip:AddLine("Arraste: mover o icone", 0.7, 0.7, 0.7)
             GameTooltip:AddLine(db.enabled and "Estado: ATIVADO" or "Estado: DESATIVADO",
                 db.enabled and 0.3 or 1, db.enabled and 1 or 0.3, 0.3)
@@ -1015,6 +1088,8 @@ SlashCmdList.GATHERTRAIL = function(msg)
         db.arrowLocked = not db.arrowLocked
         ApplyArrowPos()
         Print(db.arrowLocked and "seta travada" or "seta destravada: arraste para mover")
+    elseif cmd == "scan" then
+        ScanNow()
     elseif cmd == "skip" then
         SkipTarget(arg == "always")
     elseif cmd == "unskip" then
