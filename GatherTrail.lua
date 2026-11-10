@@ -44,6 +44,12 @@ local HERB_REQ = {
 for id, r in pairs(HERB_REQ) do ORE_REQ[id] = r end
 
 local SKIN_ICON = "Interface/Icons/INV_Misc_Pelt_Wolf_01"
+-- um icone por tipo, facil de reconhecer: picareta, flor, couro
+local KIND_ICON = {
+    mine = "Interface/Icons/Trade_Mining",
+    herb = "Interface/Icons/Trade_Herbalism",
+    skin = SKIN_ICON,
+}
 -- kind -> { spells que nomeiam o cast e a skill, classe/subclasse do item no loot }
 local KINDS = {
     mine = { cast = { 2575 }, skill = { 2575 }, cls = 7, sub = 7, label = "Mineracao" },
@@ -313,6 +319,13 @@ local function MakePin(parent, size)
     f.icon:SetPoint("TOPLEFT", 2, -2)
     f.icon:SetPoint("BOTTOMRIGHT", -2, 2)
     f.icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+    -- mascara circular: ervas sao redondas, minerios e couro quadrados
+    local ok, mask = pcall(f.CreateMaskTexture, f)
+    if ok and mask then
+        mask:SetTexture("Interface\CharacterFrame\TempPortraitAlphaMask")
+        mask:SetAllPoints()
+        f.mask = mask
+    end
     f:Hide()
     return f
 end
@@ -320,8 +333,20 @@ end
 local function StylePin(pin, node, can)
     local c = can and YELLOW or RED
     pin.border:SetColorTexture(c[1], c[2], c[3], 1)
-    pin.icon:SetTexture(node.icon or OreIcon(node.ore))
+    local kind = node.kind or "mine"
+    pin.icon:SetTexture(KIND_ICON[kind] or OreIcon(node.ore))
     pin.icon:SetDesaturated(not can)
+    if pin.mask then
+        local round = kind == "herb"
+        if round and not pin.round then
+            pin.icon:AddMaskTexture(pin.mask)
+            pin.border:AddMaskTexture(pin.mask)
+        elseif pin.round and not round then
+            pin.icon:RemoveMaskTexture(pin.mask)
+            pin.border:RemoveMaskTexture(pin.mask)
+        end
+        pin.round = round
+    end
     pin.node, pin.can = node, can
 end
 
@@ -335,7 +360,7 @@ local function EnsureMinimap()
     miniLine:SetThickness(2)
     miniLine:SetColorTexture(1, 0.82, 0, 0.85)
     miniLine:Hide()
-    for i = 1, MAX_PINS do miniPins[i] = MakePin(miniFrame, 16) end
+    for i = 1, MAX_PINS do miniPins[i] = MakePin(miniFrame, 20) end
 end
 
 ---------------------------------------------------------------- seta
@@ -686,7 +711,13 @@ local function Tick()
         arrow.tex:SetVertexColor(c[1], c[2], c[3])
         StylePin(arrow.pin, target, tcan)
         arrow.pin:Show()
-        arrow.text:SetText(("%s - %d jardas"):format(KINDS[target.kind or "mine"].label, td))
+        local label = KINDS[target.kind or "mine"].label
+        if target.kind ~= "skin" and target.ore and GetItemInfo then
+            label = GetItemInfo(target.ore) or label
+        elseif target.name then
+            label = "Esfolar: " .. target.name
+        end
+        arrow.text:SetText(("%s - %d jardas"):format(label, td))
         arrow:Show()
 
         if miniFrame and db.line and td > 6 then
