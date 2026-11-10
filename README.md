@@ -1,28 +1,51 @@
-# ForagerOre
+# GatherTrail - Trilha do Coletor
 
-Complemento para o [Forager](https://github.com/jonlipin/forager) (WoW Forever / Classic). Guia você até **minérios, ervas e criaturas esfoláveis**.
+Addon de coleta para WoW Classic / WoW Forever. Ele te guia até **minérios, ervas e criaturas esfoláveis** com uma seta na tela, uma linha no minimapa e ícones no minimapa e no mapa-múndi.
 
-O cliente Classic não deixa addons ler os pontos de tracking do minimapa, então o ForagerOre **memoriza os locais onde você coleta** (como o GatherMate). Quanto mais você coleta, mais ele sabe.
+É um addon independente e funciona sozinho. Combina bem com addons de tracking, como o Forager, mas não usa nenhum código dele.
 
-## Recursos
+## Para que serve
 
-- **Seta direcional** na tela apontando para o ponto mais próximo que você consegue coletar, com distância.
-- **Linha no minimapa** até o alvo (linha reta; o jogo não tem pathfinding para addons).
-- **Ícones no minimapa e no mapa (M)**: borda **amarela** = sua skill alcança, **vermelha** = skill insuficiente.
-- **Mineração, Herbalismo e Esfolamento**. Cada um pode ser ligado/desligado.
-- **Esfolamento**: cadáveres esfoláveis que você lootou (ou viu pelo mouse/alvo) aparecem por alguns minutos e somem quando esfolados ou expirados.
-- **Alcance ajustável** (50 a 2000 jardas) por barra de rolagem.
-- Esconde um ponto recém-coletado enquanto ele renasce (tempo ajustável).
+O cliente Classic **não deixa addons ler os pontos de tracking do minimapa** (Find Minerals, Find Herbs). Por isso o GatherTrail aprende os locais sozinho, como o GatherMate: toda vez que você coleta um recurso, a posição é gravada. Quanto mais você joga, mais ele sabe. Os recursos renascem no mesmo lugar, então os pontos continuam úteis.
+
+## O que ele mostra
+
+- **Seta direcional** na tela apontando para o ponto mais próximo que você consegue coletar, com o tipo e a distância em jardas.
+- **Linha no minimapa** até o alvo. É uma linha reta: o jogo não oferece pathfinding para addons.
+- **Ícones no minimapa e no mapa (M)** com o ícone do recurso:
+  - borda **amarela**: sua skill da profissão alcança;
+  - borda **vermelha** (ícone cinza): skill insuficiente.
+- **Alcance ajustável** de 50 a 2000 jardas, por barra de rolagem.
+- **Três profissões**, cada uma liga/desliga: Mineração, Herbalismo e Esfolamento.
+
+## Como funciona por dentro
+
+- **Mineração e Herbalismo:** ao lançar o feitiço da profissão, guarda sua posição. Quando abre o loot de um *objeto do mundo* com o minério/erva esperado, o ponto é salvo (a identificação é pelo ID do item, então funciona em qualquer idioma). Pontos a menos de 15 jardas do mesmo tipo são unidos.
+- **Respawn:** o ponto recém-coletado fica escondido por um tempo ajustável (300 s por padrão).
+- **Esfolamento:** quando você lota uma criatura, ou passa o mouse/alvo em um cadáver, o addon lê a dica do jogo ("Esfolável"). Se estiver esfolável, o cadáver entra na lista por cerca de 7 minutos e sai quando você esfola ou ele expira. Esses cadáveres não ficam salvos. A posição é a sua no momento do loot (boa); se você só mirou de longe, é aproximada. Cadáveres que você nunca viu ou lotou não aparecem.
+- **Skill:** lida da sua janela de habilidades. A skill necessária vem de uma tabela por item (Cobre a Titânio, Peacebloom a Mana Thistle) e, no esfolamento, do nível da criatura.
+- **Posição:** usa `UnitPosition` (coordenadas do mundo) para distância e direção, e `C_Map` para os ícones do mapa-múndi.
+- Os dados ficam em `WTF/.../SavedVariables/GatherTrail.lua` e **não são apagados** ao atualizar o addon.
+
+O addon só mostra informação. Ele não automatiza nenhuma ação do personagem.
 
 ## Comandos
 
-- `/fore` abre as opções
-- `/fore range 800` define o alcance
-- `/fore lock` trava/destrava a seta (destravada, arraste para mover)
-- `/fore clear` apaga os pontos salvos
-- `/fore debug`
+| Comando | O que faz |
+|---|---|
+| `/gt` ou `/gathertrail` | abre a janela de opções |
+| `/gt range 800` | define o alcance (jardas) |
+| `/gt lock` | trava/destrava a seta (destravada, arraste para mover) |
+| `/gt clear` | apaga todos os pontos salvos |
+| `/gt debug` | mostra contagens e skills lidas |
 
-## Instalação / atualização
+Na janela de opções: ligar/desligar cada profissão, seta, linha, ícones do minimapa e do mapa, mostrar vermelhos, seta para vermelhos, alcance, tempo de respawn e tamanho da seta.
 
-1. Baixe o zip do repositório e coloque a pasta como `Interface/AddOns/ForagerOre`.
-2. Para atualizar depois, é só dar duplo clique em **Update.bat** dentro da pasta. Ele baixa a versão mais recente do GitHub sozinho (não precisa de git). Seus pontos salvos não são apagados.
+## Instalação e atualização
+
+1. Baixe o repositório e coloque a pasta como `Interface/AddOns/GatherTrail`.
+2. Para atualizar, dê duplo clique em **Update.bat** dentro da pasta. Ele baixa a versão mais recente do GitHub (não precisa de git).
+
+## Licença
+
+MIT. Veja `LICENSE`.

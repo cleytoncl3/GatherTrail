@@ -1,17 +1,16 @@
--- ForagerOre: complemento do Forager para coletores (Mineracao, Herbalismo, Esfolamento).
+-- GatherTrail: guia de coleta para Mineracao, Herbalismo e Esfolamento.
 --
 -- O cliente Classic NAO deixa addons ler os pontos de tracking do minimapa,
--- entao este addon aprende onde ficam os veios: cada vez que voce minera um
--- (cast de Mineracao + minerio no loot) a posicao e gravada. Depois ele mostra:
---   * uma seta na tela apontando para o veio mais proximo que voce pode minerar
---   * uma linha reta no minimapa ate esse veio (nao existe API de pathfinding)
---   * icones no minimapa e no mapa-mundi (amarelo = pode minerar, vermelho = skill baixa)
---   * alcance ajustavel (barra de rolagem) em /fore
+-- entao o addon aprende os locais: cada vez que voce coleta um recurso
+-- (cast da profissao + item no loot de um objeto do mundo) a posicao e gravada.
+-- Depois ele mostra uma seta, uma linha no minimapa e icones no minimapa e no
+-- mapa-mundi (amarelo = sua skill alcanca, vermelho = skill insuficiente).
+-- Alcance ajustavel em /gt. O addon apenas MOSTRA informacao: nao automatiza
+-- nenhuma acao do personagem.
 
 local ADDON = ...
 
 local sqrt, atan2, sin, cos, floor, min = math.sqrt, math.atan2 or function(y, x) return math.atan(y, x) end, math.sin, math.cos, math.floor, math.min
-local PI2 = math.pi * 2
 
 -- itemID do minerio -> skill de Mineracao necessaria
 local ORE_REQ = {
@@ -50,7 +49,6 @@ local KINDS = {
     skin = { cast = { 8613 }, skill = { 8613 }, label = "Esfolamento",
              names = { "skinning", "esfolamento", "desuello", "dépeçage", "kürschnerei", "scuoiatura" } },
 }
-local KIND_ORDER = { "mine", "herb", "skin" }
 
 local DEFAULTS = {
     trackMine = true,
@@ -178,7 +176,7 @@ local function MapPos()
 end
 
 local function Print(msg)
-    print("|cffffd100ForagerOre:|r " .. msg)
+    print("|cffffd100GatherTrail:|r " .. msg)
 end
 
 ---------------------------------------------------------------- gravacao
@@ -244,7 +242,7 @@ end
 
 ---------------------------------------------------------------- seta
 
-local arrow = CreateFrame("Frame", "ForagerOreArrow", UIParent)
+local arrow = CreateFrame("Frame", "GatherTrailArrow", UIParent)
 arrow:SetSize(64, 64)
 arrow:SetPoint("CENTER", UIParent, "CENTER", 0, 180)
 arrow:SetMovable(true)
@@ -500,7 +498,7 @@ end
 
 local function BuildOptions()
     if options then return options end
-    local f = TryCreate("Frame", "ForagerOreOptions", UIParent, { "BasicFrameTemplateWithInset", "DialogBoxFrame" })
+    local f = TryCreate("Frame", "GatherTrailOptions", UIParent, { "BasicFrameTemplateWithInset", "DialogBoxFrame" })
     f:SetSize(360, 560)
     f:SetPoint("CENTER")
     f:SetMovable(true)
@@ -513,7 +511,7 @@ local function BuildOptions()
     title:SetPoint("TOP", 0, -8)
     title:SetText("Forager - Guia de Minerios")
     f:Hide()
-    tinsert(UISpecialFrames, "ForagerOreOptions")
+    tinsert(UISpecialFrames, "GatherTrailOptions")
 
     local refreshers = {}
     local y = -38
@@ -536,7 +534,7 @@ local function BuildOptions()
     local sliderN = 0
     local function Slider(label, key, minV, maxV, step, unit, after)
         sliderN = sliderN + 1
-        local name = "ForagerOreSlider" .. sliderN
+        local name = "GatherTrailSlider" .. sliderN
         local cap = f:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
         cap:SetPoint("TOPLEFT", 20, y)
         cap:SetText(label)
@@ -631,9 +629,9 @@ local function ToggleOptions()
     if f:IsShown() then f:Hide() else f:Show() end
 end
 
-SLASH_FORAGERORE1 = "/fore"
-SLASH_FORAGERORE2 = "/foragerore"
-SlashCmdList.FORAGERORE = function(msg)
+SLASH_GATHERTRAIL1 = "/gt"
+SLASH_GATHERTRAIL2 = "/gathertrail"
+SlashCmdList.GATHERTRAIL = function(msg)
     msg = (msg or ""):lower()
     local cmd, arg = msg:match("^(%S*)%s*(.-)$")
     if cmd == "range" and tonumber(arg) then
@@ -656,7 +654,7 @@ end
 
 ---------------------------------------------------------------- eventos
 
-local scan = CreateFrame("GameTooltip", "ForagerOreScan", nil, "GameTooltipTemplate")
+local scan = CreateFrame("GameTooltip", "GatherTrailScan", nil, "GameTooltipTemplate")
 scan:SetOwner(UIParent, "ANCHOR_NONE")
 
 local skinStrings
@@ -670,7 +668,7 @@ local function IsSkinnableUnit(unit)
     scan:ClearLines()
     scan:SetUnit(unit)
     for i = 2, scan:NumLines() do
-        local fs = _G["ForagerOreScanTextLeft" .. i]
+        local fs = _G["GatherTrailScanTextLeft" .. i]
         local text = fs and fs:GetText()
         if text then
             for _, str in ipairs(skinStrings) do
@@ -744,8 +742,8 @@ ev:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
 ev:SetScript("OnEvent", function(_, event, ...)
     if event == "ADDON_LOADED" then
         if (...) ~= ADDON then return end
-        ForagerOreDB = ForagerOreDB or {}
-        db = ForagerOreDB
+        GatherTrailDB = GatherTrailDB or ForagerOreDB or {}
+        db = GatherTrailDB
         for k, v in pairs(DEFAULTS) do
             if db[k] == nil then db[k] = v end
         end
@@ -792,6 +790,8 @@ ev:SetScript("OnEvent", function(_, event, ...)
             lootPos = a and { a, b, inst } or nil
         end
         if not pending then return end
+        -- so conta recurso de objeto do mundo (nao drop de criatura)
+        if guid and not guid:find("^GameObject") then pending = nil return end
         if GetTime() - pending.t > 20 then
             pending = nil
             return

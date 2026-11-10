@@ -1,0 +1,13 @@
+## Interface: 16001
+## Title: GatherTrail
+## Title-ptBR: GatherTrail - Trilha do Coletor
+## Notes: Guia de coleta: memoriza onde voce minera, colhe ervas e esfola, e mostra seta direcional, linha no minimapa e icones no minimapa/mapa (amarelo = sua skill alcanca, vermelho = nao alcanca).
+## Notes-ptBR: Guia de coleta: memoriza onde você minera, colhe ervas e esfola, e mostra seta direcional, linha no minimapa e ícones no minimapa/mapa (amarelo = sua skill alcança, vermelho = não alcança).
+## Author: cleytoncl3
+## Version: 1.0.0
+## SavedVariables: GatherTrailDB, ForagerOreDB
+## IconTexture: Interface\Icons\INV_Pick_02
+## X-Category: Professions
+## X-License: MIT
+
+GatherTrail.lua
