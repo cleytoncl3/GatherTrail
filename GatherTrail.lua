@@ -322,7 +322,7 @@ local function MakePin(parent, size)
     -- mascara circular: ervas sao redondas, minerios e couro quadrados
     local ok, mask = pcall(f.CreateMaskTexture, f)
     if ok and mask then
-        mask:SetTexture("Interface\CharacterFrame\TempPortraitAlphaMask")
+        mask:SetTexture("Interface/CharacterFrame/TempPortraitAlphaMask")
         mask:SetAllPoints()
         f.mask = mask
     end
