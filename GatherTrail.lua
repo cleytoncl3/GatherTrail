@@ -118,7 +118,11 @@ local function SpellName(id)
     return n
 end
 
-local skills = { mine = { has = false, skill = 0 }, herb = { has = false, skill = 0 }, skin = { has = false, skill = 0 } }
+local skills = {
+    mine = { has = false, skill = 0, known = false },
+    herb = { has = false, skill = 0, known = false },
+    skin = { has = false, skill = 0, known = false },
+}
 
 -- Clientes novos devolvem "valores secretos" (GUID, nome...) em varias situacoes.
 -- Eles nao podem ser comparados nem indexados pelo addon: sempre ignorar.
@@ -153,21 +157,57 @@ local function BuildCastNames()
     end
 end
 
+-- grava o nivel de uma profissao pelo nome (qualquer idioma: compara com o nome dos feiticos)
+local function SetSkill(name, level)
+    if not name or issecret(name) or issecret(level) then return end
+    local ln = Lower(name)
+    for kind, set in pairs(kindNames) do
+        if set[ln] then
+            skills[kind].has, skills[kind].known, skills[kind].skill = true, true, level or 0
+        end
+    end
+end
+
 local function RefreshSkill()
     BuildKindNames()
-    for _, s in pairs(skills) do s.has, s.skill = false, 0 end
-    if not GetNumSkillLines then return end
-    for i = 1, GetNumSkillLines() do
-        local n, header, _, rank, temp, mod = GetSkillLineInfo(i)
-        if not header and n then
-            local ln = Lower(n)
-            for kind, set in pairs(kindNames) do
-                if set[ln] then
-                    skills[kind].has = true
-                    skills[kind].skill = (rank or 0) + (mod or 0)
-                end
+    for _, s in pairs(skills) do s.has, s.skill, s.known = false, 0, false end
+    -- fonte 1: lista de skills (clientes classicos)
+    if GetNumSkillLines and GetSkillLineInfo then
+        for i = 1, GetNumSkillLines() do
+            local n, header, _, rank, _, mod = GetSkillLineInfo(i)
+            if not header and n then SetSkill(n, (rank or 0) + (mod or 0)) end
+        end
+    end
+    -- fonte 2: profissoes (clientes mais novos)
+    if GetProfessions and GetProfessionInfo then
+        local list = { GetProfessions() }
+        for i = 1, 8 do
+            local idx = list[i]
+            if idx then
+                local n, _, rank, _, _, _, _, mod = GetProfessionInfo(idx)
+                SetSkill(n, (rank or 0) + (mod or 0))
             end
         end
+    end
+    -- se so sabemos que a pessoa tem a profissao (feitico conhecido), marca "has"
+    for kind, def in pairs(KINDS) do
+        local sp = def.skill[1]
+        if not skills[kind].has and sp then
+            local known = (IsPlayerSpell and IsPlayerSpell(sp)) or (IsSpellKnown and IsSpellKnown(sp))
+            if known then skills[kind].has = true end
+        end
+    end
+end
+
+-- "Sua pericia em Mineracao subiu para 73." -> atualiza o nivel na hora
+local skillPat
+do
+    local g = _G.SKILL_RANK_UP
+    if type(g) == "string" then
+        local p = g:gsub("%%s", "@S@"):gsub("%%d", "@D@")
+        p = p:gsub("[%^%$%(%)%%%.%[%]%*%+%-%?]", "%%%0")
+        p = p:gsub("@S@", "(.+)"):gsub("@D@", "(%%d+)")
+        skillPat = "^" .. p .. "$"
     end
 end
 
@@ -528,6 +568,7 @@ end
 
 local function NodeCan(n)
     local k = n.kind or "mine"
+    if not skills[k].known then return true end -- nivel desconhecido: nao esconde nada
     return (n.req or 0) <= skills[k].skill
 end
 
@@ -625,6 +666,7 @@ end
 
 ScanNow = function()
     if not db then return end
+    RefreshSkill()
     local pa, pb, inst = PlayerPos()
     if not pa then Print(L.POS_UNAVAILABLE) return end
     Rebuild(pa, pb, inst)
@@ -960,7 +1002,6 @@ local function BuildOptions()
     Check(L.OPT_AUTOLOOT, "autoLoot")
     Check(L.OPT_MINE, "trackMine", ForceUpdate)
     Check(L.OPT_HERB, "trackHerb", ForceUpdate)
-    Check(L.OPT_SKIN, "trackSkin", ForceUpdate)
     Check(L.OPT_SEED, "useSeed", ForceUpdate)
     Check(L.OPT_HOVER, "hoverLearn")
     Check(L.OPT_ARROW, "arrow")
@@ -1019,7 +1060,7 @@ local function BuildOptions()
 
     function f:Refresh()
         for _, r in ipairs(refreshers) do r() end
-        local function sk(k) return skills[k].has and L.HAS_SKILL:format(skills[k].skill) or L.NO_SKILL end
+        local function sk(k) return skills[k].known and L.HAS_SKILL:format(skills[k].skill) or (skills[k].has and "?" or L.NO_SKILL) end
         info:SetText(L.INFO:format(#db.nodes, sk("mine"), sk("herb"), sk("skin")))
     end
     f:SetScript("OnShow", f.Refresh)
@@ -1178,6 +1219,7 @@ SlashCmdList.GATHERTRAIL = function(msg)
         local ns_ = 0
         for _, l in pairs(seedCache) do ns_ = ns_ + #l end
         Print(("banco inicial: %d pontos carregados, calibrado=%s"):format(ns_, tostring(coordSwap)))
+        Print(("skill API: GetNumSkillLines=%s GetProfessions=%s | mine known=%s (%d) herb known=%s (%d) | autoLoot=%s"):format(tostring(GetNumSkillLines ~= nil), tostring(GetProfessions ~= nil), tostring(skills.mine.known), skills.mine.skill, tostring(skills.herb.known), skills.herb.skill, tostring(db.autoLoot)))
         Print(("pontos=%d cadaveres=%d mine=%d herb=%d skin=%d cache=%d"):format(#db.nodes, #corpses, skills.mine.skill, skills.herb.skill, skills.skin.skill, #cache))
     else
         ToggleOptions()
@@ -1272,8 +1314,8 @@ ev:RegisterEvent("UNIT_SPELLCAST_SENT")
 ev:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 ev:RegisterEvent("LOOT_OPENED")
 ev:RegisterEvent("LOOT_CLOSED")
-ev:RegisterEvent("PLAYER_TARGET_CHANGED")
-ev:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
+ev:RegisterEvent("CHAT_MSG_SKILL")
+ev:RegisterEvent("PLAYER_ENTERING_WORLD")
 local function Handle(_, event, ...)
     if event == "ADDON_LOADED" then
         if (...) ~= ADDON then return end
@@ -1285,6 +1327,7 @@ local function Handle(_, event, ...)
         db.nodes = db.nodes or {}
         db.skipped = db.skipped or {}
         db.testMode = false
+        db.trackSkin = false -- rastreio de cadaveres removido (nao era confiavel)
     elseif event == "PLAYER_LOGIN" then
         BuildCastNames()
         RefreshSkill()
@@ -1331,41 +1374,50 @@ local function Handle(_, event, ...)
             local a, b, inst = PlayerPos()
             lootPos = a and { a, b, inst } or nil
         end
-        if db.autoLoot then
-            local now = GetTime()
-            local fromCreature = guid and guid:find("^Creature")
-            local gather = (pending and now - pending.t <= 20 and not fromCreature)
-                or (skinCastAt and now - skinCastAt <= 15 and (fromCreature or not guid))
-            if gather then
-                skinCastAt = nil
-                -- depois que o registro abaixo ler os itens
-                C_Timer.After(0, function()
-                    for i = (GetNumLootItems() or 0), 1, -1 do pcall(LootSlot, i) end
-                end)
-            end
-        end
-        if not pending then return end
-        -- so conta recurso de objeto do mundo (nao drop de criatura)
-        if guid and not guid:find("^GameObject") then pending = nil return end
-        if GetTime() - pending.t > 20 then
-            pending = nil
-            return
-        end
-        local def = KINDS[pending.kind]
-        for i = 1, GetNumLootItems() do
-            local link = GetLootSlotLink and GetLootSlotLink(i)
-            if link then
-                local id, _, _, _, icon, cls, sub = GetItemInfoInstant(link)
-                if id and (ORE_REQ[id] or (cls == def.cls and sub == def.sub)) then
-                    if icon then iconCache[id] = icon end
-                    Record(id, pending.kind)
-                    cacheAt = 0
-                    worldDirty = true
-                    break
+        local now = GetTime()
+        local fromCreature = guid and guid:find("^Creature")
+        local fromObject = guid and guid:find("^GameObject")
+        local recent = pending and now - pending.t <= 20
+        -- tem item de coleta na janela? (funciona mesmo se o cast nao foi detectado)
+        local gid, gicon, gkind
+        if not fromCreature then
+            for i = 1, (GetNumLootItems() or 0) do
+                local link = GetLootSlotLink and GetLootSlotLink(i)
+                if link and not issecret(link) then
+                    local id, _, _, _, icon, cls, sub = GetItemInfoInstant(link)
+                    if id and (ORE_REQ[id] or (cls == 7 and (sub == 7 or sub == 9))) then
+                        gid, gicon = id, icon
+                        gkind = (HERB_REQ[id] or sub == 9) and "herb" or "mine"
+                        break
+                    end
                 end
             end
         end
+        local isGather = not fromCreature and ((gid and (fromObject or recent)) or recent)
+        local isSkin = skinCastAt and now - skinCastAt <= 15 and (fromCreature or not guid)
+        if isGather and gid then
+            if not recent then
+                local a, b, inst = PlayerPos()
+                if a then
+                    local map, mx, my = MapPos()
+                    pending = { t = now, kind = gkind, a = a, b = b, inst = inst, map = map, mx = mx, my = my }
+                end
+            end
+            if pending then
+                if gicon then iconCache[gid] = gicon end
+                Record(gid, gkind)
+                cacheAt = 0
+                worldDirty = true
+            end
+        end
         pending = nil
+        if (isGather or isSkin) and db.autoLoot then
+            skinCastAt = nil
+            -- depois do registro acima, que le os itens
+            C_Timer.After(0, function()
+                for i = (GetNumLootItems() or 0), 1, -1 do pcall(LootSlot, i) end
+            end)
+        end
     elseif event == "LOOT_CLOSED" then
         if lootGUID and db then
             local guid, pos = lootGUID, lootPos
@@ -1381,10 +1433,14 @@ local function Handle(_, event, ...)
                 end
             end)
         end
-    elseif event == "PLAYER_TARGET_CHANGED" then
-        if db then CheckUnit("target", false) end
-    elseif event == "UPDATE_MOUSEOVER_UNIT" then
-        if db then CheckUnit("mouseover", false) end
+    elseif event == "CHAT_MSG_SKILL" then
+        local text = ...
+        if db and skillPat and type(text) == "string" and not issecret(text) then
+            local name, rank = text:match(skillPat)
+            if name and rank then SetSkill(name, tonumber(rank)) cacheAt = 0 worldDirty = true end
+        end
+    elseif event == "PLAYER_ENTERING_WORLD" then
+        if db then RefreshSkill() cacheAt = 0 end
     end
 end
 

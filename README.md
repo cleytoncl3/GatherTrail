@@ -10,7 +10,7 @@ O addon detecta o idioma do jogo e já inicia nele: **Português (ptBR)**, **Eng
 
 ## Autoloot só de coleta
 
-Com a opção ligada (padrão), ao minerar, colher ervas ou esfolar o addon pega sozinho os itens da janela de loot daquela coleta, mesmo com o autoloot do jogo desligado. Drops de monstros comuns e baús não são afetados.
+Com a opção ligada (padrão), ao minerar, colher ervas ou esfolar o addon pega sozinho os itens da janela de loot daquela coleta, mesmo com o autoloot do jogo desligado. Drops de monstros comuns e baús não são afetados. O rastreio de cadáveres esfoláveis foi removido (o jogo não oferece como detectá-los de forma confiável); o autoloot do esfolamento continua.
 
 ## Para que serve
 
