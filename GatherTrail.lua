@@ -99,7 +99,7 @@ local DEFAULTS = {
     hoverLearn = true,    -- aprende veios passando o mouse no minimapa
 }
 
-BINDING_HEADER_GATHERTRAIL = "GatherTrail"
+BINDING_HEADER_GATHERTRAIL = "Trailsmith"
 BINDING_NAME_GATHERTRAIL_SKIP = L.BINDING_SKIP
 
 local db
@@ -308,7 +308,7 @@ local function MapPos()
 end
 
 local function Print(msg)
-    print("|cffffd100GatherTrail:|r " .. msg)
+    print("|cffffd100Trailsmith:|r " .. msg)
 end
 
 ---------------------------------------------------------------- gravacao
@@ -1558,7 +1558,7 @@ UpdateMMButton = function()
         b:SetScript("OnDragStop", function(self) self:SetScript("OnUpdate", nil) end)
         b:SetScript("OnEnter", function(self)
             GameTooltip:SetOwner(self, "ANCHOR_LEFT")
-            GameTooltip:AddLine("GatherTrail", 1, 0.82, 0)
+            GameTooltip:AddLine("Trailsmith", 1, 0.82, 0)
             GameTooltip:AddLine(L.MM_LEFT, 1, 1, 1)
             GameTooltip:AddLine(L.MM_RIGHT, 1, 1, 1)
             GameTooltip:AddLine(L.MM_DRAG, 0.7, 0.7, 0.7)

@@ -4,11 +4,11 @@
 
 ---
 
-# GatherTrail
+# Trailsmith
 
-GatherTrail is a gathering guide for **Mining** and **Herbalism**. It points you to the nearest node you can actually gather, draws icons on the minimap and the world map, and keeps the screen clean with filters. It also includes an autoloot made for gatherers.
+Trailsmith is a gathering guide for **Mining** and **Herbalism**. It points you to the nearest node you can actually gather, draws icons on the minimap and the world map, and keeps the screen clean with filters. It also includes an autoloot made for gatherers.
 
-> GatherTrail only **shows information**. It never moves, targets, casts or clicks for your character.
+> Trailsmith only **shows information**. It never moves, targets, casts or clicks for your character.
 
 ## What you get
 
@@ -27,18 +27,18 @@ GatherTrail is a gathering guide for **Mining** and **Herbalism**. It points you
 
 ## How it finds nodes (read this)
 
-The game draws the nodes of *Find Minerals* / *Find Herbs* on the minimap itself and **does not give their positions to addons**. No addon can read them, so GatherTrail works from known locations:
+The game draws the nodes of *Find Minerals* / *Find Herbs* on the minimap itself and **does not give their positions to addons**. No addon can read them, so Trailsmith works from known locations:
 
 1. **Starter database** (optional, recommended): install **GatherTrailData**, which carries node locations from GatherMate2 data.
 2. **What you gather**: when you gather a node, its exact location is saved as *confirmed*.
-3. **Minimap hover**: with tracking on, hovering a node on the minimap shows its name; GatherTrail learns it and snaps it to the nearest known location.
-4. **Auto-hide empty points**: if you rest the mouse on a GatherTrail icon on the minimap with tracking on and the game shows nothing there, the point is hidden for a while (you choose how long).
+3. **Minimap hover**: with tracking on, hovering a node on the minimap shows its name; Trailsmith learns it and snaps it to the nearest known location.
+4. **Auto-hide empty points**: if you rest the mouse on a Trailsmith icon on the minimap with tracking on and the game shows nothing there, the point is hidden for a while (you choose how long).
 
 So the icons show **where nodes can be**, and the game's own tracking shows what is up *right now*. Use both together.
 
 ## Setup
 
-1. Install GatherTrail and **GatherTrailData** (optional dependency; without it only points you learn yourself are shown).
+1. Install Trailsmith and **GatherTrailData** (optional dependency; without it only points you learn yourself are shown).
 2. Learn *Find Minerals* / *Find Herbs* tracking if your class has it (optional but useful).
 3. Open the options with `/gt` or by clicking the minimap button.
 
@@ -80,7 +80,7 @@ Minimap button: **left click** opens the options, **right click** enables or dis
 
 - Starter locations: GatherMate2 data by kagaro, Xinhuan and Nevcairiel (GPL), shipped separately as GatherTrailData.
 - Optional prices: Auctionator.
-- GatherTrail itself is MIT licensed.
+- Trailsmith itself is MIT licensed.
 
 ## Project setup notes (for the author, not for the page)
 

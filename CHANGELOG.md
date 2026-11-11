@@ -1,4 +1,4 @@
-# GatherTrail
+# Trailsmith
 
 ## 1.0.0
 - Directional arrow, minimap line and minimap / world map icons for ore and herbs (green ring = skill is enough, red = too low).

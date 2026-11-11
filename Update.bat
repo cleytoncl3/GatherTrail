@@ -1,16 +1,16 @@
 @echo off
 setlocal
-title GatherTrail - Atualizador
+title Trailsmith - Atualizador
 rem Baixa a versao mais recente do GitHub e atualiza esta pasta. Nao precisa de git.
 rem Seus dados (veios memorizados) ficam em WTF\SavedVariables e nao sao tocados.
 
-set "REPO=cleytoncl3/GatherTrail"
+set "REPO=cleytoncl3/Trailsmith"
 set "BRANCH=main"
 set "DEST=%~dp0"
 set "TMP_DIR=%TEMP%\GatherTrail_update"
 
 echo.
-echo  GatherTrail - atualizando a partir de github.com/%REPO%
+echo  Trailsmith - atualizando a partir de github.com/%REPO%
 echo.
 echo  Feche o WoW antes de atualizar (ou de /reload depois).
 echo.
@@ -32,7 +32,7 @@ robocopy "%SRC%" "%DEST%." /E /XF Update.bat /XD .git /NFL /NDL /NJH /NJS /NP >n
 if errorlevel 8 goto :fail
 
 rmdir /s /q "%TMP_DIR%"
-echo  Pronto! GatherTrail atualizado. Entre no jogo ou de /reload.
+echo  Pronto! Trailsmith atualizado. Entre no jogo ou de /reload.
 echo.
 pause
 exit /b 0

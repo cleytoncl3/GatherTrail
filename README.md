@@ -1,4 +1,4 @@
-# GatherTrail
+# Trailsmith
 
 A gathering guide for **Mining** and **Herbalism** (WoW Classic / WoW Forever): a directional arrow, a minimap line and minimap / world map icons for the nearest nodes your skill can gather, per-resource filters with Auctionator prices, and an autoloot made for gatherers. It only shows information; it never acts for your character.
 
@@ -6,7 +6,7 @@ The full feature description, FAQ and commands are in [CURSEFORGE.md](CURSEFORGE
 
 ## Install
 
-- **CurseForge:** install **GatherTrail** and **GatherTrailData** (optional starter database).
+- **CurseForge:** install **Trailsmith** and **GatherTrailData** (optional starter database).
 - **Manually:** copy the `GatherTrail` folder to `Interface/AddOns`. For the starter database also copy [GatherTrailData](https://github.com/cleytoncl3/GatherTrailData) next to it.
 - **Update without git:** run `Update.bat` in the addon folder (it downloads the latest version of this repository).
 
@@ -14,7 +14,7 @@ Languages: English, Spanish and Portuguese, chosen from the game language.
 
 ## How nodes are found
 
-The client does not expose the minimap tracking blips to addons, so GatherTrail combines: the optional starter database (GatherMate2 data), the spots you gather (saved as confirmed), and nodes learned by hovering the minimap with tracking on. See [CURSEFORGE.md](CURSEFORGE.md#how-it-finds-nodes-read-this).
+The client does not expose the minimap tracking blips to addons, so Trailsmith combines: the optional starter database (GatherMate2 data), the spots you gather (saved as confirmed), and nodes learned by hovering the minimap with tracking on. See [CURSEFORGE.md](CURSEFORGE.md#how-it-finds-nodes-read-this).
 
 ## Community confirmations (optional)
 

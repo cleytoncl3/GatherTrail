@@ -39,7 +39,7 @@ local en = {
     ERR_TICK = "internal error (Tick): %s",
     ERR_EVENT = "internal error (%s): %s",
 
-    OPT_TITLE = "GatherTrail",
+    OPT_TITLE = "Trailsmith",
     TAB_GENERAL = "General",
     TAB_DISPLAY = "Display",
     TAB_NODES = "Resources",
@@ -146,7 +146,7 @@ local es = {
     ERR_TICK = "error interno (Tick): %s",
     ERR_EVENT = "error interno (%s): %s",
 
-    OPT_TITLE = "GatherTrail",
+    OPT_TITLE = "Trailsmith",
     TAB_GENERAL = "General",
     TAB_DISPLAY = "Pantalla",
     TAB_NODES = "Recursos",
@@ -253,7 +253,7 @@ local pt = {
     ERR_TICK = "erro interno (Tick): %s",
     ERR_EVENT = "erro interno (%s): %s",
 
-    OPT_TITLE = "GatherTrail",
+    OPT_TITLE = "Trailsmith",
     TAB_GENERAL = "Geral",
     TAB_DISPLAY = "Exibição",
     TAB_NODES = "Recursos",

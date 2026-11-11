@@ -1,8 +1,8 @@
 ## Interface: 16001, 11508, 11509
-## Title: GatherTrail
-## Title-ptBR: GatherTrail - Trilha do Coletor
-## Title-esES: GatherTrail - Rastro del Recolector
-## Title-esMX: GatherTrail - Rastro del Recolector
+## Title: Trailsmith
+## Title-ptBR: Trailsmith
+## Title-esES: Trailsmith
+## Title-esMX: Trailsmith
 ## Notes: Gathering guide: remembers where you mine, pick herbs and skin, and shows a directional arrow, a minimap line and minimap/world map icons (yellow = your skill is enough, red = too low).
 ## Notes-esES: Guía de recolección: recuerda dónde minas, recoges hierbas y desuellas, y muestra una flecha direccional, una línea en el minimapa e iconos en el minimapa y el mapa (amarillo = tu habilidad alcanza, rojo = insuficiente).
 ## Notes-esMX: Guía de recolección: recuerda dónde minas, recoges hierbas y desuellas, y muestra una flecha direccional, una línea en el minimapa e iconos en el minimapa y el mapa (amarillo = tu habilidad alcanza, rojo = insuficiente).
@@ -14,6 +14,8 @@
 ## IconTexture: Interface\Icons\INV_Pick_02
 ## X-Category: Professions
 ## X-License: MIT
+## X-Curse-Project-ID: 1798309
+## X-Website: https://github.com/cleytoncl3/Trailsmith
 
 Locales.lua
 ConfirmedData.lua
