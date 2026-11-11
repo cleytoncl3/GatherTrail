@@ -1,0 +1,12 @@
+package-as: GatherTrail
+
+ignore:
+  - Update.bat
+  - Contribute.bat
+  - Contribute.ps1
+  - workflow-template
+  - confirmations.json
+  - CHANGELOG.md
+  - CURSEFORGE.md
+  - README.md
+  - .gitattributes

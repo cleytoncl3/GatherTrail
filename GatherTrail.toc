@@ -1,4 +1,4 @@
-## Interface: 16001
+## Interface: 16001, 11508, 11509
 ## Title: GatherTrail
 ## Title-ptBR: GatherTrail - Trilha do Coletor
 ## Title-esES: GatherTrail - Rastro del Recolector

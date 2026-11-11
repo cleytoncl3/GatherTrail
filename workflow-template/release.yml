@@ -1,0 +1,19 @@
+# Mova para .github/workflows/release.yml (precisa da permissao "workflow" no gh).
+# Ao criar uma tag (ex.: v1.1.0), empacota o addon e envia para o CurseForge e para a
+# pagina de Releases do GitHub. Precisa do segredo CF_API_KEY no repositorio.
+name: Package and release
+on:
+  push:
+    tags:
+      - "**"
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      CF_API_KEY: ${{ secrets.CF_API_KEY }}
+      GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: BigWigsMods/packager@v2
