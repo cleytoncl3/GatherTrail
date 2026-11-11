@@ -236,6 +236,14 @@ local function OreIcon(id)
     return icon or "Interface\\Icons\\INV_Misc_QuestionMark"
 end
 
+-- raridade do veio: veios raros ficam menos transparentes que os comuns
+local RARITY = {
+    [2770] = 0, [2771] = 0.05, [2775] = 0.3, [2772] = 0.4, [2776] = 0.55, [3858] = 0.6, [7911] = 0.75,
+    [10620] = 0.8, [11370] = 0.9, [4278] = 0.3, [3340] = 0.2, [5833] = 0.5,
+    [23424] = 0.6, [23425] = 0.75, [23426] = 1, [23427] = 0.9,
+    [36909] = 0.6, [36912] = 0.8, [36910] = 0.95,
+}
+
 local barIcon, barOwner
 local function BuildBarIcons()
     if barIcon or not GetItemInfoInstant then return end
@@ -363,8 +371,27 @@ end
 local corpses = {} -- esfolaveis: so em memoria, somem sozinhos
 local pending -- { t = GetTime(), a, b, inst, map, mx, my }
 
+-- ponto do banco inicial do mesmo veio mais perto de (a, b): usado para confirmar o local exato
+local function SnapSeed(ore, kind, a, b, inst, map)
+    local list = map and seedCache[map]
+    if not list then return nil end
+    local best, bd = nil, 35 * 35
+    for _, n in ipairs(list) do
+        if n.ore == ore and n.inst == inst then
+            local da, dw = n.a - a, n.b - b
+            local d = da * da + dw * dw
+            if d < bd then best, bd = n, d end
+        end
+    end
+    return best
+end
+
 local function Record(oreID, kind)
     if not pending then return end
+    local snap = SnapSeed(oreID, kind, pending.a, pending.b, pending.inst, pending.map)
+    if snap then
+        pending.a, pending.b, pending.mx, pending.my = snap.a, snap.b, snap.mx, snap.my
+    end
     local now = time()
     for _, n in ipairs(db.nodes) do
         if n.inst == pending.inst and n.ore == oreID and (n.kind or "mine") == kind then
@@ -379,13 +406,21 @@ local function Record(oreID, kind)
         ore = oreID, kind = kind, req = ORE_REQ[oreID] or 0,
         a = pending.a, b = pending.b, inst = pending.inst,
         map = pending.map, mx = pending.mx, my = pending.my,
-        t = now, mined = now,
+        t = now, mined = now, confirmed = snap ~= nil,
     }
 end
 
 ---------------------------------------------------------------- pins
 
-local MASK_TEX = "Interface/CharacterFrame/TempPortraitAlphaMask"
+-- Redondo sem MaskTexture: SetPortraitToTexture recorta em circulo. Se nao existir,
+-- cai para o quadrado.
+local function SetRound(tex, src)
+    if SetPortraitToTexture and src then
+        if pcall(SetPortraitToTexture, tex, src) then return end
+    end
+    tex:SetTexture(src)
+    tex:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+end
 
 local function MakePin(parent, size)
     local f = CreateFrame("Frame", nil, parent)
@@ -393,41 +428,31 @@ local function MakePin(parent, size)
     f:SetSize(size, size)
     f.border = f:CreateTexture(nil, "BACKGROUND")
     f.border:SetAllPoints()
+    SetRound(f.border, "Interface/Buttons/WHITE8X8")
     f.icon = f:CreateTexture(nil, "ARTWORK")
     f.icon:SetPoint("TOPLEFT", 2, -2)
     f.icon:SetPoint("BOTTOMRIGHT", -2, 2)
-    f.icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
-    -- duas mascaras circulares: o anel (borda) e o icone, um pouco menor
-    local ok, mask = pcall(f.CreateMaskTexture, f)
-    local ok2, imask = pcall(f.CreateMaskTexture, f)
-    if ok and mask and ok2 and imask then
-        mask:SetTexture(MASK_TEX)
-        mask:SetAllPoints()
-        imask:SetTexture(MASK_TEX)
-        imask:SetPoint("TOPLEFT", 2, -2)
-        imask:SetPoint("BOTTOMRIGHT", -2, 2)
-        f.mask, f.imask = mask, imask
-    end
     f:Hide()
     return f
 end
 
 local function StylePin(pin, node, can)
     local c = can and YELLOW or RED
-    pin.border:SetColorTexture(c[1], c[2], c[3], 0.8)
+    pin.border:SetVertexColor(c[1], c[2], c[3], 0.8)
     local kind = node.kind or "mine"
-    pin.icon:SetTexture(kind == "mine" and MineIcon(node.ore) or KIND_ICON[kind] or OreIcon(node.ore))
-    pin.icon:SetDesaturated(not can)
-    if pin.mask and not pin.round then
-        pin.icon:AddMaskTexture(pin.imask)
-        pin.border:AddMaskTexture(pin.mask)
-        pin.round = true
+    local tex = kind == "mine" and MineIcon(node.ore) or KIND_ICON[kind] or OreIcon(node.ore)
+    if pin.curTex ~= tex then
+        pin.curTex = tex
+        SetRound(pin.icon, tex)
     end
+    pin.icon:SetDesaturated(not can)
     if not pin.noScale then
         local sz = pin.baseSize * (db.pinSize or 100) / 100
         pin:SetSize(sz, sz)
     end
-    pin:SetAlpha(1 - (db.pinTransp or 0) / 100)
+    local f = RARITY[node.ore] or min(1, (node.req or 0) / 300)
+    local base = 1 - (db.pinTransp or 0) / 100
+    pin:SetAlpha(base + (1 - base) * f)
     pin.node, pin.can = node, can
 end
 
@@ -589,20 +614,31 @@ local function NodeCan(n)
     return (n.req or 0) <= skills[k].skill
 end
 
+local function HasReal(n)
+    for _, m in ipairs(db.nodes) do
+        if m.ore == n.ore and m.inst == n.inst then
+            local da, dw = m.a - n.a, m.b - n.b
+            if da * da + dw * dw < 25 * 25 then return true end
+        end
+    end
+    return false
+end
+
 local function UpdateWorldMap(pa, pb, inst)
     if not (worldFrame and WorldMapFrame:IsShown()) then return end
     for _, p in ipairs(worldPins) do p:Hide() end
     if not db.mapPins or not pa then return end
+    worldFrame:Show()
     local mapID = WorldMapFrame:GetMapID()
     local w, h = worldFrame:GetWidth(), worldFrame:GetHeight()
     local now, used, r2 = time(), 0, db.range * db.range
-    local function consider(n)
+    local function consider(n, seed)
         if n.map == mapID and n.inst == inst and n.mx and KindOn(n.kind or "mine") and not IsSkipped(n) then
             local da, dw = n.a - pa, n.b - pb
             if da * da + dw * dw <= r2 then
                 local hidden = db.hideMinedSecs > 0 and n.mined and (now - n.mined) < db.hideMinedSecs
                 local can = NodeCan(n)
-                if not hidden and (can or db.showRed) and used < #worldPins then
+                if not hidden and (can or db.showRed) and used < #worldPins and not (seed and HasReal(n)) then
                     used = used + 1
                     local p = worldPins[used]
                     StylePin(p, n, can)
@@ -613,9 +649,9 @@ local function UpdateWorldMap(pa, pb, inst)
             end
         end
     end
-    for _, n in ipairs(db.nodes) do consider(n) end
+    for _, n in ipairs(db.nodes) do consider(n, false) end
     if db.useSeed and seedCache[mapID] then
-        for _, n in ipairs(seedCache[mapID]) do consider(n) end
+        for _, n in ipairs(seedCache[mapID]) do consider(n, true) end
     end
 end
 
@@ -796,6 +832,9 @@ local function HoverLearn(pa, pb, inst, rot, ypp)
     local theta = atan2(-dx, dy) + rot
     local na, nb = pa + d * cos(theta), pb + d * sin(theta)
 
+    local map = C_Map and C_Map.GetBestMapForUnit and C_Map.GetBestMapForUnit("player")
+    local snap = SnapSeed(hit.id, hit.kind, na, nb, inst, map)
+    if snap then na, nb = snap.a, snap.b end
     for _, n in ipairs(db.nodes) do
         if n.inst == inst and n.ore == hit.id and (n.kind or "mine") == hit.kind then
             local da, dw = n.a - na, n.b - nb
@@ -805,6 +844,7 @@ local function HoverLearn(pa, pb, inst, rot, ypp)
     db.nodes[#db.nodes + 1] = {
         ore = hit.id, kind = hit.kind, req = ORE_REQ[hit.id] or 0,
         a = na, b = nb, inst = inst, t = time(), learned = "hover",
+        map = snap and snap.map, mx = snap and snap.mx, my = snap and snap.my,
     }
     cacheAt = 0
 end
@@ -1233,6 +1273,15 @@ SlashCmdList.GATHERTRAIL = function(msg)
                     tostring(v.objectGUID and v.objectGUID:match("^(%a+)")), x * 100, y * 100))
             end
         end
+    elseif cmd == "map" then
+        local shown = 0
+        for _, p in ipairs(worldPins) do if p:IsShown() then shown = shown + 1 end end
+        local mid = WorldMapFrame and WorldMapFrame.GetMapID and WorldMapFrame:GetMapID()
+        Print(("map: frame=%s visible=%s size=%dx%d mapID=%s seeds=%s pins=%d strata=%s"):format(
+            tostring(worldFrame ~= nil), tostring(worldFrame and worldFrame:IsVisible()),
+            worldFrame and worldFrame:GetWidth() or 0, worldFrame and worldFrame:GetHeight() or 0,
+            tostring(mid), tostring(mid and seedCache[mid] and #seedCache[mid]), shown,
+            tostring(worldFrame and worldFrame:GetFrameStrata())))
     elseif cmd == "debug" then
         local ns_ = 0
         for _, l in pairs(seedCache) do ns_ = ns_ + #l end
