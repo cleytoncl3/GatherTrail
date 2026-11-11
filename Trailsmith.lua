@@ -1251,6 +1251,9 @@ local function BuildOptions()
     info:SetJustifyH("LEFT")
     f.info = info
 
+    local profBtn = Button(g, L.BTN_PROF, 190)
+    profBtn:SetPoint("BOTTOMLEFT", 200, 34)
+    profBtn:SetScript("OnClick", function() if ns.OpenProf then ns.OpenProf() end end)
     local unskip = Button(g, L.BTN_UNSKIP, 190)
     unskip:SetPoint("BOTTOMLEFT", 4, 34)
     unskip:SetScript("OnClick", function()
@@ -1600,6 +1603,8 @@ UpdateMMButton = function()
                 db.enabled = not db.enabled
                 UpdateMMButton()
                 Print(db.enabled and L.MSG_ENABLED or L.MSG_DISABLED_MM)
+            elseif IsShiftKeyDown() and ns.OpenProf then
+                ns.OpenProf()
             else
                 ToggleOptions()
             end
@@ -1650,6 +1655,8 @@ SlashCmdList.GATHERTRAIL = function(msg)
         db.range = math.max(50, math.min(2000, tonumber(arg)))
         cacheAt = 0 worldDirty = true
         Print(L.MSG_RANGE:format(db.range))
+    elseif cmd == "prof" or cmd == "craft" or cmd == "professions" then
+        if ns.OpenProf then ns.OpenProf(arg) end
     elseif cmd == "lock" then
         db.arrowLocked = not db.arrowLocked
         ApplyArrowPos()

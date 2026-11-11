@@ -1,5 +1,13 @@
 # Trailsmith
 
+## 1.2.0
+- New **Profession planner** (on by default). Open it with `/tsp`, `/gt prof`, Shift-click on the minimap button, or the button in the General tab.
+- Pick a profession (Alchemy, Blacksmithing, Cooking, Enchanting, Engineering, First Aid, Leatherworking, Mining/Smelting, Tailoring), set a skill range and get a step-by-step leveling plan with crafts, materials and cost.
+- Three plan modes: cheapest, best profit, fewest crafts. Shopping list with what you already own, a full recipe browser with difficulty bands, and a settings tab.
+- Prices from Auctionator, TradeSkillMaster or Auctioneer (automatic), vendor prices as a fallback. Option to count raw materials as free if you gather them yourself.
+- Recipe database (about 2,500 recipes) generated from public data, see `tools/build_recipes.js` and the README.
+- Four window skins, scale and opacity options. English, Spanish and Portuguese, chosen from the game language.
+
 ## 1.1.1
 - The addon folder is now `Trailsmith` (was `GatherTrail`); saved data moves to the new name. If you update from 1.1.0, delete the old `GatherTrail` folder.
 

@@ -1,12 +1,12 @@
 # Text for the CurseForge project page (copy and paste)
 
-**Summary (one line):** Gathering guide, smart autoloot and an optional combat tutor: arrow and icons for ore and herbs, Auctionator prices, filters.
+**Summary (one line):** Gathering guide, profession leveling planner, smart autoloot and an optional combat tutor.
 
 ---
 
 # Trailsmith
 
-Trailsmith is a toolkit for **gathering** and quality of life: a gathering guide for **Mining** and **Herbalism**, a smart autoloot, and an optional **Combat Tutor**. It points you to the nearest node you can actually gather, draws icons on the minimap and the world map, and keeps the screen clean with filters. It also includes an autoloot made for gatherers.
+Trailsmith is a toolkit for **gathering and crafting**: a gathering guide for **Mining** and **Herbalism**, a **profession leveling planner**, a smart autoloot, and an optional **Combat Tutor**. It points you to the nearest node you can actually gather, draws icons on the minimap and the world map, and keeps the screen clean with filters. It also includes an autoloot made for gatherers.
 
 > Trailsmith only **shows information**. It never moves, targets, casts or clicks for your character.
 
@@ -24,6 +24,19 @@ Trailsmith is a toolkit for **gathering** and quality of life: a gathering guide
   - *Gathering autoloot*: after mining, picking herbs or skinning, loots everything from that gather automatically (works with the game autoloot turned off);
   - *Quest and gold autoloot*: on mobs and containers, takes only **money and quest items** and leaves the rest in the loot window.
 - **Languages**: English, Espanol and Portugues, picked automatically from your game client.
+
+## Profession planner (on by default)
+
+Open it with `/tsp`, `/gt prof`, **Shift + click on the minimap button**, or the button in the General tab.
+
+- Choose a profession: Alchemy, Blacksmithing, Cooking, Enchanting, Engineering, First Aid, Leatherworking, Mining (smelting) or Tailoring.
+- Set **from** and **to** skill (one click fills in your current skill and your max) and read a step-by-step plan: which recipe to craft at each skill range, how many crafts, which materials, and what it costs.
+- Three modes: **Cheapest**, **Best profit** (counts what the crafted items sell for) and **Fewest crafts**.
+- **Materials** tab: a shopping list of raw materials with how many you already own. **Recipes** tab: every recipe with its difficulty bands (orange / yellow / green / grey), where you learn it, and its cost.
+- **Prices** come from Auctionator, TradeSkillMaster or Auctioneer (picked automatically, or choose in Settings). Without one of them it falls back to vendor values. Tick *I gather raw materials myself* to count ores, herbs and leather as free.
+- Recipes you already know are used first. You choose which other sources are allowed: trainer, vendor-sold recipes, recipe items (drops and quests), or unknown source.
+- Four window skins, plus scale and opacity sliders. Works in English, Spanish and Portuguese.
+- The recipe database (about 2,500 recipes) is built from public data (see Credits). Skill-up odds are estimates, and a few recipe requirements are estimated too.
 
 ## Combat Tutor (optional module, off by default)
 
