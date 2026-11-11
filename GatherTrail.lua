@@ -416,7 +416,7 @@ end
 -- Se o cliente nao criar mascaras, o pin fica quadrado.
 local MASK_TEX = "Interface/CharacterFrame/TempPortraitAlphaMask"
 
-local function MakePin(parent, size)
+local function MakePin(parent, size, noMask)
     local f = CreateFrame("Frame", nil, parent)
     f.baseSize = size
     f:SetSize(size, size)
@@ -427,7 +427,7 @@ local function MakePin(parent, size)
     f.icon:SetPoint("TOPLEFT", 2, -2)
     f.icon:SetPoint("BOTTOMRIGHT", -2, 2)
     f.icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
-    if f.CreateMaskTexture then
+    if f.CreateMaskTexture and not noMask then
         local ok1, m1 = pcall(f.CreateMaskTexture, f)
         local ok2, m2 = pcall(f.CreateMaskTexture, f)
         if ok1 and m1 and ok2 and m2 then
@@ -593,7 +593,7 @@ local function SetupWorldMap()
     worldFrame:SetFrameStrata("DIALOG")
     worldFrame:SetFrameLevel(canvas:GetFrameLevel() + 500)
     for i = 1, 100 do
-        local p = MakePin(worldFrame, 18)
+        local p = MakePin(worldFrame, 18, true)
         p:EnableMouse(true)
         p:SetScript("OnEnter", function(self)
             local n = self.node
