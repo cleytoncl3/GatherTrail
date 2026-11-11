@@ -1,6 +1,6 @@
 # Trailsmith
 
-A gathering guide for **Mining** and **Herbalism** (WoW Classic / WoW Forever): a directional arrow, a minimap line and minimap / world map icons for the nearest nodes your skill can gather, per-resource filters with Auctionator prices, and an autoloot made for gatherers. It only shows information; it never acts for your character.
+A toolkit for gatherers and more: a gathering guide for **Mining** and **Herbalism** (WoW Classic / WoW Forever): a directional arrow, a minimap line and minimap / world map icons for the nearest nodes your skill can gather, per-resource filters with Auctionator prices, and an autoloot made for gatherers. It only shows information; it never acts for your character.
 
 The full feature description, FAQ and commands are in [CURSEFORGE.md](CURSEFORGE.md) (the text used on the CurseForge page).
 
@@ -11,6 +11,10 @@ The full feature description, FAQ and commands are in [CURSEFORGE.md](CURSEFORGE
 - **Update without git:** run `Update.bat` in the addon folder (it downloads the latest version of this repository).
 
 Languages: English, Spanish and Portuguese, chosen from the game language.
+
+## Combat Tutor module
+
+The former MVAT addon is included as an optional module (off by default). Enable it in the **Combat** tab. It only draws information and never acts for your character. See [CURSEFORGE.md](CURSEFORGE.md#combat-tutor-optional-module-off-by-default). If you still have the standalone `MVAT` folder, delete it so the two do not clash.
 
 ## How nodes are found
 

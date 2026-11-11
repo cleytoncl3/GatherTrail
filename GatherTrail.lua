@@ -11,6 +11,30 @@
 local ADDON, ns = ...
 local L = ns.L
 
+-- Combat Tutor (ex-MVAT): modulo opcional, desligado por padrao. O codigo so roda depois que
+-- o jogador liga o modulo (veja StartTutor).
+local tutorStarted = false
+local function StartTutor()
+    if tutorStarted or not ns.StartCombatTutor then return false end
+    tutorStarted = true
+    local ok, err = pcall(ns.StartCombatTutor)
+    if not ok then
+        tutorStarted = false
+        print("|cffffd100Trailsmith:|r Combat Tutor: " .. tostring(err))
+        return false
+    end
+    local core = ns.tutorCore
+    local h = core and core:GetScript("OnEvent")
+    if h then
+        local ok2, err2 = pcall(function()
+            h(core, "ADDON_LOADED", "MVAT")
+            h(core, "PLAYER_LOGIN")
+        end)
+        if not ok2 then print("|cffffd100Trailsmith:|r Combat Tutor: " .. tostring(err2)) end
+    end
+    return true
+end
+
 local sqrt, atan2, sin, cos, floor, min = math.sqrt, math.atan2 or function(y, x) return math.atan(y, x) end, math.sin, math.cos, math.floor, math.min
 
 -- itemID do minerio -> skill de Mineracao necessaria
@@ -94,6 +118,7 @@ local DEFAULTS = {
     onlyConfirmed = false,
     hideOre = {},         -- [itemID] = true: recurso escondido
     autoLoot = true,
+    combatTutor = false,  -- modulo Combat Tutor (ex-MVAT): desligado ate o jogador ativar
     autoLootQuest = true, -- autoloot inteligente: so itens de missao e dinheiro (mobs, bas...)      -- pega sozinho o que veio de coleta (minerio/erva/couro)
     skipSecs = 1800,      -- tempo que um veio pulado fica escondido
     hoverLearn = true,    -- aprende veios passando o mouse no minimapa
@@ -1201,7 +1226,7 @@ local function BuildOptions()
         return b
     end
 
-    local pages = { general = NewPage(), display = NewPage(), nodes = NewPage() }
+    local pages = { general = NewPage(), display = NewPage(), nodes = NewPage(), tutor = NewPage() }
 
     ---------------------------------------------------------- Geral
     local g = pages.general
@@ -1427,6 +1452,36 @@ local function BuildOptions()
         f:Refresh()
     end)
 
+    ---------------------------------------------------------- Combat Tutor
+    local t = pages.tutor
+    Check(t, L.OPT_TUTOR, "combatTutor", function()
+        if db.combatTutor then
+            if StartTutor() then Print(L.TUTOR_ON) end
+            if _G.MVAT_DB then _G.MVAT_DB.enabled = true end
+        else
+            if _G.MVAT_DB then _G.MVAT_DB.enabled = false end
+            Print(L.TUTOR_RELOAD)
+        end
+        f:Refresh()
+    end)
+    t.y = t.y - 6
+    local tinfo = t:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    tinfo:SetPoint("TOPLEFT", 4, t.y)
+    tinfo:SetWidth(390)
+    tinfo:SetJustifyH("LEFT")
+    tinfo:SetText(L.TUTOR_INFO)
+    fixw[#fixw + 1] = { tinfo, 36 }
+    local tOpen = Button(t, L.BTN_TUTOR_OPEN, 220)
+    tOpen:SetPoint("BOTTOMLEFT", 4, 4)
+    tOpen:SetScript("OnClick", function()
+        if StartTutor() or tutorStarted then
+            if _G.SlashCmdList and _G.SlashCmdList.MVAT then _G.SlashCmdList.MVAT("") end
+        else
+            Print(L.TUTOR_OFF)
+        end
+    end)
+    f.tutorOpen = tOpen
+
     ---------------------------------------------------------- redimensionar
     local function Resize()
         local w = f:GetWidth()
@@ -1452,7 +1507,7 @@ local function BuildOptions()
 
     ---------------------------------------------------------- abas
     local tabBtns = {}
-    local order = { { "general", L.TAB_GENERAL }, { "display", L.TAB_DISPLAY }, { "nodes", L.TAB_NODES } }
+    local order = { { "general", L.TAB_GENERAL }, { "display", L.TAB_DISPLAY }, { "nodes", L.TAB_NODES }, { "tutor", L.TAB_TUTOR } }
     local function ShowTab(id)
         for key, page in pairs(pages) do
             if key == id then page:Show() else page:Hide() end
@@ -1463,8 +1518,8 @@ local function BuildOptions()
         db.lastTab = id
     end
     for i, def in ipairs(order) do
-        local b = Button(f, def[2], 130)
-        b:SetPoint("TOPLEFT", 16 + (i - 1) * 134, -34)
+        local b = Button(f, def[2], 100)
+        b:SetPoint("TOPLEFT", 16 + (i - 1) * 104, -34)
         b:SetScript("OnClick", function() ShowTab(def[1]) end)
         tabBtns[def[1]] = b
     end
@@ -1477,6 +1532,9 @@ local function BuildOptions()
         for _, r in ipairs(refreshers) do r() end
         local function sk(k)
             return skills[k].known and L.HAS_SKILL:format(skills[k].skill) or (skills[k].has and "?" or L.NO_SKILL)
+        end
+        if f.tutorOpen then
+            if db.combatTutor then f.tutorOpen:Enable() else f.tutorOpen:Disable() end
         end
         info:SetText(L.INFO:format(#db.nodes, sk("mine"), sk("herb"), sk("skin")))
         f.RefreshNames()
@@ -1572,6 +1630,15 @@ UpdateMMButton = function()
     mmButton.icon:SetDesaturated(not db.enabled)
     PlaceMMButton()
     if db.minimapButton then mmButton:Show() else mmButton:Hide() end
+end
+
+SLASH_MVAT1, SLASH_MVAT2 = "/mvat", "/tutor"
+SlashCmdList.MVAT = function()
+    Print(L.TUTOR_OFF)
+    local f = BuildOptions()
+    db.lastTab = "tutor"
+    f:Show()
+    if f.Refresh then f:Refresh() end
 end
 
 SLASH_GATHERTRAIL1 = "/gt"
@@ -1782,6 +1849,7 @@ local function Handle(_, event, ...)
         BuildCastNames()
         RefreshSkill()
         ApplyArrowPos()
+        if db.combatTutor then StartTutor() end
         UpdateMMButton()
         SetupWorldMap()
         if not worldFrame then

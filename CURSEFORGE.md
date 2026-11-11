@@ -1,12 +1,12 @@
 # Text for the CurseForge project page (copy and paste)
 
-**Summary (one line):** Gathering guide: arrow, line and icons for ore and herbs, per-resource filter, Auctionator prices and smart autoloot.
+**Summary (one line):** Gathering guide, smart autoloot and an optional combat tutor: arrow and icons for ore and herbs, Auctionator prices, filters.
 
 ---
 
 # Trailsmith
 
-Trailsmith is a gathering guide for **Mining** and **Herbalism**. It points you to the nearest node you can actually gather, draws icons on the minimap and the world map, and keeps the screen clean with filters. It also includes an autoloot made for gatherers.
+Trailsmith is a toolkit for **gathering** and quality of life: a gathering guide for **Mining** and **Herbalism**, a smart autoloot, and an optional **Combat Tutor**. It points you to the nearest node you can actually gather, draws icons on the minimap and the world map, and keeps the screen clean with filters. It also includes an autoloot made for gatherers.
 
 > Trailsmith only **shows information**. It never moves, targets, casts or clicks for your character.
 
@@ -24,6 +24,16 @@ Trailsmith is a gathering guide for **Mining** and **Herbalism**. It points you 
   - *Gathering autoloot*: after mining, picking herbs or skinning, loots everything from that gather automatically (works with the game autoloot turned off);
   - *Quest and gold autoloot*: on mobs and containers, takes only **money and quest items** and leaves the rest in the loot window.
 - **Languages**: English, Espanol and Portugues, picked automatically from your game client.
+
+## Combat Tutor (optional module, off by default)
+
+Trailsmith also bundles **Combat Tutor** (formerly the MVAT addon). Turn it on in the **Combat** tab of the options.
+
+- One floating icon shows the ability to use **right now**, with your key binding: emergency, interrupt, dispel, heal, taunt, procs and combos, AoE and missing buffs, for all 9 Classic classes.
+- Extra panels: what the enemy is casting, boss warnings, group debuffs you can remove, and the next abilities in the queue.
+- It only suggests abilities you already know, and (by default) only ones on your action bars.
+- It is **purely informational**: it never casts, targets or clicks for you.
+- Nothing from this module runs until you enable it. Its own windows (opened with `/mvat` or `/tutor`) are currently in Portuguese.
 
 ## How it finds nodes (read this)
 
@@ -47,6 +57,7 @@ So the icons show **where nodes can be**, and the game's own tracking shows what
 - **General**: enable, autoloot types, which gathering professions to track, starter database, learning from minimap hover, auto-hide empty points, test mode (shows the arrow so you can move it), detection range, respawn hide time.
 - **Display**: arrow, lock arrow position, minimap button, minimap icons, world map icons, line to confirmed nodes, red nodes, only confirmed points, icon size, transparency, arrow size.
 - **Resources**: per-resource list with skill and Auctionator price, hide nodes far below your skill, sort and best-value buttons.
+- **Combat**: turn the Combat Tutor module on or off and open its options.
 
 The options window can be resized from its bottom-right corner.
 
