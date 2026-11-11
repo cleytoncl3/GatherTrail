@@ -3,10 +3,10 @@
 ## Title-ptBR: Trailsmith
 ## Title-esES: Trailsmith
 ## Title-esMX: Trailsmith
-## Notes: Gathering guide: remembers where you mine, pick herbs and skin, and shows a directional arrow, a minimap line and minimap/world map icons (yellow = your skill is enough, red = too low).
-## Notes-esES: Guía de recolección: recuerda dónde minas, recoges hierbas y desuellas, y muestra una flecha direccional, una línea en el minimapa e iconos en el minimapa y el mapa (amarillo = tu habilidad alcanza, rojo = insuficiente).
-## Notes-esMX: Guía de recolección: recuerda dónde minas, recoges hierbas y desuellas, y muestra una flecha direccional, una línea en el minimapa e iconos en el minimapa y el mapa (amarillo = tu habilidad alcanza, rojo = insuficiente).
-## Notes-ptBR: Guia de coleta: memoriza onde você minera, colhe ervas e esfola, e mostra seta direcional, linha no minimapa e ícones no minimapa/mapa (amarelo = sua skill alcança, vermelho = não alcança).
+## Notes: Gathering guide, smart autoloot and optional combat tutor: shows a directional arrow, a minimap line and minimap/world map icons (green = your skill is enough, red = too low).
+## Notes-esES: Guía de recolección: recuerda dónde minas, recoges hierbas y desuellas, y muestra una flecha direccional, una línea en el minimapa e iconos en el minimapa y el mapa (verde = tu habilidad alcanza, rojo = insuficiente).
+## Notes-esMX: Guía de recolección: recuerda dónde minas, recoges hierbas y desuellas, y muestra una flecha direccional, una línea en el minimapa e iconos en el minimapa y el mapa (verde = tu habilidad alcanza, rojo = insuficiente).
+## Notes-ptBR: Guia de coleta: memoriza onde você minera, colhe ervas e esfola, e mostra seta direcional, linha no minimapa e ícones no minimapa/mapa (verde = sua skill alcança, vermelho = não alcança).
 ## Author: cleytoncl3
 ## Version: 1.1.1
 ## SavedVariables: GatherTrailDB, ForagerOreDB, MVAT_DB
