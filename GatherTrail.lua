@@ -88,6 +88,8 @@ local DEFAULTS = {
     minimapAngle = 225,
     pinSize = 100,        -- tamanho dos icones (porcento)
     pinTransp = 30,       -- transparencia dos icones (porcento)
+    autoHide = true,      -- esconde pontos vazios ao passar o mouse e nao ver nada (precisa do rastreamento ligado)
+    emptySecs = 900,      -- por quanto tempo um ponto vazio fica escondido
     lowGap = 0,           -- esconde veios X niveis abaixo da skill (0 = desligado)
     onlyConfirmed = false,
     hideOre = {},         -- [itemID] = true: recurso escondido
@@ -804,6 +806,7 @@ local function BuildMaterials()
     return not missing
 end
 
+local hoverSeen = {} -- kind -> GetTime() da ultima vez que a dica do minimapa mostrou um recurso
 local hoverOK
 local hoverAt = 0
 local function HoverLearn(pa, pb, inst, rot, ypp)
@@ -826,6 +829,7 @@ local function HoverLearn(pa, pb, inst, rot, ypp)
         if text:find(e.m, 1, true) then hit = e break end
     end
     if not hit or not KindOn(hit.kind) then return end
+    hoverSeen[hit.kind] = t
 
     local cx, cy = GetCursorPosition()
     local s = Minimap:GetEffectiveScale()
@@ -854,6 +858,74 @@ local function HoverLearn(pa, pb, inst, rot, ypp)
     cacheAt = 0
 end
 
+-- O rastreamento do jogo (Localizar Minerais/Ervas) desenha os veios reais no minimapa.
+-- Se nosso icone esta ali e o mouse fica parado em cima dele sem nenhuma dica aparecer,
+-- nao ha veio nesse ponto agora: esconde por emptySecs.
+local trackAt, trackCache = {}, {}
+local function TrackingOn(kind)
+    local t = GetTime()
+    if hoverSeen[kind] and t - hoverSeen[kind] < 600 then return true end
+    if trackAt[kind] and t - trackAt[kind] < 2 then return trackCache[kind] end
+    trackAt[kind] = t
+    local want = Lower(SpellName(kind == "herb" and 2383 or 2580))
+    local on = false
+    if want ~= "" then
+        if C_Minimap and C_Minimap.GetNumTrackingTypes and C_Minimap.GetTrackingInfo then
+            for i = 1, C_Minimap.GetNumTrackingTypes() do
+                local info = C_Minimap.GetTrackingInfo(i)
+                if info and info.active and info.name and not issecret(info.name) and Lower(info.name) == want then
+                    on = true
+                    break
+                end
+            end
+        elseif GetNumTrackingTypes and GetTrackingInfo then
+            for i = 1, GetNumTrackingTypes() do
+                local name, _, active = GetTrackingInfo(i)
+                if active and name and not issecret(name) and Lower(name) == want then on = true break end
+            end
+        end
+    end
+    trackCache[kind] = on
+    return on
+end
+
+local dwell = { pin = nil, t = 0, cx = 0, cy = 0 }
+local function EmptyCheck(t)
+    if not db.autoHide or not Minimap:IsMouseOver() or GameTooltip:IsShown() then
+        dwell.pin = nil
+        return
+    end
+    local cx, cy = GetCursorPosition()
+    local best, bd
+    for i = 1, MAX_PINS do
+        local p = miniPins[i]
+        if p and p:IsShown() and p.node then
+            local px, py = p:GetCenter()
+            if px then
+                local sc = p:GetEffectiveScale()
+                local dx, dy = px * sc - cx, py * sc - cy
+                local d = sqrt(dx * dx + dy * dy)
+                if d <= p:GetWidth() * sc * 0.3 and (not bd or d < bd) then best, bd = p, d end
+            end
+        end
+    end
+    if not best then dwell.pin = nil return end
+    if best ~= dwell.pin or math.abs(cx - dwell.cx) + math.abs(cy - dwell.cy) > 4 then
+        dwell.pin, dwell.t, dwell.cx, dwell.cy = best, t, cx, cy
+        return
+    end
+    if t - dwell.t >= 0.7 then
+        local n = best.node
+        if n and TrackingOn(n.kind or "mine") then
+            db.skipped = db.skipped or {}
+            db.skipped[NodeKey(n)] = time() + (db.emptySecs or 900)
+            cacheAt = 0
+            worldDirty = true
+        end
+        dwell.pin = nil
+    end
+end
+
 local function Tick()
     if not db.enabled and not db.testMode then HideAll() return end
     EnsureMinimap()
@@ -878,7 +950,10 @@ local function Tick()
         ypp = mmYards / (Minimap:GetWidth() / 2)
     end
 
-    if miniFrame then HoverLearn(pa, pb, inst, rot, ypp) end
+    if miniFrame then
+        HoverLearn(pa, pb, inst, rot, ypp)
+        EmptyCheck(t)
+    end
 
     local bestY, bestYd, bestR, bestRd
     local used = 0
@@ -1103,10 +1178,12 @@ local function BuildOptions()
     Check(g, L.OPT_HERB, "trackHerb", ForceUpdate)
     Check(g, L.OPT_SEED, "useSeed", ForceUpdate)
     Check(g, L.OPT_HOVER, "hoverLearn")
+    Check(g, L.OPT_AUTOHIDE, "autoHide")
     Check(g, L.OPT_TEST, "testMode")
     g.y = g.y - 8
     Slider(g, L.OPT_RANGE, "range", 50, 2000, 50, L.UNIT_YD, ForceUpdate)
     Slider(g, L.OPT_HIDE, "hideMinedSecs", 0, 900, 30, L.UNIT_S, ForceUpdate)
+    Slider(g, L.OPT_EMPTYSECS, "emptySecs", 60, 1800, 60, "", ForceUpdate, function(v) return floor(v / 60) .. " min" end)
 
     local info = g:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     info:SetPoint("BOTTOMLEFT", 4, 70)

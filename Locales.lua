@@ -53,6 +53,8 @@ local en = {
     OPT_TEST = "Test mode (move the arrow)",
     OPT_RANGE = "Detection range",
     OPT_HIDE = "Hide gathered node for",
+    OPT_AUTOHIDE = "Hide empty points (hover on minimap)",
+    OPT_EMPTYSECS = "Keep empty points hidden for",
 
     OPT_ARROW = "Directional arrow",
     OPT_LOCK = "Lock arrow position",
@@ -149,6 +151,8 @@ local es = {
     OPT_TEST = "Modo de prueba (mover la flecha)",
     OPT_RANGE = "Alcance de detección",
     OPT_HIDE = "Ocultar nodo recolectado durante",
+    OPT_AUTOHIDE = "Ocultar puntos vacíos (ratón en minimapa)",
+    OPT_EMPTYSECS = "Mantener puntos vacíos ocultos",
 
     OPT_ARROW = "Flecha direccional",
     OPT_LOCK = "Bloquear posición de la flecha",
@@ -245,6 +249,8 @@ local pt = {
     OPT_TEST = "Modo de teste (mover a seta)",
     OPT_RANGE = "Alcance de detecção",
     OPT_HIDE = "Esconder veio coletado por",
+    OPT_AUTOHIDE = "Esconder pontos vazios (mouse no minimapa)",
+    OPT_EMPTYSECS = "Manter pontos vazios escondidos por",
 
     OPT_ARROW = "Seta direcional",
     OPT_LOCK = "Travar posição da seta",
