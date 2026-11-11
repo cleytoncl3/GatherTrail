@@ -9,7 +9,7 @@ local pairs, ipairs, type, tonumber, tostring = pairs, ipairs, type, tonumber, t
 local LOC = {}
 LOC.en = {
     TAB_CRAFT = "Crafting", TAB_GATHER = "Gathering", NORECIPES = "%s has no crafting recipes. Use the Gathering tab for the guide and options.", SKILL = "Skill",
-    OPT_SHOWALL = "Show professions I do not have in the side list", KEY_USE = "Open the simulator with a key (off by default; K keeps opening the game's crafting window)",
+    OPT_SHOWALL = "Show professions I do not have in the side list", KEY_USE = "Open the simulator with a key (default Ctrl+K; plain K stays with the game's crafting window)",
     KEY_NOTE = "If you pick a key that already does something, the old action moves to Shift + that key.", KEY_PRESS = "Press a key... (Esc cancels)", KEY_BTN = "Key: %s (click to change)", BTN_BLIZZ = "Blizzard's window",
     GATHER_TITLE = "Gathering guide", GATHER_INFO = "Trailsmith points to the nearest ore and herb you can gather and draws it on the minimap and world map. More options (resources, display, filters) are in the full options.",
     G_ENABLED = "Gathering guide enabled", G_MINE = "Track ore (Mining)", G_HERB = "Track herbs (Herbalism)", G_SEED = "Use the seed database", G_AUTOLOOT = "Gathering autoloot",
@@ -27,6 +27,7 @@ LOC.en = {
     BTN_CRAFTWIN = "Open crafting window", MSG_SELECT_MANUAL = "Crafting window opened. Look for %s in the list.", TRACK_DONE = "ready!", TRACK_CRAFT = "craft", SIM_BTN = "Simulation",
     MATS_TOTAL = "Total materials for the whole plan", TRACK_OPEN = "Open crafting", OPT_MM = "Show the simulator icon on the minimap",
     MM_TIP = "Click: open the crafting simulator. Drag: move.",
+    KEY_CONFLICT = "That key already does %s in the game. While this option is on, the simulator takes it over. Use another key or switch it off; the minimap icon always works.",
     TITLE = "Trailsmith Professions", PLAN = "Plan", MATS = "Materials", RECIPES = "Recipes", SETTINGS = "Settings",
     FROM = "From", TO = "To", MYSKILL = "My skill", MAXSKILL = "Max",
     MODE_CHEAP = "Cheapest", MODE_PROFIT = "Best profit", MODE_FAST = "Fewest crafts",
@@ -52,7 +53,7 @@ LOC.en = {
 }
 LOC.es = {
     TAB_CRAFT = "Fabricación", TAB_GATHER = "Recolección", NORECIPES = "%s no tiene recetas de fabricación. Usa la pestaña Recolección para la guía y las opciones.", SKILL = "Habilidad",
-    OPT_SHOWALL = "Mostrar en la lista lateral las profesiones que no tengo", KEY_USE = "Abrir el simulador con una tecla (desactivado por defecto; K sigue abriendo la ventana de creación del juego)",
+    OPT_SHOWALL = "Mostrar en la lista lateral las profesiones que no tengo", KEY_USE = "Abrir el simulador con una tecla (por defecto Ctrl+K; la K sola sigue con la ventana de creación del juego)",
     KEY_NOTE = "Si eliges una tecla que ya hace algo, la acción original pasa a Mayús + esa tecla.", KEY_PRESS = "Pulsa una tecla... (Esc cancela)", KEY_BTN = "Tecla: %s (clic para cambiar)", BTN_BLIZZ = "Ventana de Blizzard",
     GATHER_TITLE = "Guía de recolección", GATHER_INFO = "Trailsmith señala el mineral y la hierba más cercanos que puedes recolectar y los dibuja en el minimapa y el mapa del mundo. Más opciones (recursos, visualización, filtros) en las opciones completas.",
     G_ENABLED = "Guía de recolección activada", G_MINE = "Rastrear minerales (Minería)", G_HERB = "Rastrear hierbas (Herboristería)", G_SEED = "Usar la base de datos inicial", G_AUTOLOOT = "Autobotín de recolección",
@@ -70,6 +71,7 @@ LOC.es = {
     BTN_CRAFTWIN = "Abrir ventana de creación", MSG_SELECT_MANUAL = "Ventana de creación abierta. Busca %s en la lista.", TRACK_DONE = "¡listo!", TRACK_CRAFT = "crear", SIM_BTN = "Simulación",
     MATS_TOTAL = "Materiales totales de todo el plan", TRACK_OPEN = "Abrir creación", OPT_MM = "Mostrar el icono del simulador en el minimapa",
     MM_TIP = "Clic: abrir el simulador de creación. Arrastrar: mover.",
+    KEY_CONFLICT = "Esa tecla ya hace %s en el juego. Mientras esta opción esté activa, el simulador la reemplaza. Usa otra tecla o desactívala; el icono del minimapa siempre funciona.",
     TITLE = "Trailsmith Profesiones", PLAN = "Plan", MATS = "Materiales", RECIPES = "Recetas", SETTINGS = "Ajustes",
     FROM = "Desde", TO = "Hasta", MYSKILL = "Mi nivel", MAXSKILL = "Máx.",
     MODE_CHEAP = "Más barato", MODE_PROFIT = "Mayor beneficio", MODE_FAST = "Menos creaciones",
@@ -95,7 +97,7 @@ LOC.es = {
 }
 LOC.pt = {
     TAB_CRAFT = "Criação", TAB_GATHER = "Coleta", NORECIPES = "%s não tem receitas de criação. Use a aba Coleta para o guia e as opções.", SKILL = "Perícia",
-    OPT_SHOWALL = "Mostrar na lista lateral as profissões que eu não tenho", KEY_USE = "Abrir o simulador com uma tecla (desligado por padrão; o K continua abrindo a janela de criação do jogo)",
+    OPT_SHOWALL = "Mostrar na lista lateral as profissões que eu não tenho", KEY_USE = "Abrir o simulador com uma tecla (padrão Ctrl+K; o K sozinho continua com a janela de criação do jogo)",
     KEY_NOTE = "Se você escolher uma tecla que já faz algo, a ação original passa para Shift + essa tecla.", KEY_PRESS = "Aperte uma tecla... (Esc cancela)", KEY_BTN = "Tecla: %s (clique para trocar)", BTN_BLIZZ = "Janela da Blizzard",
     GATHER_TITLE = "Guia de coleta", GATHER_INFO = "O Trailsmith aponta o minério e a erva mais próximos que você consegue coletar e desenha no minimapa e no mapa-múndi. Mais opções (recursos, exibição, filtros) estão nas opções completas.",
     G_ENABLED = "Guia de coleta ligado", G_MINE = "Rastrear minérios (Mineração)", G_HERB = "Rastrear ervas (Herborismo)", G_SEED = "Usar o banco de dados inicial", G_AUTOLOOT = "Autosaque de coleta",
@@ -113,6 +115,7 @@ LOC.pt = {
     BTN_CRAFTWIN = "Abrir janela de criação", MSG_SELECT_MANUAL = "Janela de criação aberta. Procure %s na lista.", TRACK_DONE = "pronto!", TRACK_CRAFT = "criar", SIM_BTN = "Simulação",
     MATS_TOTAL = "Total de materiais de todo o plano", TRACK_OPEN = "Abrir criação", OPT_MM = "Mostrar o ícone do simulador no minimapa",
     MM_TIP = "Clique: abrir o simulador de crafting. Arraste: mover.",
+    KEY_CONFLICT = "Essa tecla já faz %s no jogo. Enquanto esta opção estiver ligada, o simulador a substitui. Use outra tecla ou desligue; o ícone do minimapa sempre funciona.",
     TITLE = "Trailsmith Profissões", PLAN = "Plano", MATS = "Materiais", RECIPES = "Receitas", SETTINGS = "Opções",
     FROM = "De", TO = "Até", MYSKILL = "Minha perícia", MAXSKILL = "Máx.",
     MODE_CHEAP = "Mais barato", MODE_PROFIT = "Maior lucro", MODE_FAST = "Menos criações",
@@ -174,7 +177,7 @@ for _, p in ipairs(PROFS) do PROF_BY_KEY[p.key] = p end
 local issecret = issecretvalue or function() return false end
 local QMARK = "Interface\\Icons\\INV_Misc_QuestionMark"
 local DEFAULTS = {
-    sel = "mining", skin = "dark", scale = 1, alpha = 0.96, fontText = 1, fontNum = 1, key = "", useKey = false, keyVersion = 2, showAll = false, simOwned = true, autoText = false, w = 980, h = 680, logOn = true, log = {}, provider = "auto", mode = "cheap",
+    sel = "mining", skin = "dark", scale = 1, alpha = 0.96, fontText = 1, fontNum = 1, key = "CTRL-K", useKey = true, showAll = false, simOwned = true, autoText = false, w = 980, h = 680, logOn = true, log = {}, provider = "auto", mode = "cheap",
     free = false, knownOnly = false, srcT = true, srcV = true, srcI = false, srcU = false, ahCut = true,
     range = {},
 }
@@ -1354,7 +1357,13 @@ local function ApplyKey()
         toggleBtn:SetScript("OnClick", function() ns.OpenProf() end)
     end
     if ClearOverrideBindings then ClearOverrideBindings(keyOwner) end
+    UI.keyConflict = nil
     if P.useKey and P.key and P.key ~= "" then
+        local cur = GetBindingAction and GetBindingAction(P.key)
+        if cur and cur ~= "" and not cur:find("TrailsmithProfToggle", 1, true) then
+            UI.keyConflict = cur
+            Log("key %s was bound to %s; the simulator takes it over while enabled", P.key, cur)
+        end
         if GetBindingAction and SetOverrideBinding and not P.key:find("-", 1, true) then
             local orig = GetBindingAction(P.key)
             if orig and orig ~= "" then UI.origAction = orig end
@@ -1548,12 +1557,16 @@ local function MakeCreateButton(parent, text, w, h)
     b:SetAttribute("useOnKeyDown", false)
     b:SetAttribute("type", "spell")
     b:HookScript("PostClick", function(self2)
-        Log("open-crafting button clicked: spell attr=%s", tostring(self2:GetAttribute("spell")))
+        Log("open-crafting button clicked (%s): spell attr=%s", tostring(self2.tag or "?"), tostring(self2:GetAttribute("spell")))
         local tg = self2.target
         C_Timer.After(0.6, function()
             local ok, err = pcall(function()
                 local shown = ProfFramesShown()
                 Log("after click: profession frames shown: %s", #shown > 0 and table.concat(shown, ",") or "none")
+                for _, fname in ipairs(shown) do
+                    local fr = _G[fname]
+                    if fr and fr.Raise then pcall(fr.Raise, fr) end
+                end
                 if #shown == 0 and tg then
                     local T = _G.C_TradeSkillUI
                     local id = SKILLLINE[tg.key]
@@ -1587,7 +1600,7 @@ function Tracker:Build()
     if self.frame then return end
     local f = Panel(UIParent, 0.88)
     f:SetSize(310, 120)
-    f:SetFrameStrata("MEDIUM")
+    f:SetFrameStrata("HIGH")
     f:SetClampedToScreen(true)
     f:SetMovable(true)
     f:EnableMouse(true)
@@ -1614,6 +1627,7 @@ function Tracker:Build()
         f.rows[i] = fs
     end
     f.create = MakeCreateButton(f, S.TRACK_OPEN, 130, 22)
+    f.create.tag = "tracker"
     f.create:SetPoint("BOTTOMLEFT", 10, 10)
     f.sim = Btn(f, S.TAB_SIM, 90, 22, function()
         local t = P and P.track
@@ -2069,6 +2083,7 @@ function UI:BuildCraft(f)
     end)
     st:Add(self.provBtn, 22, 0, 12, true)
     self.openCraft = MakeCreateButton(rp, S.BTN_CRAFTWIN, RIGHTW - 20, 24)
+    self.openCraft.tag = "side panel"
     st:Add(self.openCraft, 24, 0, 0, true)
     self.syncs[#self.syncs + 1] = function()
         local pv = P.provider
@@ -2284,6 +2299,7 @@ function UI:BuildSim(f)
     end)
     dp.pin:SetPoint("BOTTOMLEFT", 12, 12)
     dp.create = MakeCreateButton(dp, S.BTN_CRAFTWIN, 240, 24)
+    dp.create.tag = "simulator"
     dp.create:SetPoint("BOTTOMRIGHT", -12, 12)
 end
 
@@ -2324,6 +2340,21 @@ function UI:BuildSettings(pane)
     st:Add(Label(pane, S.SETTINGS, "GameFontNormalLarge"), 22, 0, 8)
     st:Add(Check(pane, S.OPT_SHOWALL, function() return P.showAll end, function(v) P.showAll = v UI:Refresh() end), 24, 0, 4)
     st:Add(Check(pane, S.OPT_MM, function() return not P.mmHide end, function(v) P.mmHide = not v if ns.UpdateProfMinimap then ns.UpdateProfMinimap() end end), 24, 0, 12)
+    st:Add(Check(pane, S.KEY_USE, function() return P.useKey end, function(v) P.useKey = v ApplyKey() UI:Refresh() end), 24, 0, 6)
+    self.keyBtn = Btn(pane, "", 300, 22, function(b)
+        b:SetText(S.KEY_PRESS)
+        StartCapture(function() ApplyKey() UI:Refresh() end)
+    end)
+    st:Add(self.keyBtn, 22, 0, 4)
+    self.keyNote = Label(pane, "", "GameFontHighlightSmall")
+    self.keyNote:SetTextColor(0.75, 0.75, 0.75)
+    self.keyNote:SetJustifyV("TOP")
+    st:Add(self.keyNote, 30, 4, 12, true)
+    self.syncs[#self.syncs + 1] = function()
+        self.keyBtn:SetText(S.KEY_BTN:format((P.key and P.key ~= "") and P.key or "-"))
+        if UI.keyConflict then self.keyNote:SetText("|cffff9933" .. S.KEY_CONFLICT:format(tostring(UI.keyConflict)) .. "|r")
+        else self.keyNote:SetText(S.KEY_NOTE) end
+    end
     local function Sl(label, lo, hi, step, key, apply)
         local s2 = Slider(pane, label, lo, hi, step, function() return P[key] end, function(v) P[key] = v apply() end)
         s2:SetWidth(360)
@@ -2353,7 +2384,8 @@ function UI:Build()
     local w, h = P.w or DEFW, P.h or DEFH
     f:SetSize(max(MINW, w), max(MINH, h))
     f:SetPoint("CENTER")
-    f:SetFrameStrata("HIGH")
+    f:SetFrameStrata("MEDIUM")
+    f:SetToplevel(true)
     f:SetMovable(true)
     f:EnableMouse(true)
     f:SetClampedToScreen(true)
@@ -2458,11 +2490,11 @@ local function Setup()
         end
     end
     -- the game's own K window must stay untouched: older versions took the key over, so switch that off once
-    if P.keyVersion ~= 2 then
-        P.keyVersion = 2
-        P.useKey = false
-        P.key = ""
-        Log("migration: key takeover switched off")
+    if P.keyReset ~= 3 then
+        P.keyReset = 3
+        P.useKey = true
+        P.key = "CTRL-K"
+        Log("migration: simulator key set to CTRL-K (plain K is left to the game)")
     end
     return true
 end
@@ -2523,6 +2555,7 @@ ev:SetScript("OnEvent", function(_, event)
             ApplyKey()
             Tracker:Refresh()
             pcall(ns.UpdateProfMinimap)
+            pcall(ns.RegisterCompartment)
         end
     elseif event == "BAG_UPDATE_DELAYED" then
         if P and P.track then Tracker:Refresh() end
@@ -2578,7 +2611,7 @@ local function BuildMM()
     bg:SetPoint("TOPLEFT", 7, -5)
     local icon = b:CreateTexture(nil, "ARTWORK")
     icon:SetSize(17, 17)
-    icon:SetTexture("Interface\\Icons\\Trade_Engineering")
+    icon:SetTexture("Interface\\Icons\\Trade_BlackSmithing")
     icon:SetTexCoord(0.05, 0.95, 0.05, 0.95)
     icon:SetPoint("TOPLEFT", 7, -6)
     local border = b:CreateTexture(nil, "OVERLAY")
@@ -2608,10 +2641,39 @@ local function BuildMM()
     mm = b
     PlaceMM()
 end
+local ICON = "Interface\\Icons\\Trade_BlackSmithing"
 function ns.UpdateProfMinimap()
     if not P then return end
+    -- minimap button collectors (and the usual LibDBIcon buttons) only see icons registered through the data broker
+    local LS = _G.LibStub
+    local LDB = LS and LS("LibDataBroker-1.1", true)
+    local DBI = LS and LS("LibDBIcon-1.0", true)
+    if LDB and DBI then
+        if not ns.ldbObj then
+            ns.ldbObj = LDB:NewDataObject("TrailsmithProf", {
+                type = "launcher", text = S.TITLE, icon = ICON,
+                OnClick = function() ns.OpenProf() end,
+                OnTooltipShow = function(tt) tt:AddLine(S.TITLE, 1, 0.82, 0) tt:AddLine(S.MM_TIP, 1, 1, 1) end,
+            })
+            P.ldb = P.ldb or {}
+            DBI:Register("TrailsmithProf", ns.ldbObj, P.ldb)
+            Log("registered with LibDBIcon")
+        end
+        if P.mmHide then DBI:Hide("TrailsmithProf") else DBI:Show("TrailsmithProf") end
+        if mm then mm:Hide() end
+        return
+    end
     BuildMM()
     if mm then if P.mmHide then mm:Hide() else mm:Show() end end
+end
+function ns.RegisterCompartment()
+    local c = _G.AddonCompartmentFrame
+    if c and c.RegisterAddon and not ns.compReg then
+        ns.compReg = true
+        local ok, err = pcall(c.RegisterAddon, c, { text = S.TITLE, icon = ICON, notCheckable = true, registerForAnyClick = true,
+            func = function() ns.OpenProf() end })
+        Log("addon compartment registration: ok=%s %s", tostring(ok), tostring(err))
+    end
 end
 
 -- what the game itself says while crafting

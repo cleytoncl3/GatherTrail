@@ -1,5 +1,10 @@
 # Trailsmith
 
+## 1.4.2
+- **K is yours again.** A bug kept the old K takeover alive for people who had used an earlier version. The simulator now opens with **Ctrl+K** (changeable or removable in Settings, with a warning when the key already does something). Plain K opens the game's own window.
+- The game's crafting window no longer opens behind the simulator (the simulator sits on the same layer and the game window is raised when it opens). The pinned tracker stays on top.
+- Crafting icon for the simulator: registered with LibDBIcon / data broker when available (so minimap button collectors list it), with the addon compartment when the client has one, and with its own minimap button otherwise.
+
 ## 1.4.1
 - The crafting simulator has its own minimap icon (can be hidden in Settings). The K key is not used at all.
 - Smaller, fixed text sizes; the text no longer grows when the window is enlarged. Sliders for text and number size remain in Settings.
