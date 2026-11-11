@@ -342,6 +342,7 @@ local SEED_ITEM = {
 local SEED_GLOBAL = { mine = "GatherMateData2MineDB", herb = "GatherMateData2HerbDB" }
 
 local seedCache = {}
+local seedWarned = false
 local coordSwap -- nil = ainda nao calibrado; true: a = world.y, b = world.x
 
 local function Calibrate(a, b, map, mx, my)
@@ -367,6 +368,10 @@ local function SeedFor(map)
     seedCache[map] = list
     local load = (C_AddOns and C_AddOns.LoadAddOn) or LoadAddOn
     if load then pcall(load, "GatherTrailData") end
+    if not seedWarned and not _G.GatherMateData2MineDB and not _G.GatherMateData2HerbDB then
+        seedWarned = true
+        Print(L.NO_DATA)
+    end
     for kind, glob in pairs(SEED_GLOBAL) do
         local zone = _G[glob] and _G[glob][map]
         if zone then

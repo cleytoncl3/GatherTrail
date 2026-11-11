@@ -26,6 +26,10 @@ Quando você coleta (ou passa o mouse) num ponto do banco inicial, o addon o mar
 
 O addon só usa um ponto confirmado se o mesmo ponto existir no seu banco local, então chaves inventadas não têm efeito. (O arquivo do workflow fica em `workflow-template/confirm.yml` e precisa ser movido para `.github/workflows/`.)
 
+## Banco de locais (GatherTrailData)
+
+Os locais conhecidos vêm do addon separado **[GatherTrailData](https://github.com/cleytoncl3/GatherTrailData)** (dados do GatherMate2, GPL). Instale a pasta `GatherTrailData` ao lado de `GatherTrail` (ou pelo CurseForge). Sem ele o GatherTrail funciona, mas só mostra os pontos que você mesmo aprender.
+
 ## Para que serve
 
 O cliente Classic **não deixa addons ler os pontos de tracking do minimapa** (Find Minerals, Find Herbs). Por isso o GatherTrail aprende os locais sozinho, como o GatherMate: toda vez que você coleta um recurso, a posição é gravada. Quanto mais você joga, mais ele sabe. Os recursos renascem no mesmo lugar, então os pontos continuam úteis.

@@ -103,6 +103,7 @@ local en = {
     MSG_DISABLED = "disabled.",
     MSG_DISABLED_MM = "disabled (right click the icon to enable).",
 
+    NO_DATA = "starter database not found. Install GatherTrailData (CurseForge, or github.com/cleytoncl3/GatherTrailData) to see known locations.",
     MSG_RANGE = "range: %d yards",
     MSG_LOCKED = "arrow locked",
     MSG_UNLOCKED = "arrow unlocked: drag it to move",
@@ -209,6 +210,7 @@ local es = {
     MSG_DISABLED = "desactivado.",
     MSG_DISABLED_MM = "desactivado (clic derecho en el icono para activar).",
 
+    NO_DATA = "no se encontró la base inicial. Instala GatherTrailData (CurseForge, o github.com/cleytoncl3/GatherTrailData) para ver ubicaciones conocidas.",
     MSG_RANGE = "alcance: %d yardas",
     MSG_LOCKED = "flecha bloqueada",
     MSG_UNLOCKED = "flecha desbloqueada: arrástrala para mover",
@@ -315,6 +317,7 @@ local pt = {
     MSG_DISABLED = "desativado.",
     MSG_DISABLED_MM = "desativado (clique direito no ícone para ativar).",
 
+    NO_DATA = "banco inicial não encontrado. Instale o GatherTrailData (CurseForge, ou github.com/cleytoncl3/GatherTrailData) para ver os locais conhecidos.",
     MSG_RANGE = "alcance: %d jardas",
     MSG_LOCKED = "seta travada",
     MSG_UNLOCKED = "seta destravada: arraste para mover",

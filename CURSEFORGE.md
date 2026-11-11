@@ -19,3 +19,6 @@ Só mostra informação: nunca move nem age pelo seu personagem.
 
 ## Licença
 MIT.
+
+## Dependências no CurseForge
+Na página do projeto, em *Relations*, adicione **GatherTrailData** como dependência **opcional** (recomendada). Sem ele o addon só mostra os pontos que você aprender.
