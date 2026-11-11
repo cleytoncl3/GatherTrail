@@ -93,7 +93,8 @@ local DEFAULTS = {
     lowGap = 0,           -- esconde veios X niveis abaixo da skill (0 = desligado)
     onlyConfirmed = false,
     hideOre = {},         -- [itemID] = true: recurso escondido
-    autoLoot = true,      -- pega sozinho o que veio de coleta (minerio/erva/couro)
+    autoLoot = true,
+    autoLootQuest = true, -- autoloot inteligente: so itens de missao e dinheiro (mobs, bas...)      -- pega sozinho o que veio de coleta (minerio/erva/couro)
     skipSecs = 1800,      -- tempo que um veio pulado fica escondido
     hoverLearn = true,    -- aprende veios passando o mouse no minimapa
 }
@@ -1096,7 +1097,7 @@ end
 local function BuildOptions()
     if options then return options end
     local f = TryCreate("Frame", "GatherTrailOptions", UIParent, { "BasicFrameTemplateWithInset", "DialogBoxFrame" })
-    f:SetSize(db.optW or 440, db.optH or 540)
+    f:SetSize(db.optW or 440, db.optH or 590)
     f:SetResizable(true)
     if f.SetResizeBounds then f:SetResizeBounds(400, 420, 900, 900)
     elseif f.SetMinResize then f:SetMinResize(400, 420) end
@@ -1201,6 +1202,7 @@ local function BuildOptions()
     local g = pages.general
     Check(g, L.OPT_ENABLED, "enabled")
     Check(g, L.OPT_AUTOLOOT, "autoLoot")
+    Check(g, L.OPT_AUTOLOOTQ, "autoLootQuest")
     Check(g, L.OPT_MINE, "trackMine", ForceUpdate)
     Check(g, L.OPT_HERB, "trackHerb", ForceUpdate)
     Check(g, L.OPT_SEED, "useSeed", ForceUpdate)
@@ -1724,6 +1726,28 @@ local function RemoveNearestCorpse()
     end
 end
 
+-- Autoloot inteligente: dinheiro e itens de missao. O resto fica na janela.
+local function WantSlot(i)
+    local stype = GetLootSlotType and GetLootSlotType(i)
+    if stype == (LOOT_SLOT_MONEY or 2) then return true end
+    local link = GetLootSlotLink and GetLootSlotLink(i)
+    if not stype and not link then return true end -- sem link: dinheiro em clientes sem GetLootSlotType
+    if GetLootSlotInfo then
+        local info = { GetLootSlotInfo(i) }
+        -- classic: (icone, nome, qtd, qualidade, travado, missao...)
+        -- novo:    (icone, nome, qtd, moeda, qualidade, travado, missao...)
+        local isQuest, locked
+        if type(info[5]) == "boolean" then locked, isQuest = info[5], info[6] else locked, isQuest = info[6], info[7] end
+        if locked then return false end
+        if isQuest then return true end
+    end
+    if link and not issecret(link) and GetItemInfoInstant then
+        local _, _, _, _, _, cls = GetItemInfoInstant(link)
+        if cls == 12 then return true end
+    end
+    return false
+end
+
 local lootGUID, lootPos, skinCastAt
 
 local ev = CreateFrame("Frame")
@@ -1832,6 +1856,14 @@ local function Handle(_, event, ...)
             end
         end
         pending = nil
+        if db.autoLootQuest and not (isGather or isSkin) then
+            C_Timer.After(0, function()
+                for i = (GetNumLootItems() or 0), 1, -1 do
+                    local ok, want = pcall(WantSlot, i)
+                    if ok and want then pcall(LootSlot, i) end
+                end
+            end)
+        end
         if (isGather or isSkin) and db.autoLoot then
             skinCastAt = nil
             -- depois do registro acima, que le os itens

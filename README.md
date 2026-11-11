@@ -8,7 +8,11 @@ Addon de coleta para WoW Classic / WoW Forever. Ele te guia até **minérios, er
 
 O addon detecta o idioma do jogo e já inicia nele: **Português (ptBR)**, **English** (padrão para qualquer outro idioma) e **Español (esES/esMX)**. Menus, opções, dicas e mensagens do chat são traduzidos. / The addon detects the game client language and starts in it: Portuguese, English (default) and Spanish. / El addon detecta el idioma del juego y arranca en él: portugués, inglés (por defecto) y español.
 
-## Autoloot só de coleta
+## Autoloot
+
+**Autoloot inteligente (mobs e baús):** pega sozinho só o **dinheiro** e os **itens de missão**; o resto continua na janela de loot para você escolher. Dá para desligar nas opções.
+
+**Autoloot de coleta:**
 
 Com a opção ligada (padrão), ao minerar, colher ervas ou esfolar o addon pega sozinho os itens da janela de loot daquela coleta, mesmo com o autoloot do jogo desligado. Drops de monstros comuns e baús não são afetados. O rastreio de cadáveres esfoláveis foi removido (o jogo não oferece como detectá-los de forma confiável); o autoloot do esfolamento continua.
 

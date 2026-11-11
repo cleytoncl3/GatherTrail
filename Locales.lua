@@ -45,7 +45,8 @@ local en = {
     TAB_NODES = "Resources",
 
     OPT_ENABLED = "Enable addon",
-    OPT_AUTOLOOT = "Autoloot gathering only",
+    OPT_AUTOLOOT = "Autoloot for gathering",
+    OPT_AUTOLOOTQ = "Smart autoloot (quest items + gold)",
     OPT_MINE = "Track mining",
     OPT_HERB = "Track herbalism",
     OPT_SEED = "Use location database",
@@ -151,6 +152,7 @@ local es = {
 
     OPT_ENABLED = "Activar addon",
     OPT_AUTOLOOT = "Botín auto. solo de recolección",
+    OPT_AUTOLOOTQ = "Botín auto. inteligente (misión + oro)",
     OPT_MINE = "Rastrear minería",
     OPT_HERB = "Rastrear herboristería",
     OPT_SEED = "Usar base de ubicaciones",
@@ -255,7 +257,8 @@ local pt = {
     TAB_NODES = "Recursos",
 
     OPT_ENABLED = "Ativar addon",
-    OPT_AUTOLOOT = "Autoloot só de coleta",
+    OPT_AUTOLOOT = "Autoloot de coleta",
+    OPT_AUTOLOOTQ = "Autoloot inteligente (missão + ouro)",
     OPT_MINE = "Rastrear mineração",
     OPT_HERB = "Rastrear herbalismo",
     OPT_SEED = "Usar banco de locais",
