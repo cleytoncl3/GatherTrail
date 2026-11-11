@@ -1554,6 +1554,8 @@ local function ToggleOptions()
     local f = BuildOptions()
     if f:IsShown() then f:Hide() else f:Show() end
 end
+ns.ToggleOptions = ToggleOptions
+ns.GatherDirty = function() cacheAt = 0 worldDirty = true end
 
 ---------------------------------------------------------------- botao do minimapa
 

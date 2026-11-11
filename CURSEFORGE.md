@@ -27,7 +27,7 @@ Trailsmith is a toolkit for **gathering and crafting**: a gathering guide for **
 
 ## Profession planner (on by default)
 
-Open it with `/tsp`, `/gt prof`, **Shift + click on the minimap button**, or the button in the General tab.
+Open it with the **K** key (you can change the key or turn this off in Settings; the old action of K stays on Shift+K), `/tsp`, `/gt prof`, Shift + click on the minimap button, or the button in the General tab. The window has top tabs (**Crafting**, **Gathering**, **Settings**) and a square icon per profession on the left.
 
 - Choose a profession: Alchemy, Blacksmithing, Cooking, Enchanting, Engineering, First Aid, Leatherworking, Mining (smelting) or Tailoring.
 - Set **from** and **to** skill (one click fills in your current skill and your max) and read a step-by-step plan: which recipe to craft at each skill range, how many crafts, which materials, and what it costs.

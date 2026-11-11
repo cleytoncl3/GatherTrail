@@ -8,7 +8,7 @@
 ## Notes-esMX: Guía de recolección: recuerda dónde minas, recoges hierbas y desuellas, y muestra una flecha direccional, una línea en el minimapa e iconos en el minimapa y el mapa (verde = tu habilidad alcanza, rojo = insuficiente).
 ## Notes-ptBR: Guia de coleta: memoriza onde você minera, colhe ervas e esfola, e mostra seta direcional, linha no minimapa e ícones no minimapa/mapa (verde = sua skill alcança, vermelho = não alcança).
 ## Author: cleytoncl3
-## Version: 1.2.1
+## Version: 1.3.0
 ## SavedVariables: GatherTrailDB, ForagerOreDB, MVAT_DB
 ## OptionalDeps: GatherTrailData, Auctionator, TradeSkillMaster, Auctioneer
 ## IconTexture: Interface\Icons\INV_Pick_02

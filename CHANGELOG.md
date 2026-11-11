@@ -1,5 +1,10 @@
 # Trailsmith
 
+## 1.3.0
+- The window now works like a character-panel tab: it opens with the **K** key (changeable, can be turned off; the old action stays on Shift+K), with a square icon per profession down the left side and tabs along the top: **Crafting**, **Gathering** and **Settings**.
+- New **Gathering** tab: the gathering guide switches (ore, herbs, autoloot, auto-hide, range) without leaving the window. Herbalism, Skinning and Fishing now show in the side list.
+- A button to open Blizzard's own window for the same key.
+
 ## 1.2.1
 - Profession planner: search bar at the top (recipes, crafted items and materials across all professions), separate text-size and number-size sliders in Settings, wider window, shorter card titles and labels so nothing overlaps.
 
