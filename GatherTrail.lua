@@ -94,7 +94,6 @@ local DEFAULTS = {
     onlyConfirmed = false,
     hideOre = {},         -- [itemID] = true: recurso escondido
     autoLoot = true,
-    deadMobAlert = true,  -- marca onde um membro do grupo matou um mob (so se estiver longe)
     autoLootQuest = true, -- autoloot inteligente: so itens de missao e dinheiro (mobs, bas...)      -- pega sozinho o que veio de coleta (minerio/erva/couro)
     skipSecs = 1800,      -- tempo que um veio pulado fica escondido
     hoverLearn = true,    -- aprende veios passando o mouse no minimapa
@@ -105,8 +104,7 @@ BINDING_NAME_GATHERTRAIL_SKIP = L.BINDING_SKIP
 
 local db
 local currentTarget
-local SkipTarget, UpdateMMButton, ScanNow, UpdateKillWatch -- definidos mais abaixo
-local deadMark, killsSeen, lootProbe = nil, 0, "-" -- mob morto por alguem do grupo: { a, b, inst, who, exp }
+local SkipTarget, UpdateMMButton, ScanNow -- definidos mais abaixo
 local MAX_PINS = 50
 local DIAM_IN = { 300, 240, 192, 150, 120, 96 }
 local DIAM_OUT = { 466.67, 400, 333.33, 266.67, 200, 133.33 }
@@ -493,7 +491,7 @@ local function StylePin(pin, node, can)
     pin.node, pin.can = node, can
 end
 
-local miniFrame, miniLine, miniPins, miniLootPin = nil, nil, {}, nil
+local miniFrame, miniLine, miniPins = nil, nil, {}
 local function EnsureMinimap()
     if miniFrame or not Minimap then return end
     miniFrame = CreateFrame("Frame", nil, Minimap)
@@ -504,10 +502,6 @@ local function EnsureMinimap()
     miniLine:SetColorTexture(1, 0.82, 0, 0.85)
     miniLine:Hide()
     for i = 1, MAX_PINS do miniPins[i] = MakePin(miniFrame, 20) end
-    miniLootPin = MakePin(miniFrame, 22)
-    miniLootPin.noScale = true
-    miniLootPin.border:SetColorTexture(1, 0.6, 0.1, 0.9)
-    miniLootPin.icon:SetTexture("Interface/Icons/INV_Misc_Bone_HumanSkull_01")
 end
 
 ---------------------------------------------------------------- seta
@@ -571,43 +565,6 @@ arrow:SetScript("OnDragStop", function(self)
     db.arrowPos = { p, rp, x, y }
 end)
 
--- seta do mob morto pelo grupo (separada da seta dos veios)
-local lootArrow = CreateFrame("Frame", "GatherTrailLootArrow", UIParent)
-lootArrow:SetSize(44, 44)
-lootArrow:SetPoint("CENTER", UIParent, "CENTER", 0, 90)
-lootArrow:SetMovable(true)
-lootArrow:SetClampedToScreen(true)
-lootArrow:SetFrameStrata("MEDIUM")
-lootArrow:EnableMouse(true)
-lootArrow:RegisterForDrag("LeftButton")
-lootArrow.tex = lootArrow:CreateTexture(nil, "ARTWORK")
-lootArrow.tex:SetAllPoints()
-lootArrow.tex:SetTexture("Interface\\Minimap\\ROTATING-MINIMAPARROW")
-lootArrow.tex:SetVertexColor(1, 0.6, 0.1)
-lootArrow.text = lootArrow:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-lootArrow.text:SetPoint("TOP", lootArrow, "BOTTOM", 0, -2)
-lootArrow.text:SetTextColor(1, 0.6, 0.1)
-lootArrow:SetScript("OnDragStart", function(self)
-    if IsShiftKeyDown() or db.testMode then self:StartMoving() end
-end)
-lootArrow:SetScript("OnDragStop", function(self)
-    self:StopMovingOrSizing()
-    local p, _, rp, x, y = self:GetPoint()
-    db.lootArrowPos = { p, rp, x, y }
-end)
-lootArrow:Hide()
-
-local function ApplyLootArrowPos()
-    local p = db.lootArrowPos
-    lootArrow:ClearAllPoints()
-    if p then
-        lootArrow:SetPoint(p[1], UIParent, p[2], p[3], p[4])
-    else
-        lootArrow:SetPoint("CENTER", UIParent, "CENTER", 0, 90)
-    end
-    lootArrow:SetScale(db.arrowScale / 100)
-end
-
 local function ApplyArrowPos()
     arrow:ClearAllPoints()
     local p = db.arrowPos
@@ -618,7 +575,6 @@ local function ApplyArrowPos()
     end
     arrow:SetScale(db.arrowScale / 100)
     arrow:EnableMouse(true)
-    ApplyLootArrowPos()
 end
 
 ---------------------------------------------------------------- mapa-mundi
@@ -834,8 +790,6 @@ function GatherTrail_Skip()
 end
 
 local function HideAll()
-    lootArrow:Hide()
-    if miniLootPin then miniLootPin:Hide() end
     arrow:Hide()
     if miniLine then miniLine:Hide() end
     for _, p in ipairs(miniPins) do p:Hide() end
@@ -993,48 +947,6 @@ local function EmptyCheck(t)
     end
 end
 
-local function UpdateDeadMark(pa, pb, inst, facing, rot, ypp, mmYards)
-    local shown = false
-    local dm = deadMark
-    if dm and db.deadMobAlert then
-        if time() > dm.exp or dm.inst ~= inst then
-            deadMark = nil
-        else
-            local dN, dW = dm.a - pa, dm.b - pb
-            local d = sqrt(dN * dN + dW * dW)
-            if d < 20 then
-                deadMark = nil
-            else
-                shown = true
-                local theta = atan2(dW, dN)
-                lootArrow.tex:SetRotation(theta - facing)
-                lootArrow.text:SetText(L.DEAD_TEXT:format(dm.who or "?", d) .. (dm.mine and (" " .. L.DEAD_MINE) or ""))
-                lootArrow:Show()
-                if miniLootPin then
-                    if d <= mmYards * 0.92 then
-                        local rel = theta - rot
-                        miniLootPin:ClearAllPoints()
-                        miniLootPin:SetPoint("CENTER", Minimap, "CENTER", -d * sin(rel) / ypp, d * cos(rel) / ypp)
-                        miniLootPin:Show()
-                    else
-                        miniLootPin:Hide()
-                    end
-                end
-            end
-        end
-    end
-    if not shown then
-        if miniLootPin then miniLootPin:Hide() end
-        if db.testMode then
-            lootArrow.tex:SetRotation(0)
-            lootArrow.text:SetText(L.TEST_TEXT)
-            lootArrow:Show()
-        else
-            lootArrow:Hide()
-        end
-    end
-end
-
 local function Tick()
     if not db.enabled and not db.testMode then HideAll() return end
     EnsureMinimap()
@@ -1135,8 +1047,6 @@ local function Tick()
         arrow:Hide()
         if miniLine then miniLine:Hide() end
     end
-
-    UpdateDeadMark(pa, pb, inst, facing, rot, ypp, mmYards)
 
     if worldFrame and WorldMapFrame:IsShown() and not worldFrame:IsShown() then
         worldFrame:Show()
@@ -1293,7 +1203,6 @@ local function BuildOptions()
     Check(g, L.OPT_ENABLED, "enabled")
     Check(g, L.OPT_AUTOLOOT, "autoLoot")
     Check(g, L.OPT_AUTOLOOTQ, "autoLootQuest")
-    Check(g, L.OPT_DEADMOB, "deadMobAlert", function() UpdateKillWatch() end)
     Check(g, L.OPT_MINE, "trackMine", ForceUpdate)
     Check(g, L.OPT_HERB, "trackHerb", ForceUpdate)
     Check(g, L.OPT_SEED, "useSeed", ForceUpdate)
@@ -1732,7 +1641,6 @@ SlashCmdList.GATHERTRAIL = function(msg)
         local ns_ = 0
         for _, l in pairs(seedCache) do ns_ = ns_ + #l end
         Print(("banco inicial: %d pontos carregados, calibrado=%s"):format(ns_, tostring(coordSwap)))
-        Print(("party kills seen=%d mark=%s CanLootUnit=%s last=%s"):format(killsSeen, tostring(deadMark ~= nil), tostring(CanLootUnit ~= nil), lootProbe))
         Print(("skill API: GetNumSkillLines=%s GetProfessions=%s | mine known=%s (%d) herb known=%s (%d) | autoLoot=%s"):format(tostring(GetNumSkillLines ~= nil), tostring(GetProfessions ~= nil), tostring(skills.mine.known), skills.mine.skill, tostring(skills.herb.known), skills.herb.skill, tostring(db.autoLoot)))
         Print(("pontos=%d cadaveres=%d mine=%d herb=%d skin=%d cache=%d"):format(#db.nodes, #corpses, skills.mine.skill, skills.herb.skill, skills.skin.skill, #cache))
     else
@@ -1840,60 +1748,6 @@ local function WantSlot(i)
     return false
 end
 
--- Mob morto por alguem do grupo: o evento PARTY_KILL do log de combate da o matador;
--- a posicao do corpo e aproximada pela posicao dele. So marca se ele estiver longe de voce.
-local killWatch = CreateFrame("Frame")
-local function MemberByGUID(guid)
-    local raid = IsInRaid and IsInRaid()
-    local n = raid and GetNumGroupMembers() or (GetNumSubgroupMembers and GetNumSubgroupMembers() or 0)
-    for i = 1, n do
-        local u = (raid and "raid" or "party") .. i
-        local g = UnitGUID(u)
-        if g and not issecret(g) and g == guid then
-            local a, b, _, inst = UnitPosition(u)
-            local nm = UnitName(u)
-            if issecret(nm) then nm = nil end
-            return a, b, inst, nm
-        end
-    end
-end
-
-killWatch:SetScript("OnEvent", function()
-    pcall(function()
-        if not (db and db.deadMobAlert) then return end
-        local sub = select(2, CombatLogGetCurrentEventInfo())
-        if issecret(sub) or sub ~= "PARTY_KILL" then return end
-        local _, _, _, sguid, _, _, _, dguid = CombatLogGetCurrentEventInfo()
-        if not sguid or not dguid or issecret(sguid) or issecret(dguid) or not dguid:find("^Creature") then return end
-        local me = UnitGUID("player")
-        if not issecret(me) and sguid == me then return end
-        killsSeen = killsSeen + 1
-        local a, b, inst, who = MemberByGUID(sguid)
-        if not a then return end
-        local pa, pb, pinst = PlayerPos()
-        if not pa or pinst ~= inst then return end
-        local d = sqrt((a - pa) ^ 2 + (b - pb) ^ 2)
-        if d < 40 or d > db.range then return end
-        deadMark = { a = a, b = b, inst = inst, who = who, exp = time() + 45, guid = dguid }
-        -- CanLootUnit (usado pelo JustLootIt) diz se o corpo tem loot que voce pode pegar.
-        -- So funciona quando o cliente conhece o corpo; o resultado fica em /gt debug.
-        if CanLootUnit then
-            C_Timer.After(0.3, function()
-                local ok, hasLoot, canLoot = pcall(CanLootUnit, dguid)
-                lootProbe = ok and (tostring(hasLoot) .. "/" .. tostring(canLoot)) or "error"
-                if ok and canLoot == true and deadMark and deadMark.guid == dguid then deadMark.mine = true end
-            end)
-        end
-    end)
-end)
-
-UpdateKillWatch = function()
-    killWatch:UnregisterAllEvents()
-    if db and db.deadMobAlert then
-        pcall(killWatch.RegisterEvent, killWatch, "COMBAT_LOG_EVENT_UNFILTERED")
-    end
-end
-
 local lootGUID, lootPos, skinCastAt
 
 local ev = CreateFrame("Frame")
@@ -1923,7 +1777,6 @@ local function Handle(_, event, ...)
         BuildCastNames()
         RefreshSkill()
         ApplyArrowPos()
-        UpdateKillWatch()
         UpdateMMButton()
         SetupWorldMap()
         if not worldFrame then
@@ -1958,10 +1811,6 @@ local function Handle(_, event, ...)
         if castKind[Lower(SpellName(spellID))] == "skin" then RemoveNearestCorpse() end
     elseif event == "LOOT_OPENED" then
         if not db then return end
-        if deadMark then
-            local a, b, inst = PlayerPos()
-            if a and inst == deadMark.inst and (a - deadMark.a) ^ 2 + (b - deadMark.b) ^ 2 < 40 * 40 then deadMark = nil end
-        end
         -- cadaver: guarda o guid para checar depois se da para esfolar
         local guid = GetLootSourceInfo and GetLootSourceInfo(1)
         if guid and issecret(guid) then guid = nil end
