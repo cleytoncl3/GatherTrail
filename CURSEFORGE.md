@@ -27,7 +27,7 @@ Trailsmith is a toolkit for **gathering and crafting**: a gathering guide for **
 
 ## Crafting simulator (on by default)
 
-A companion to the game's crafting window: it never replaces it and never crafts for you. Open it with **Shift + click on the minimap button**, the button in the General options tab, `/tsp`, or the **Simulation** button that appears next to the game's own crafting window. The K key and the game's crafting window stay exactly as they are.
+A companion to the game's crafting window: it never replaces it and never crafts for you. Open it with its **own minimap icon**, the button in the General options tab, `/tsp`, or the **Simulation** button that appears next to the game's own crafting window. The K key and the game's crafting window stay exactly as they are.
 
 - **Profession leveling**: choose a profession and a skill range (from 1 to 300, or from your current skill) and get a step-by-step plan: which recipe to craft, how many times, the materials, what to buy at market price, what the crafted items sell for, and the profit or loss. Three modes: cheapest, best profit, fewest crafts. Recipes you still have to learn show a **Find trainer** button that marks the nearest trainer on the world map.
 - **Simulator**: pick any recipe and a quantity. You get the full step-by-step (including intermediate items such as bars, which can come from a profession you have), a shopping list with prices, the total cost, the sale value and the profit or loss. It can use what you already have in your bags.

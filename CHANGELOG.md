@@ -1,5 +1,13 @@
 # Trailsmith
 
+## 1.4.1
+- The crafting simulator has its own minimap icon (can be hidden in Settings). The K key is not used at all.
+- Smaller, fixed text sizes; the text no longer grows when the window is enlarged. Sliders for text and number size remain in Settings.
+- Profession leveling: the Materials tab is gone; the total materials for the whole plan are listed in a footer. Taller plan rows, no cut-off text.
+- Simulator: recipe list with two lines per recipe, cleaner header and quantity row, bigger spacing in the step list.
+- Pinned tracker: more spacing, shorter buttons, text sizes that match the rest.
+- "Open crafting window" now uses the profession's own spell (Smelting for Mining) with a click setup that works with the keydown option, and falls back to the profession API; the result is written to the log.
+
 ## 1.4.0
 - The profession window is now a **crafting simulator** that complements the game's own crafting window and never replaces it. The K key is no longer taken over (older versions did; that is switched off automatically).
 - Open it from the minimap button (Shift+click), the General options tab, `/tsp`, or the new **Simulation** button added next to the game's crafting window.
