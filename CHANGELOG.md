@@ -1,5 +1,9 @@
 # Trailsmith
 
+## 1.3.1
+- Profession window redesigned in the standard WoW style (same frame and red buttons as the Trailsmith options). Profession list with names on the left, crafting options (mode, recipe sources, prices) in a panel on the right, plan/materials/recipes in the middle.
+- The window can be resized by dragging the bottom-right corner, and the text scales with the window size. + / - buttons on the title bar change the window scale; sliders for text and number size in Settings.
+
 ## 1.3.0
 - The window now works like a character-panel tab: it opens with the **K** key (changeable, can be turned off; the old action stays on Shift+K), with a square icon per profession down the left side and tabs along the top: **Crafting**, **Gathering** and **Settings**.
 - New **Gathering** tab: the gathering guide switches (ore, herbs, autoloot, auto-hide, range) without leaving the window. Herbalism, Skinning and Fishing now show in the side list.
