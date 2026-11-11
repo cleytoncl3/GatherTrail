@@ -1170,6 +1170,7 @@ local function BuildOptions()
         fs:SetText(label)
         cb:SetScript("OnClick", function(self)
             db[key] = self:GetChecked() and true or false
+            if ns.Log then ns.Log("option checkbox %s = %s", key, tostring(db[key])) end
             if after then after() end
         end)
         refreshers[#refreshers + 1] = function() cb:SetChecked(db[key]) end
@@ -1207,6 +1208,7 @@ local function BuildOptions()
             v = floor(v / step + 0.5) * step
             show(v)
             if self.syncing then return end
+            if ns.LogOpt then ns.LogOpt("option slider " .. key, v) end
             db[key] = v
             if after then after() end
         end)
@@ -1652,6 +1654,7 @@ SLASH_GATHERTRAIL1 = "/gt"
 SLASH_GATHERTRAIL2 = "/gathertrail"
 SlashCmdList.GATHERTRAIL = function(msg)
     msg = (msg or ""):lower()
+    if ns.Log then ns.Log("slash /gt %s", msg) end
     local cmd, arg = msg:match("^(%S*)%s*(.-)$")
     if cmd == "range" and tonumber(arg) then
         db.range = math.max(50, math.min(2000, tonumber(arg)))

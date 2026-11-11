@@ -2,6 +2,7 @@
 -- Data (RecipeData.lua) is generated from public sources, see tools/build_recipes.js.
 local ADDON, ns = ...
 local floor, max, min, ceil = math.floor, math.max, math.min, math.ceil
+local unpack = unpack or table.unpack
 local pairs, ipairs, type, tonumber, tostring = pairs, ipairs, type, tonumber, tostring
 
 ---------------------------------------------------------------- idioma
@@ -19,6 +20,7 @@ LOC.en = {
     BTN_CRAFT = "Craft", BTN_CRAFTALL = "Craft all", MSG_CRAFT_OPEN = "Opening the profession window. Click Craft again.", MSG_CRAFT_FAIL = "Could not start the craft. Open the profession window and try again.",
     MSG_NEAREST = "Nearest %s: %s in %s (%.1f, %.1f). Marked on the map.", MSG_NOSPOT = "No known location for this recipe.", FOOT_SELECT = "Click a recipe to see its details here.",
     FOCUS = { Anvil = "Anvil", Forge = "Forge", Loom = "Loom", ["Cooking Fire"] = "Cooking fire", ["Alchemy Lab"] = "Alchemy lab", ["Tanning Rack"] = "Tanning rack", ["Spinning Wheel"] = "Spinning wheel", ["Master Forge"] = "Master forge", ["Iron Oven"] = "Iron oven" },
+    OPT_LOG = "Record a debug log of craft attempts", BTN_SHOWLOG = "Show log (copy with Ctrl+C)", BTN_CLEARLOG = "Clear log",
     TITLE = "Trailsmith Professions", PLAN = "Plan", MATS = "Materials", RECIPES = "Recipes", SETTINGS = "Settings",
     FROM = "From", TO = "To", MYSKILL = "My skill", MAXSKILL = "Max",
     MODE_CHEAP = "Cheapest", MODE_PROFIT = "Best profit", MODE_FAST = "Fewest crafts",
@@ -55,6 +57,7 @@ LOC.es = {
     BTN_CRAFT = "Crear", BTN_CRAFTALL = "Crear todo", MSG_CRAFT_OPEN = "Abriendo la ventana de profesión. Pulsa Crear de nuevo.", MSG_CRAFT_FAIL = "No se pudo iniciar la creación. Abre la ventana de profesión e inténtalo de nuevo.",
     MSG_NEAREST = "%s más cercano: %s en %s (%.1f, %.1f). Marcado en el mapa.", MSG_NOSPOT = "No se conoce la ubicación de esta receta.", FOOT_SELECT = "Haz clic en una receta para ver sus detalles aquí.",
     FOCUS = { Anvil = "Yunque", Forge = "Forja", Loom = "Telar", ["Cooking Fire"] = "Fuego de cocina", ["Alchemy Lab"] = "Laboratorio de alquimia", ["Tanning Rack"] = "Caballete de curtido", ["Spinning Wheel"] = "Rueca", ["Master Forge"] = "Forja maestra", ["Iron Oven"] = "Horno de hierro" },
+    OPT_LOG = "Registrar un log de depuración de los intentos de creación", BTN_SHOWLOG = "Mostrar log (copiar con Ctrl+C)", BTN_CLEARLOG = "Borrar log",
     TITLE = "Trailsmith Profesiones", PLAN = "Plan", MATS = "Materiales", RECIPES = "Recetas", SETTINGS = "Ajustes",
     FROM = "Desde", TO = "Hasta", MYSKILL = "Mi nivel", MAXSKILL = "Máx.",
     MODE_CHEAP = "Más barato", MODE_PROFIT = "Mayor beneficio", MODE_FAST = "Menos creaciones",
@@ -91,6 +94,7 @@ LOC.pt = {
     BTN_CRAFT = "Criar", BTN_CRAFTALL = "Criar tudo", MSG_CRAFT_OPEN = "Abrindo a janela da profissão. Clique em Criar de novo.", MSG_CRAFT_FAIL = "Não foi possível iniciar a criação. Abra a janela da profissão e tente de novo.",
     MSG_NEAREST = "%s mais próximo: %s em %s (%.1f, %.1f). Marcado no mapa.", MSG_NOSPOT = "Local desta receita desconhecido.", FOOT_SELECT = "Clique numa receita para ver os detalhes aqui.",
     FOCUS = { Anvil = "Bigorna", Forge = "Forja", Loom = "Tear", ["Cooking Fire"] = "Fogueira de cozinha", ["Alchemy Lab"] = "Laboratório de alquimia", ["Tanning Rack"] = "Cavalete de curtimento", ["Spinning Wheel"] = "Roda de fiar", ["Master Forge"] = "Forja mestra", ["Iron Oven"] = "Forno de ferro" },
+    OPT_LOG = "Gravar um log de depuração das tentativas de criação", BTN_SHOWLOG = "Mostrar log (copiar com Ctrl+C)", BTN_CLEARLOG = "Limpar log",
     TITLE = "Trailsmith Profissões", PLAN = "Plano", MATS = "Materiais", RECIPES = "Receitas", SETTINGS = "Opções",
     FROM = "De", TO = "Até", MYSKILL = "Minha perícia", MAXSKILL = "Máx.",
     MODE_CHEAP = "Mais barato", MODE_PROFIT = "Maior lucro", MODE_FAST = "Menos criações",
@@ -152,11 +156,74 @@ for _, p in ipairs(PROFS) do PROF_BY_KEY[p.key] = p end
 local issecret = issecretvalue or function() return false end
 local QMARK = "Interface\\Icons\\INV_Misc_QuestionMark"
 local DEFAULTS = {
-    sel = "mining", skin = "dark", scale = 1, alpha = 0.96, fontText = 1, fontNum = 1, key = "K", useKey = true, showAll = false, autoText = true, w = 980, h = 680, provider = "auto", mode = "cheap",
+    sel = "mining", skin = "dark", scale = 1, alpha = 0.96, fontText = 1, fontNum = 1, key = "K", useKey = true, showAll = false, autoText = true, w = 980, h = 680, logOn = true, log = {}, provider = "auto", mode = "cheap",
     free = false, knownOnly = false, srcT = true, srcV = true, srcI = false, srcU = false, ahCut = true,
     range = {},
 }
 local P -- saved settings (GatherTrailDB.prof)
+
+---------------------------------------------------------------- log de depuracao
+-- Everything the craft code does is written to GatherTrailDB.prof.log (saved on /reload or logout),
+-- so a problem can be diagnosed from the SavedVariables file. View it with /tsp log.
+local LOGMAX = 500
+local function Log(fmt, ...)
+    if not P or P.logOn == false then return end
+    local ok, msg = pcall(string.format, fmt, ...)
+    if not ok then msg = tostring(fmt) end
+    local t = (date and date("%H:%M:%S")) or "--:--:--"
+    local log = P.log
+    if type(log) ~= "table" then log = {} P.log = log end
+    log[#log + 1] = t .. " " .. msg
+    if #log > LOGMAX then table.remove(log, 1) end
+end
+local lastOpt = {}
+-- logs an option change once per distinct value (sliders fire many events while dragging)
+local function LogOpt(name, value)
+    local v = tostring(value)
+    if lastOpt[name] == v then return end
+    lastOpt[name] = v
+    Log("option %s = %s", tostring(name), v)
+end
+ns.Log = function(...) Log(...) end
+ns.LogOpt = LogOpt
+local function ErrHandler(e)
+    local st = debugstack and debugstack(3, 8, 0) or ""
+    return tostring(e) .. "\n" .. st
+end
+local function Safe(tag, fn)
+    return function(...)
+        local n = select("#", ...)
+        local args = { ... }
+        local ok, err = xpcall(function() return fn(unpack(args, 1, n)) end, ErrHandler)
+        if not ok then
+            Log("ERROR in %s: %s", tag, tostring(err))
+            print("|cffff5050Trailsmith:|r error in " .. tag .. " (saved to the log, /tsp log)")
+        end
+    end
+end
+local function Env()
+    local v, b = "?", "?"
+    if GetBuildInfo then local a, bb = GetBuildInfo() v, b = tostring(a), tostring(bb) end
+    Log("== session: game %s build %s locale %s", v, b, (GetLocale and GetLocale()) or "?")
+    local names = { "GetNumTradeSkills", "DoTradeSkill", "GetTradeSkillInfo", "GetTradeSkillRecipeLink", "GetTradeSkillLine", "CastSpellByID",
+        "OpenWorldMap", "RunBinding", "SetOverrideBindingClick", "InCombatLockdown" }
+    local have = {}
+    for _, n in ipairs(names) do have[#have + 1] = n .. "=" .. tostring(_G[n] ~= nil) end
+    Log("globals: %s", table.concat(have, " "))
+    local t = _G.C_TradeSkillUI
+    if type(t) == "table" then
+        local list = {}
+        for k, val in pairs(t) do if type(val) == "function" then list[#list + 1] = k end end
+        table.sort(list)
+        Log("C_TradeSkillUI functions (%d): %s", #list, table.concat(list, ","))
+    else
+        Log("C_TradeSkillUI: nil")
+    end
+    for _, fname in ipairs({ "TradeSkillFrame", "ProfessionsFrame", "ProfessionsBookFrame", "CraftFrame", "SpellBookFrame", "SkillFrame" }) do
+        local f = _G[fname]
+        Log("frame %s: %s", fname, f and (f.IsShown and tostring(f:IsShown()) or "exists") or "nil")
+    end
+end
 
 local function SpellName(id)
     local n
@@ -575,7 +642,11 @@ local function Btn(parent, text, w, h, onClick)
     b:SetText(text or "")
     local fs = b.GetFontString and b:GetFontString()
     if fs then RegFont(fs) b.fs = fs end
-    if onClick then b:SetScript("OnClick", onClick) end
+    if onClick then
+        local tag = "button " .. ((text and text ~= "") and text or "?")
+        local safe = Safe(tag, onClick)
+        b:SetScript("OnClick", function(self2, ...) Log("click: %s", tag) safe(self2, ...) end)
+    end
     return b
 end
 local function SetSel(b, on)
@@ -608,7 +679,11 @@ local function Check(parent, label, get, set, wrapW)
         fs:SetJustifyV("MIDDLE")
     end
     cb.label = fs
-    cb:SetScript("OnClick", function(self) set(self:GetChecked() and true or false) end)
+    cb:SetScript("OnClick", Safe("checkbox " .. tostring(label), function(self)
+        local v = self:GetChecked() and true or false
+        Log("checkbox: %s = %s", tostring(label), tostring(v))
+        set(v)
+    end))
     cb.Sync = function() cb:SetChecked(get()) end
     UI.syncs[#UI.syncs + 1] = cb.Sync
     return cb
@@ -642,6 +717,7 @@ local function Slider(parent, label, lo, hi, step, get, set, fmt)
         v = floor(v / step + 0.5) * step
         show(v)
         if self.syncing then return end
+        LogOpt("slider " .. tostring(label), v)
         set(v)
     end)
     box.Sync = function()
@@ -1088,6 +1164,7 @@ function UI:BuildSearch()
         b:SetScript("OnClick", function(self2)
             local e = self2.entry
             if type(e) ~= "table" then return end
+            Log("search result chosen: %s (%s)", tostring(e.name), tostring(e.key))
             P.sel = e.key
             UI.top, UI.tab = "craft", "recipes"
             box:SetText("")
@@ -1129,7 +1206,10 @@ function UI:BuildSearch()
         dd:SetHeight(12 + n * 24)
         dd:Show()
     end
-    box:SetScript("OnTextChanged", Update)
+    box:SetScript("OnTextChanged", function(self2, user)
+        if user then LogOpt("search text", self2:GetText() or "") end
+        Update()
+    end)
     box:SetScript("OnEscapePressed", function(s2) s2:SetText("") s2:ClearFocus() dd:Hide() end)
     box:SetScript("OnEnterPressed", function()
         local first = dd.rows[1]
@@ -1233,7 +1313,9 @@ local function PlacePin(sp)
 end
 
 Locate = function(r)
+    Log("locate requested: spell %s set %s src %s", tostring(r and r.spell), tostring(r and r.set), tostring(r and r.src))
     local sp = r and r.set and r.set > 0 and NearestSpot(r.set)
+    Log("  nearest: %s", sp and (sp.name .. " ui " .. sp.ui .. " " .. sp.x .. "," .. sp.y) or "none")
     if not sp then print("|cffffd100Trailsmith:|r " .. S.MSG_NOSPOT) return end
     local info = C_Map and C_Map.GetMapInfo and C_Map.GetMapInfo(sp.ui)
     local zone = info and info.name or tostring(sp.ui)
@@ -1270,20 +1352,83 @@ local function FocusLabel(spell)
 end
 
 -- best-effort crafting through whichever trade skill API the client has
+local function CraftProbe(r)
+    local name = SpellName(r.spell)
+    Log("craft probe: spell %d (%s) item %d known=%s sel=%s", r.spell, tostring(name), r.item or 0, tostring(SpellKnown(r.spell)), tostring(P and P.sel))
+    for _, rg in ipairs(r.reag) do
+        Log("  reagent %d x%d (%s) have %d", rg[1], rg[2], tostring(ItemName(rg[1])), (GetItemCount and GetItemCount(rg[1])) or -1)
+    end
+    for _, fname in ipairs({ "TradeSkillFrame", "ProfessionsFrame", "CraftFrame" }) do
+        local f = _G[fname]
+        if f and f.IsShown then Log("  frame %s shown=%s", fname, tostring(f:IsShown())) end
+    end
+    local T = _G.C_TradeSkillUI
+    if type(T) == "table" then
+        for _, fn in ipairs({ "IsTradeSkillReady", "IsTradeSkillLinked", "IsNPCCrafting", "GetTradeSkillLine" }) do
+            if T[fn] then local ok, a, b2 = pcall(T[fn]) Log("  C_TradeSkillUI.%s -> ok=%s %s %s", fn, tostring(ok), tostring(a), tostring(b2)) end
+        end
+        if T.GetBaseProfessionInfo then
+            local ok, info = pcall(T.GetBaseProfessionInfo)
+            if ok and type(info) == "table" then
+                local parts = {}
+                for k, v in pairs(info) do parts[#parts + 1] = tostring(k) .. "=" .. tostring(v) end
+                Log("  base profession info: %s", table.concat(parts, " "))
+            else Log("  GetBaseProfessionInfo -> ok=%s %s", tostring(ok), tostring(info)) end
+        end
+        if T.GetRecipeInfo then
+            local ok, info = pcall(T.GetRecipeInfo, r.spell)
+            if ok and type(info) == "table" then
+                local parts = {}
+                for k, v in pairs(info) do if type(v) ~= "table" then parts[#parts + 1] = tostring(k) .. "=" .. tostring(v) end end
+                table.sort(parts)
+                Log("  recipe info: %s", table.concat(parts, " "))
+            else Log("  GetRecipeInfo(%d) -> ok=%s %s", r.spell, tostring(ok), tostring(info)) end
+        end
+        if T.GetAllRecipeIDs then
+            local ok, ids = pcall(T.GetAllRecipeIDs)
+            if ok and type(ids) == "table" then
+                local found = false
+                for _, id in ipairs(ids) do if id == r.spell then found = true break end end
+                Log("  GetAllRecipeIDs: %d ids, contains this spell: %s", #ids, tostring(found))
+            end
+        end
+    end
+    if GetNumTradeSkills then
+        local n = GetNumTradeSkills()
+        Log("  GetNumTradeSkills = %s", tostring(n))
+    end
+end
+
 local function TryCraft(r, count)
-    if C_TradeSkillUI and C_TradeSkillUI.CraftRecipe then
-        local ok = pcall(C_TradeSkillUI.CraftRecipe, r.spell, count)
+    Log("---- craft requested: spell %d x%d", r.spell, count)
+    pcall(CraftProbe, r)
+    local T = _G.C_TradeSkillUI
+    if T and T.CraftRecipe then
+        local ok, err = pcall(T.CraftRecipe, r.spell, count)
+        Log("C_TradeSkillUI.CraftRecipe(%d, %d) -> ok=%s err=%s", r.spell, count, tostring(ok), tostring(err))
         if ok then return true end
+    else
+        Log("C_TradeSkillUI.CraftRecipe not available")
     end
     if GetNumTradeSkills and DoTradeSkill and GetTradeSkillInfo then
-        for i = 1, GetNumTradeSkills() do
-            local _, kind = GetTradeSkillInfo(i)
+        local total = GetNumTradeSkills() or 0
+        Log("classic path: scanning %d trade skill entries", total)
+        for i = 1, total do
+            local name, kind = GetTradeSkillInfo(i)
             if kind ~= "header" then
                 local link = GetTradeSkillRecipeLink and GetTradeSkillRecipeLink(i)
                 local id = link and tonumber(link:match("enchant:(%d+)") or link:match("spell:(%d+)"))
-                if id == r.spell then DoTradeSkill(i, count) return true end
+                if i <= 5 then Log("  entry %d: %s kind=%s link=%s id=%s", i, tostring(name), tostring(kind), tostring(link), tostring(id)) end
+                if id == r.spell then
+                    local ok, err = pcall(DoTradeSkill, i, count)
+                    Log("DoTradeSkill(%d, %d) -> ok=%s err=%s", i, count, tostring(ok), tostring(err))
+                    return ok
+                end
             end
         end
+        Log("classic path: recipe not found in the open trade skill list")
+    else
+        Log("classic trade skill API not available")
     end
     return false
 end
@@ -1301,7 +1446,8 @@ local keyOwner, toggleBtn
 local function ApplyKey()
     if InCombatLockdown and InCombatLockdown() then UI.keyPending = true return end
     UI.keyPending = false
-    if not P or not SetOverrideBindingClick then return end
+    if not P or not SetOverrideBindingClick then Log("ApplyKey: override binding API missing") return end
+    Log("ApplyKey: key=%s use=%s", tostring(P.key), tostring(P.useKey))
     if not keyOwner then
         keyOwner = CreateFrame("Frame")
         toggleBtn = CreateFrame("Button", "TrailsmithProfToggle", UIParent)
@@ -1341,6 +1487,7 @@ local function StartCapture(onDone)
                 if IsControlKeyDown() then pre = pre .. "CTRL-" end
                 if IsShiftKeyDown() then pre = pre .. "SHIFT-" end
                 P.key = pre .. k
+                Log("key binding captured: %s", P.key)
             end
             if capture.done then capture.done() end
         end)
@@ -1472,6 +1619,7 @@ end
 
 ---------------------------------------------------------------- construcao
 function UI:Select(r, crafts)
+    Log("recipe selected: spell %s (%s) crafts %s", tostring(r and r.spell), tostring(r and SpellName(r.spell)), tostring(crafts))
     self.sel = { r = r, crafts = crafts or 1, key = P.sel }
     self:Refresh()
 end
@@ -1609,7 +1757,7 @@ function UI:BuildCraft(f)
         b.name:SetWordWrap(false)
         b.rank = Label(b, "", "GameFontHighlightSmall", "num")
         b.rank:SetPoint("BOTTOMLEFT", b.icon, "BOTTOMRIGHT", 6, 1)
-        b:SetScript("OnClick", function() P.sel = p.key UI:Refresh() end)
+        b:SetScript("OnClick", Safe("profession " .. p.key, function() Log("profession selected: %s", p.key) P.sel = p.key UI:Refresh() end))
         Tip(b, function(tt)
             tt:AddLine(ProfLabel(p.key), 1, 0.82, 0)
             local sk2 = skills[p.key]
@@ -1700,6 +1848,7 @@ function UI:BuildCraft(f)
         local a, b = tonumber(UI.fromBox:GetText()), tonumber(UI.toBox:GetText())
         if a then rg.from = max(1, min(374, a)) end
         if b then rg.to = max(rg.from + 1, min(375, b)) end
+        LogOpt("range " .. tostring(P.sel), rg.from .. "-" .. rg.to)
         UI:Refresh()
     end
     for _, eb in ipairs({ self.fromBox, self.toBox }) do
@@ -1800,7 +1949,7 @@ function UI:BuildGather(pane)
     st:Add(self.gatherSkill, 18, 0, 10)
     local function Chk(label, key)
         local cb = Check(pane, label, function() local g = _G.GatherTrailDB return g and g[key] end,
-            function(v) local g = _G.GatherTrailDB if g then g[key] = v end if ns.GatherDirty then ns.GatherDirty() end end)
+            function(v) local g = _G.GatherTrailDB if g then g[key] = v end Log("gathering option %s = %s", key, tostring(v)) if ns.GatherDirty then ns.GatherDirty() end end)
         st:Add(cb, 26, 0, 0)
     end
     Chk(S.G_ENABLED, "enabled")
@@ -1812,7 +1961,7 @@ function UI:BuildGather(pane)
     Chk(S.G_AUTOHIDE, "autoHide")
     Chk(S.G_HOVER, "hoverLearn")
     local rg = Slider(pane, S.G_RANGE, 50, 2000, 50, function() local g = _G.GatherTrailDB return g and g.range or 600 end,
-        function(v) local g = _G.GatherTrailDB if g then g.range = v end if ns.GatherDirty then ns.GatherDirty() end end,
+        function(v) local g = _G.GatherTrailDB if g then g.range = v end Log("gathering option range = %s", tostring(v)) if ns.GatherDirty then ns.GatherDirty() end end,
         function(v) return v .. " yd" end)
     st:Add(rg, 40, 0, 12)
     st:Add(Btn(pane, S.BTN_FULLOPT, 220, 24, function() if ns.ToggleOptions then ns.ToggleOptions() end end), 24, 0, 0)
@@ -1849,6 +1998,11 @@ function UI:BuildSettings(pane)
         UI.frame:SetScale(1)
         ApplyFonts() UI:Refresh()
     end), 22, 0, 8)
+    st:Add(Check(pane, S.OPT_LOG, function() return P.logOn ~= false end, function(v) P.logOn = v end), 26, 0, 4)
+    local lb = Btn(pane, S.BTN_SHOWLOG, 200, 22, function() ns.ShowProfLog() end)
+    st:Add(lb, 22, 0, 4)
+    local lc = Btn(pane, S.BTN_CLEARLOG, 200, 22, function() P.log = {} print("|cffffd100Trailsmith:|r log cleared") end)
+    st:Add(lc, 22, 0, 8)
     local note = Label(pane, S.NOTE_ESTIMATE, "GameFontHighlightSmall")
     note:SetTextColor(0.65, 0.65, 0.65)
     note:SetJustifyV("TOP")
@@ -1887,6 +2041,7 @@ function UI:Build()
     -- window size buttons (scale)
     local function Scale(delta)
         P.scale = max(0.7, min(1.5, floor((P.scale + delta) * 20 + 0.5) / 20))
+        Log("window scale = %s", tostring(P.scale))
         f:SetScale(P.scale)
         UI:Refresh()
     end
@@ -1931,6 +2086,7 @@ function UI:Build()
     grip:SetScript("OnMouseUp", function()
         f:StopMovingOrSizing()
         P.w, P.h = floor(f:GetWidth()), floor(f:GetHeight())
+        Log("window resized to %dx%d", P.w, P.h)
         UI.sizeDirty = 0
     end)
     f:SetScript("OnSizeChanged", function() UI.sizeDirty = 0 end)
@@ -1939,13 +2095,13 @@ function UI:Build()
             UI.sizeDirty = UI.sizeDirty + (elapsed or 0)
             if UI.sizeDirty > 0.08 then
                 UI.sizeDirty = nil
-                ApplyFonts()
-                UI:Refresh()
+                local ok, err = pcall(function() ApplyFonts() UI:Refresh() end)
+                if not ok then Log("ERROR in resize: %s", tostring(err)) end
             end
         end
     end)
-    f:SetScript("OnShow", function() UI:Refresh() end)
-    f:SetScript("OnHide", function() if GameTooltip then GameTooltip:Hide() end end)
+    f:SetScript("OnShow", Safe("window show", function() UI:Refresh() end))
+    f:SetScript("OnHide", function() Log("window hidden") if GameTooltip then GameTooltip:Hide() end end)
     f:SetScale(P.scale or 1)
     f:SetAlpha(P.alpha or 1)
     UI.built = true
@@ -1968,6 +2124,7 @@ end
 
 function ns.OpenProf(arg)
     if not P and not Setup() then return end
+    Log("open/toggle window arg=%s", tostring(arg))
     if not UI.frame then UI:Build() end
     arg = arg and arg:lower() or ""
     if arg ~= "" then
@@ -1987,7 +2144,11 @@ ev:RegisterEvent("PLAYER_REGEN_ENABLED")
 local pending = false
 ev:SetScript("OnEvent", function(_, event)
     if event == "PLAYER_LOGIN" then
-        if Setup() then ApplyKey() end
+        if Setup() then
+            Log("== login")
+            pcall(Env)
+            ApplyKey()
+        end
     elseif event == "PLAYER_REGEN_ENABLED" then
         if UI.keyPending then ApplyKey() end
     elseif event == "GET_ITEM_INFO_RECEIVED" or event == "SKILL_LINES_CHANGED" then
@@ -2006,11 +2167,86 @@ ev:SetScript("OnEvent", function(_, event)
         if n and not issecret(n) then
             if not nameToKey then BuildNameMap() end
             local k = nameToKey[n:lower()]
+            Log("trade skill window opened: %s -> %s", tostring(n), tostring(k))
             if k then P.sel = k end
         end
     end
 end)
 
+-- what the game itself says while crafting
+local lev = CreateFrame("Frame")
+for _, e in ipairs({ "UNIT_SPELLCAST_START", "UNIT_SPELLCAST_SUCCEEDED", "UNIT_SPELLCAST_FAILED", "UNIT_SPELLCAST_INTERRUPTED",
+    "UI_ERROR_MESSAGE", "ADDON_ACTION_BLOCKED", "ADDON_ACTION_FORBIDDEN", "TRADE_SKILL_SHOW", "TRADE_SKILL_CLOSE" }) do
+    pcall(lev.RegisterEvent, lev, e)
+end
+lev:SetScript("OnEvent", function(_, event, a1, a2, a3, a4)
+    if not P then return end
+    if event == "UNIT_SPELLCAST_START" or event == "UNIT_SPELLCAST_SUCCEEDED" or event == "UNIT_SPELLCAST_FAILED" or event == "UNIT_SPELLCAST_INTERRUPTED" then
+        if a1 ~= "player" then return end
+        local id = (event ~= "UNIT_SPELLCAST_START" and type(a3) == "number") and a3 or a3
+        local sp = tonumber(a3) or tonumber(a4)
+        Log("event %s spell=%s (%s)", event, tostring(sp), tostring(sp and SpellName(sp)))
+    elseif event == "UI_ERROR_MESSAGE" then
+        Log("event UI_ERROR_MESSAGE: %s %s", tostring(a1), tostring(a2))
+    elseif event == "ADDON_ACTION_BLOCKED" or event == "ADDON_ACTION_FORBIDDEN" then
+        Log("event %s: addon=%s function=%s", event, tostring(a1), tostring(a2))
+    else
+        Log("event %s", event)
+    end
+end)
+
+local logFrame
+local function ShowLog()
+    if not P and not Setup() then return end
+    if not logFrame then
+        local f = TryCreate("Frame", "TrailsmithProfLog", UIParent, { "BasicFrameTemplateWithInset", "DialogBoxFrame" })
+        f:SetSize(680, 440)
+        f:SetPoint("CENTER")
+        f:SetFrameStrata("DIALOG")
+        f:SetMovable(true)
+        f:EnableMouse(true)
+        f:RegisterForDrag("LeftButton")
+        f:SetScript("OnDragStart", f.StartMoving)
+        f:SetScript("OnDragStop", f.StopMovingOrSizing)
+        local title = f.TitleText
+        if type(title) == "table" then title:SetText("Trailsmith log")
+        else
+            local t = f:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+            t:SetPoint("TOP", 0, -8)
+            t:SetText("Trailsmith log")
+        end
+        local scroll = TryCreate("ScrollFrame", "TrailsmithProfLogScroll", f, { "UIPanelScrollFrameTemplate" })
+        scroll:SetPoint("TOPLEFT", 14, -32)
+        scroll:SetPoint("BOTTOMRIGHT", -34, 14)
+        local eb = CreateFrame("EditBox", nil, scroll)
+        eb:SetMultiLine(true)
+        eb:SetFontObject("ChatFontNormal")
+        eb:SetWidth(610)
+        eb:SetAutoFocus(false)
+        eb:SetScript("OnEscapePressed", function(s2) s2:ClearFocus() end)
+        scroll:SetScrollChild(eb)
+        f.edit = eb
+        if UISpecialFrames then table.insert(UISpecialFrames, "TrailsmithProfLog") end
+        logFrame = f
+    end
+    local lines = P.log or {}
+    logFrame.edit:SetText(table.concat(lines, "\n"))
+    logFrame:Show()
+end
+ns.ShowProfLog = ShowLog
+
 SLASH_TRAILSMITHPROF1 = "/tsp"
 SLASH_TRAILSMITHPROF2 = "/professions"
-SlashCmdList.TRAILSMITHPROF = function(msg) ns.OpenProf(msg) end
+SlashCmdList.TRAILSMITHPROF = Safe("slash", function(msg)
+    local m = (msg or ""):lower()
+    if m:match("^log") then
+        if m:match("^log%s+clear") then
+            if P or Setup() then P.log = {} end
+            print("|cffffd100Trailsmith:|r log cleared")
+        else
+            ShowLog()
+        end
+        return
+    end
+    ns.OpenProf(msg)
+end)

@@ -1,5 +1,8 @@
 # Trailsmith
 
+## 1.3.3
+- Debug log: every click, option change, profession/recipe selection, craft attempt (APIs tried and their results), trainer lookup, key binding and Lua error in the Professions window and in the main options is recorded. Game events during crafting (spell cast start/fail/success, UI error messages, blocked actions) are recorded too. View it with `/tsp log` (copy with Ctrl+C), clear with `/tsp log clear`, switch it off in Settings. It is saved in the SavedVariables file.
+
 ## 1.3.2
 - Recipes you still have to learn now have a **Find trainer / Find vendor** button. It picks the nearest one for your faction, opens the world map on the right zone, marks it with a pin (and a map waypoint or TomTom arrow when available) and prints the name and coordinates in chat.
 - New footer in the Crafting tab, like the default crafting window: selected recipe, required station (forge, anvil, loom, cooking fire...), materials with how many you have, and Craft / Craft all buttons.
