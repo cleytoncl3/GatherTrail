@@ -106,7 +106,7 @@ BINDING_NAME_GATHERTRAIL_SKIP = L.BINDING_SKIP
 local db
 local currentTarget
 local SkipTarget, UpdateMMButton, ScanNow, UpdateKillWatch -- definidos mais abaixo
-local deadMark, killsSeen = nil, 0 -- mob morto por alguem do grupo: { a, b, inst, who, exp }
+local deadMark, killsSeen, lootProbe = nil, 0, "-" -- mob morto por alguem do grupo: { a, b, inst, who, exp }
 local MAX_PINS = 50
 local DIAM_IN = { 300, 240, 192, 150, 120, 96 }
 local DIAM_OUT = { 466.67, 400, 333.33, 266.67, 200, 133.33 }
@@ -1008,7 +1008,7 @@ local function UpdateDeadMark(pa, pb, inst, facing, rot, ypp, mmYards)
                 shown = true
                 local theta = atan2(dW, dN)
                 lootArrow.tex:SetRotation(theta - facing)
-                lootArrow.text:SetText(L.DEAD_TEXT:format(dm.who or "?", d))
+                lootArrow.text:SetText(L.DEAD_TEXT:format(dm.who or "?", d) .. (dm.mine and (" " .. L.DEAD_MINE) or ""))
                 lootArrow:Show()
                 if miniLootPin then
                     if d <= mmYards * 0.92 then
@@ -1732,7 +1732,7 @@ SlashCmdList.GATHERTRAIL = function(msg)
         local ns_ = 0
         for _, l in pairs(seedCache) do ns_ = ns_ + #l end
         Print(("banco inicial: %d pontos carregados, calibrado=%s"):format(ns_, tostring(coordSwap)))
-        Print(("party kills seen=%d mark=%s"):format(killsSeen, tostring(deadMark ~= nil)))
+        Print(("party kills seen=%d mark=%s CanLootUnit=%s last=%s"):format(killsSeen, tostring(deadMark ~= nil), tostring(CanLootUnit ~= nil), lootProbe))
         Print(("skill API: GetNumSkillLines=%s GetProfessions=%s | mine known=%s (%d) herb known=%s (%d) | autoLoot=%s"):format(tostring(GetNumSkillLines ~= nil), tostring(GetProfessions ~= nil), tostring(skills.mine.known), skills.mine.skill, tostring(skills.herb.known), skills.herb.skill, tostring(db.autoLoot)))
         Print(("pontos=%d cadaveres=%d mine=%d herb=%d skin=%d cache=%d"):format(#db.nodes, #corpses, skills.mine.skill, skills.herb.skill, skills.skin.skill, #cache))
     else
@@ -1874,7 +1874,16 @@ killWatch:SetScript("OnEvent", function()
         if not pa or pinst ~= inst then return end
         local d = sqrt((a - pa) ^ 2 + (b - pb) ^ 2)
         if d < 40 or d > db.range then return end
-        deadMark = { a = a, b = b, inst = inst, who = who, exp = time() + 45 }
+        deadMark = { a = a, b = b, inst = inst, who = who, exp = time() + 45, guid = dguid }
+        -- CanLootUnit (usado pelo JustLootIt) diz se o corpo tem loot que voce pode pegar.
+        -- So funciona quando o cliente conhece o corpo; o resultado fica em /gt debug.
+        if CanLootUnit then
+            C_Timer.After(0.3, function()
+                local ok, hasLoot, canLoot = pcall(CanLootUnit, dguid)
+                lootProbe = ok and (tostring(hasLoot) .. "/" .. tostring(canLoot)) or "error"
+                if ok and canLoot == true and deadMark and deadMark.guid == dguid then deadMark.mine = true end
+            end)
+        end
     end)
 end)
 
