@@ -12,6 +12,16 @@ O addon detecta o idioma do jogo e já inicia nele: **Português (ptBR)**, **Eng
 
 Com a opção ligada (padrão), ao minerar, colher ervas ou esfolar o addon pega sozinho os itens da janela de loot daquela coleta, mesmo com o autoloot do jogo desligado. Drops de monstros comuns e baús não são afetados. O rastreio de cadáveres esfoláveis foi removido (o jogo não oferece como detectá-los de forma confiável); o autoloot do esfolamento continua.
 
+## Confirmação por spawn (comunidade)
+
+Quando você coleta (ou passa o mouse) num ponto do banco inicial, o addon o marca como **confirmado** no seu salvamento. Para compartilhar:
+
+1. Dê `/reload` (grava os dados no disco) e rode **Contribute.bat**.
+2. Ele abre uma issue no GitHub já preenchida só com números (mapa, item, x, y). Você revisa e clica em *Submit*. Ninguém ganha permissão de edição no repositório.
+3. Um workflow valida o formato e só marca um ponto como confirmado em `ConfirmedData.lua` quando **3 contas diferentes** o confirmam. Rode **Update.bat** para receber os pontos confirmados.
+
+O addon só usa um ponto confirmado se o mesmo ponto existir no seu banco local, então chaves inventadas não têm efeito. (O arquivo do workflow fica em `workflow-template/confirm.yml` e precisa ser movido para `.github/workflows/`.)
+
 ## Para que serve
 
 O cliente Classic **não deixa addons ler os pontos de tracking do minimapa** (Find Minerals, Find Herbs). Por isso o GatherTrail aprende os locais sozinho, como o GatherMate: toda vez que você coleta um recurso, a posição é gravada. Quanto mais você joga, mais ele sabe. Os recursos renascem no mesmo lugar, então os pontos continuam úteis.

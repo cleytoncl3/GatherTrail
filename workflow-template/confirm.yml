@@ -1,0 +1,61 @@
+# Move este arquivo para .github/workflows/confirm.yml (pelo site do GitHub, ou depois de
+# `gh auth refresh -s workflow`). Ele transforma as issues "GatherTrail confirmation" em
+# pontos confirmados em ConfirmedData.lua, mas so quando 3 contas diferentes confirmam o mesmo ponto.
+name: confirm-spawns
+on:
+  issues:
+    types: [opened]
+permissions:
+  contents: write
+  issues: write
+concurrency:
+  group: confirm-spawns
+jobs:
+  confirm:
+    if: startsWith(github.event.issue.title, 'GatherTrail confirmation')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const crypto = require('crypto');
+            const THRESHOLD = 3;
+            const issue = context.payload.issue;
+            const who = crypto.createHash('sha256').update('gt:' + issue.user.login.toLowerCase()).digest('hex').slice(0, 12);
+            // itens de recurso aceitos (minerios e ervas conhecidos)
+            const ALLOWED = new Set([2770,2771,2775,2772,2776,3858,7911,11370,10620,23424,23425,23426,23427,36909,36912,36910,4278,3340,5833,
+              2447,765,2449,785,2450,3820,2453,3355,3369,3356,3357,3818,3821,3358,3819,4625,8831,8836,8838,8839,8845,8846,13464,13463,13465,13466,13467,13468,
+              22785,22786,22787,22789,22790,22791,22792,22793,22788]);
+            const keys = new Set();
+            for (const line of (issue.body || '').split(/\r?\n/)) {
+              const t = line.trim();
+              const m = t.match(/^(\d{1,5}):(\d{1,6}):(\d{1,5}):(\d{1,5})$/);
+              if (!m) continue;
+              if (!ALLOWED.has(+m[2]) || +m[3] > 10000 || +m[4] > 10000) continue;
+              keys.add(t);
+              if (keys.size >= 300) break;
+            }
+            let data = {};
+            try { data = JSON.parse(fs.readFileSync('confirmations.json', 'utf8')); } catch (e) {}
+            let counted = 0;
+            for (const k of keys) {
+              const arr = data[k] || (data[k] = []);
+              if (!arr.includes(who)) { arr.push(who); counted++; }
+            }
+            fs.writeFileSync('confirmations.json', JSON.stringify(data));
+            const ok = Object.keys(data).filter(k => data[k].length >= THRESHOLD).sort();
+            const header = '-- Pontos de spawn confirmados pela comunidade (gerado automaticamente).\n' +
+              '-- Formato: ["mapID:itemID:x:y"] = true, com x e y em 1/10000 do mapa.\n' +
+              'GatherTrailConfirmed = GatherTrailConfirmed or {}\n';
+            fs.writeFileSync('ConfirmedData.lua', header + ok.map(k => 'GatherTrailConfirmed["' + k + '"] = true').join('\n') + (ok.length ? '\n' : ''));
+            await github.rest.issues.createComment({ ...context.repo, issue_number: issue.number,
+              body: `Obrigado! ${counted} de ${keys.size} pontos contados. Um ponto vira "confirmado" no addon quando ${THRESHOLD} contas diferentes o confirmam.` });
+            await github.rest.issues.update({ ...context.repo, issue_number: issue.number, state: 'closed' });
+      - name: Commit
+        run: |
+          git config user.name "gathertrail-bot"
+          git config user.email "gathertrail-bot@users.noreply.github.com"
+          git add confirmations.json ConfirmedData.lua
+          git diff --cached --quiet || (git commit -m "Update confirmed spawns" && git push)

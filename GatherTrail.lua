@@ -84,11 +84,13 @@ local DEFAULTS = {
     arrowLocked = true,
     arrowScale = 100,     -- porcento
     useSeed = true,       -- usa o banco inicial (addon GatherTrailData)
-    scanButton = true,    -- botao Scan sempre visivel junto da seta
     minimapButton = true,
     minimapAngle = 225,
     pinSize = 100,        -- tamanho dos icones (porcento)
     pinTransp = 30,       -- transparencia dos icones (porcento)
+    lowGap = 0,           -- esconde veios X niveis abaixo da skill (0 = desligado)
+    onlyConfirmed = false,
+    hideOre = {},         -- [itemID] = true: recurso escondido
     autoLoot = true,      -- pega sozinho o que veio de coleta (minerio/erva/couro)
     skipSecs = 1800,      -- tempo que um veio pulado fica escondido
     hoverLearn = true,    -- aprende veios passando o mouse no minimapa
@@ -356,9 +358,12 @@ local function SeedFor(map)
                     if wp then
                         local na, nb = wp.x, wp.y
                         if coordSwap then na, nb = wp.y, wp.x end
+                        local skey = map .. ":" .. ore .. ":" .. floor(x * 10000 + 0.5) .. ":" .. floor(y * 10000 + 0.5)
+                        local community = _G.GatherTrailConfirmed
                         list[#list + 1] = {
                             kind = kind, ore = ore, req = ORE_REQ[ore] or 0,
                             a = na, b = nb, inst = inst, map = map, mx = x, my = y, seed = true,
+                            key = skey, conf = (community and community[skey]) and true or nil,
                         }
                     end
                 end
@@ -406,7 +411,7 @@ local function Record(oreID, kind)
         ore = oreID, kind = kind, req = ORE_REQ[oreID] or 0,
         a = pending.a, b = pending.b, inst = pending.inst,
         map = pending.map, mx = pending.mx, my = pending.my,
-        t = now, mined = now, confirmed = snap ~= nil,
+        t = now, mined = now, confirmed = snap ~= nil, key = snap and snap.key,
     }
 end
 
@@ -518,42 +523,14 @@ do
     b:SetScript("OnLeave", function() GameTooltip:Hide() end)
     arrow.skip = b
 
-    local sb
-    local ok2, made = pcall(CreateFrame, "Button", nil, UIParent, "UIPanelButtonTemplate")
-    if ok2 and made then
-        sb = made
-    else
-        sb = CreateFrame("Button", nil, UIParent)
-        sb.fs = sb:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-        sb.fs:SetAllPoints()
-        sb.SetText = function(self, t) self.fs:SetText(t) end
-    end
-    sb:SetSize(64, 20)
-    sb:SetPoint("TOP", b, "BOTTOM", 0, -3)
-    sb:SetFrameStrata("MEDIUM")
-    sb:SetText(L.SCAN_BTN)
-    sb:SetScript("OnClick", function() if ScanNow then ScanNow() end end)
-    sb:SetScript("OnEnter", function(self)
-        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-        GameTooltip:AddLine(L.SCAN_TIP1, 1, 1, 1)
-        GameTooltip:AddLine(L.SCAN_TIP2, 0.8, 0.8, 0.8)
-        GameTooltip:AddLine(L.SCAN_TIP3, 0.8, 0.8, 0.8)
-        GameTooltip:Show()
+    b:RegisterForDrag("LeftButton")
+    b:SetScript("OnDragStart", function()
+        if not db.arrowLocked or IsShiftKeyDown() or db.testMode then arrow:StartMoving() end
     end)
-    sb:SetScript("OnLeave", function() GameTooltip:Hide() end)
-    sb:Hide()
-    arrow.scan = sb
-
-    for _, btn in ipairs({ b, sb }) do
-        btn:RegisterForDrag("LeftButton")
-        btn:SetScript("OnDragStart", function()
-            if not db.arrowLocked or IsShiftKeyDown() or db.testMode then arrow:StartMoving() end
-        end)
-        btn:SetScript("OnDragStop", function()
-            local stop = arrow:GetScript("OnDragStop")
-            if stop then stop(arrow) end
-        end)
-    end
+    b:SetScript("OnDragStop", function()
+        local stop = arrow:GetScript("OnDragStop")
+        if stop then stop(arrow) end
+    end)
 end
 arrow:Hide()
 
@@ -576,7 +553,6 @@ local function ApplyArrowPos()
         arrow:SetPoint("CENTER", UIParent, "CENTER", 0, 180)
     end
     arrow:SetScale(db.arrowScale / 100)
-    if arrow.scan then arrow.scan:SetScale(db.arrowScale / 100) end
     arrow:EnableMouse(true)
 end
 
@@ -584,6 +560,7 @@ end
 
 local worldFrame, worldPins = nil, {}
 local worldDirty, worldAt = true, 0
+local worldHidden, worldLast, worldWarn = 0, 0, 0
 
 local function SetupWorldMap()
     if worldFrame or not WorldMapFrame or not WorldMapFrame.GetCanvas then return end
@@ -605,6 +582,7 @@ local function SetupWorldMap()
                 GameTooltip:AddLine(L.REQ_SKILL:format(n.req, skills[n.kind or "mine"].skill),
                     self.can and 0.3 or 1, self.can and 1 or 0.3, 0.3)
             end
+            if n.conf or not n.seed then GameTooltip:AddLine(L.CONFIRMED, 0.3, 1, 0.3) end
             if n.mined then
                 GameTooltip:AddLine(L.MINED_AGO:format((time() - n.mined) / 60), 0.7, 0.7, 0.7)
             end
@@ -621,6 +599,17 @@ local function NodeCan(n)
     local k = n.kind or "mine"
     if not skills[k].known then return true end -- nivel desconhecido: nao esconde nada
     return (n.req or 0) <= skills[k].skill
+end
+
+local function NodeAllowed(n)
+    if n.ore and db.hideOre[n.ore] then return false end
+    local gap = db.lowGap or 0
+    if gap > 0 then
+        local sk = skills[n.kind or "mine"]
+        if sk and sk.known and (n.req or 0) < sk.skill - gap then return false end
+    end
+    if db.onlyConfirmed and n.seed and not n.conf then return false end
+    return true
 end
 
 local function HasReal(n)
@@ -642,7 +631,7 @@ local function UpdateWorldMap(pa, pb, inst)
     local w, h = worldFrame:GetWidth(), worldFrame:GetHeight()
     local now, used, r2 = time(), 0, db.range * db.range
     local function consider(n, seed)
-        if n.map == mapID and n.inst == inst and n.mx and KindOn(n.kind or "mine") and not IsSkipped(n) then
+        if n.map == mapID and n.inst == inst and n.mx and KindOn(n.kind or "mine") and not IsSkipped(n) and NodeAllowed(n) then
             local da, dw = n.a - pa, n.b - pb
             if da * da + dw * dw <= r2 then
                 local hidden = db.hideMinedSecs > 0 and n.mined and (now - n.mined) < db.hideMinedSecs
@@ -662,6 +651,13 @@ local function UpdateWorldMap(pa, pb, inst)
     if db.useSeed and seedCache[mapID] then
         for _, n in ipairs(seedCache[mapID]) do consider(n, true) end
     end
+    -- aviso unico se os icones sumirem de uma atualizacao para outra (diagnostico)
+    if used == 0 and worldLast > 0 and worldWarn < 3 then
+        worldWarn = worldWarn + 1
+        Print(("map: icons gone (mapID %s, seeds %s, %dx%d)"):format(tostring(mapID),
+            tostring(seedCache[mapID] and #seedCache[mapID]), w, h))
+    end
+    worldLast = used
 end
 
 ---------------------------------------------------------------- loop principal
@@ -674,7 +670,7 @@ local function Rebuild(pa, pb, inst)
     local r = db.range * 1.3
     local r2, now = r * r, time()
     for _, n in ipairs(db.nodes) do
-        if n.inst == inst and KindOn(n.kind or "mine") and not IsSkipped(n) then
+        if n.inst == inst and KindOn(n.kind or "mine") and not IsSkipped(n) and NodeAllowed(n) then
             local da, dw = n.a - pa, n.b - pb
             if da * da + dw * dw <= r2 then
                 local hidden = db.hideMinedSecs > 0 and n.mined and (now - n.mined) < db.hideMinedSecs
@@ -689,7 +685,7 @@ local function Rebuild(pa, pb, inst)
             local real = {}
             for _, n in ipairs(cache) do real[#real + 1] = n end
             for _, n in ipairs(seed) do
-                if n.inst == inst and KindOn(n.kind) and not IsSkipped(n) then
+                if n.inst == inst and KindOn(n.kind) and not IsSkipped(n) and NodeAllowed(n) then
                     local da, dw = n.a - pa, n.b - pb
                     if da * da + dw * dw <= r2 then
                         local dup = false
@@ -772,7 +768,6 @@ end
 
 local function HideAll()
     arrow:Hide()
-    arrow.scan:Hide()
     if miniLine then miniLine:Hide() end
     for _, p in ipairs(miniPins) do p:Hide() end
 end
@@ -854,6 +849,7 @@ local function HoverLearn(pa, pb, inst, rot, ypp)
         ore = hit.id, kind = hit.kind, req = ORE_REQ[hit.id] or 0,
         a = na, b = nb, inst = inst, t = time(), learned = "hover",
         map = snap and snap.map, mx = snap and snap.mx, my = snap and snap.my,
+        confirmed = snap ~= nil, key = snap and snap.key,
     }
     cacheAt = 0
 end
@@ -915,7 +911,6 @@ local function Tick()
     local target, td, tcan = bestY, bestYd, true
     if not target and db.arrowToRed and bestR then target, td, tcan = bestR, bestRd, false end
     currentTarget = target
-    if db.scanButton or db.testMode then arrow.scan:Show() else arrow.scan:Hide() end
 
     if target and db.arrow and not db.testMode then
         local dN, dW = target.a - pa, target.b - pb
@@ -934,7 +929,7 @@ local function Tick()
         arrow.text:SetText(L.ARROW_TEXT:format(label, td))
         arrow:Show()
 
-        if miniFrame and db.line and td > 6 then
+        if miniFrame and db.line and td > 6 and (target.conf or not target.seed) then
             local rel = theta - rot
             local px = min(td / ypp, (Minimap:GetWidth() / 2) * 0.95)
             miniLine:SetStartPoint("CENTER", Minimap, 0, 0)
@@ -957,7 +952,12 @@ local function Tick()
         if miniLine then miniLine:Hide() end
     end
 
-    if worldDirty or (worldFrame and WorldMapFrame:IsShown() and t - (worldAt or 0) > 1) then
+    if worldFrame and WorldMapFrame:IsShown() and not worldFrame:IsShown() then
+        worldFrame:Show()
+        worldDirty = true
+        worldHidden = worldHidden + 1
+    end
+    if worldDirty or (worldFrame and WorldMapFrame:IsShown() and t - (worldAt or 0) > 0.5) then
         worldAt, worldDirty = t, false
         UpdateWorldMap(pa, pb, inst)
     end
@@ -990,10 +990,18 @@ local function TryCreate(kind, name, parent, templates)
     return CreateFrame(kind, name, parent)
 end
 
+local function ItemName(id)
+    local n = C_Item and C_Item.GetItemNameByID and C_Item.GetItemNameByID(id)
+    if not n and GetItemInfo then n = GetItemInfo(id) end
+    if not n and C_Item and C_Item.RequestLoadItemDataByID then C_Item.RequestLoadItemDataByID(id) end
+    if issecret(n) then return nil end
+    return n
+end
+
 local function BuildOptions()
     if options then return options end
     local f = TryCreate("Frame", "GatherTrailOptions", UIParent, { "BasicFrameTemplateWithInset", "DialogBoxFrame" })
-    f:SetSize(360, 790)
+    f:SetSize(440, 540)
     f:SetPoint("LEFT", UIParent, "LEFT", 60, 0)
     f:SetMovable(true)
     f:EnableMouse(true)
@@ -1007,107 +1015,114 @@ local function BuildOptions()
     f:Hide()
     tinsert(UISpecialFrames, "GatherTrailOptions")
 
-    local refreshers = {}
-    local y = -38
+    local refreshers, nameUpdaters = {}, {}
+    local function ForceUpdate() cacheAt = 0 worldDirty = true end
 
-    local function Check(label, key, after)
-        local cb = TryCreate("CheckButton", nil, f, { "UICheckButtonTemplate", "ChatConfigCheckButtonTemplate" })
+    local function NewPage()
+        local p = CreateFrame("Frame", nil, f)
+        p:SetPoint("TOPLEFT", 14, -66)
+        p:SetPoint("BOTTOMRIGHT", -14, 14)
+        p:Hide()
+        p.y = 0
+        return p
+    end
+
+    local function Check(page, label, key, after)
+        local cb = TryCreate("CheckButton", nil, page, { "UICheckButtonTemplate", "ChatConfigCheckButtonTemplate" })
         cb:SetSize(24, 24)
-        cb:SetPoint("TOPLEFT", 16, y)
+        cb:SetPoint("TOPLEFT", 0, page.y)
         local fs = cb:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
         fs:SetPoint("LEFT", cb, "RIGHT", 4, 0)
+        fs:SetWidth(360)
+        fs:SetJustifyH("LEFT")
+        fs:SetWordWrap(false)
         fs:SetText(label)
         cb:SetScript("OnClick", function(self)
             db[key] = self:GetChecked() and true or false
             if after then after() end
         end)
         refreshers[#refreshers + 1] = function() cb:SetChecked(db[key]) end
-        y = y - 24
+        page.y = page.y - 26
     end
 
     local sliderN = 0
-    local function Slider(label, key, minV, maxV, step, unit, after)
+    local function Slider(page, label, key, minV, maxV, step, unit, after, fmt)
         sliderN = sliderN + 1
         local name = "GatherTrailSlider" .. sliderN
-        local cap = f:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-        cap:SetPoint("TOPLEFT", 20, y)
+        local y = page.y
+        local cap = page:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+        cap:SetPoint("TOPLEFT", 4, y)
+        cap:SetWidth(300)
+        cap:SetJustifyH("LEFT")
+        cap:SetWordWrap(false)
         cap:SetText(label)
-        local val = f:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-        val:SetPoint("TOPRIGHT", -20, y - 1)
-        local s = TryCreate("Slider", name, f, { "OptionsSliderTemplate", "MinimalSliderTemplate" })
+        local val = page:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+        val:SetPoint("TOPRIGHT", -4, y - 1)
+        local s = TryCreate("Slider", name, page, { "OptionsSliderTemplate", "MinimalSliderTemplate" })
         for _, suf in ipairs({ "Low", "High", "Text" }) do
             local extra = _G[name .. suf]
             if extra then extra:SetText("") extra:Hide() end
         end
         s:SetOrientation("HORIZONTAL")
-        s:SetPoint("TOPLEFT", 22, y - 20)
-        s:SetSize(316, 16)
+        s:SetPoint("TOPLEFT", 6, y - 20)
+        s:SetSize(396, 16)
         s:SetMinMaxValues(minV, maxV)
         s:SetValueStep(step)
         if s.SetObeyStepOnDrag then s:SetObeyStepOnDrag(true) end
+        local function show(v) val:SetText(fmt and fmt(v) or (v .. unit)) end
         s:SetScript("OnValueChanged", function(self, v)
             v = floor(v / step + 0.5) * step
-            val:SetText(v .. unit)
+            show(v)
             if self.syncing then return end
             db[key] = v
             if after then after() end
         end)
         refreshers[#refreshers + 1] = function()
             s.syncing = true
-            s:SetValue(db[key])
+            s:SetValue(db[key] or 0)
             s.syncing = false
-            val:SetText(db[key] .. unit)
+            show(db[key] or 0)
         end
-        y = y - 42
+        page.y = y - 44
     end
 
-    local function ForceUpdate() cacheAt = 0 worldDirty = true end
+    local function Button(parent, text, w)
+        local b = TryCreate("Button", nil, parent, { "UIPanelButtonTemplate" })
+        b:SetSize(w, 24)
+        b:SetText(text)
+        return b
+    end
 
-    Check(L.OPT_TEST, "testMode")
-    Check(L.OPT_ENABLED, "enabled")
-    Check(L.OPT_AUTOLOOT, "autoLoot")
-    Check(L.OPT_MINE, "trackMine", ForceUpdate)
-    Check(L.OPT_HERB, "trackHerb", ForceUpdate)
-    Check(L.OPT_SEED, "useSeed", ForceUpdate)
-    Check(L.OPT_HOVER, "hoverLearn")
-    Check(L.OPT_ARROW, "arrow")
-    Check(L.OPT_SCANBTN, "scanButton")
-    Check(L.OPT_MMBTN, "minimapButton", function() if UpdateMMButton then UpdateMMButton() end end)
-    Check(L.OPT_LINE, "line")
-    Check(L.OPT_MMPINS, "minimapPins")
-    Check(L.OPT_MAPPINS, "mapPins", ForceUpdate)
-    Check(L.OPT_RED, "showRed", ForceUpdate)
-    Check(L.OPT_ARROWRED, "arrowToRed")
-    y = y - 6
-    Slider(L.OPT_RANGE, "range", 50, 2000, 50, L.UNIT_YD, ForceUpdate)
-    Slider(L.OPT_HIDE, "hideMinedSecs", 0, 900, 30, L.UNIT_S, ForceUpdate)
-    Slider(L.OPT_PINSIZE, "pinSize", 50, 200, 10, "%", ForceUpdate)
-    Slider(L.OPT_TRANSP, "pinTransp", 0, 80, 5, "%", ForceUpdate)
-    Slider(L.OPT_SCALE, "arrowScale", 50, 200, 10, "%", ApplyArrowPos)
+    local pages = { general = NewPage(), display = NewPage(), nodes = NewPage() }
 
-    local lock = TryCreate("CheckButton", nil, f, { "UICheckButtonTemplate", "ChatConfigCheckButtonTemplate" })
-    lock:SetSize(24, 24)
-    lock:SetPoint("TOPLEFT", 16, y)
-    local lfs = lock:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-    lfs:SetPoint("LEFT", lock, "RIGHT", 4, 0)
-    lfs:SetText(L.OPT_LOCK)
-    lock:SetScript("OnClick", function(self)
-        db.arrowLocked = self:GetChecked() and true or false
-        ApplyArrowPos()
-    end)
-    refreshers[#refreshers + 1] = function() lock:SetChecked(db.arrowLocked) end
-    y = y - 30
+    ---------------------------------------------------------- Geral
+    local g = pages.general
+    Check(g, L.OPT_ENABLED, "enabled")
+    Check(g, L.OPT_AUTOLOOT, "autoLoot")
+    Check(g, L.OPT_MINE, "trackMine", ForceUpdate)
+    Check(g, L.OPT_HERB, "trackHerb", ForceUpdate)
+    Check(g, L.OPT_SEED, "useSeed", ForceUpdate)
+    Check(g, L.OPT_HOVER, "hoverLearn")
+    Check(g, L.OPT_TEST, "testMode")
+    g.y = g.y - 8
+    Slider(g, L.OPT_RANGE, "range", 50, 2000, 50, L.UNIT_YD, ForceUpdate)
+    Slider(g, L.OPT_HIDE, "hideMinedSecs", 0, 900, 30, L.UNIT_S, ForceUpdate)
 
-    local info = f:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    info:SetPoint("TOPLEFT", 20, y)
-    info:SetWidth(320)
+    local info = g:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    info:SetPoint("BOTTOMLEFT", 4, 70)
+    info:SetWidth(390)
     info:SetJustifyH("LEFT")
     f.info = info
 
-    local clear = TryCreate("Button", nil, f, { "UIPanelButtonTemplate" })
-    clear:SetSize(150, 24)
-    clear:SetPoint("BOTTOM", 0, 14)
-    clear:SetText(L.BTN_CLEAR)
+    local unskip = Button(g, L.BTN_UNSKIP, 190)
+    unskip:SetPoint("BOTTOMLEFT", 4, 34)
+    unskip:SetScript("OnClick", function()
+        db.skipped = {}
+        ForceUpdate()
+        Print(L.MSG_UNSKIPPED)
+    end)
+    local clear = Button(g, L.BTN_CLEAR, 190)
+    clear:SetPoint("BOTTOMLEFT", 4, 4)
     clear:SetScript("OnClick", function()
         wipe(db.nodes)
         ForceUpdate()
@@ -1115,20 +1130,133 @@ local function BuildOptions()
         Print(L.MSG_CLEARED)
     end)
 
-    local unskip = TryCreate("Button", nil, f, { "UIPanelButtonTemplate" })
-    unskip:SetSize(150, 24)
-    unskip:SetPoint("BOTTOM", 0, 44)
-    unskip:SetText(L.BTN_UNSKIP)
-    unskip:SetScript("OnClick", function()
-        db.skipped = {}
-        ForceUpdate()
-        Print(L.MSG_UNSKIPPED)
+    ---------------------------------------------------------- Exibicao
+    local d = pages.display
+    Check(d, L.OPT_ARROW, "arrow")
+    Check(d, L.OPT_LOCK, "arrowLocked", function() ApplyArrowPos() end)
+    Check(d, L.OPT_MMBTN, "minimapButton", function() if UpdateMMButton then UpdateMMButton() end end)
+    Check(d, L.OPT_MMPINS, "minimapPins")
+    Check(d, L.OPT_MAPPINS, "mapPins", ForceUpdate)
+    Check(d, L.OPT_LINE, "line")
+    Check(d, L.OPT_RED, "showRed", ForceUpdate)
+    Check(d, L.OPT_ARROWRED, "arrowToRed")
+    Check(d, L.OPT_CONFONLY, "onlyConfirmed", ForceUpdate)
+    d.y = d.y - 8
+    Slider(d, L.OPT_PINSIZE, "pinSize", 50, 200, 10, "%", ForceUpdate)
+    Slider(d, L.OPT_TRANSP, "pinTransp", 0, 80, 5, "%", ForceUpdate)
+    Slider(d, L.OPT_SCALE, "arrowScale", 50, 200, 10, "%", ApplyArrowPos)
+
+    ---------------------------------------------------------- Recursos
+    local n = pages.nodes
+    Slider(n, L.OPT_LOWGAP, "lowGap", 0, 300, 25, "", ForceUpdate, function(v) return v == 0 and L.OFF or ("-" .. v) end)
+
+    local hint = n:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    hint:SetPoint("TOPLEFT", 4, n.y)
+    hint:SetText(L.NODES_HINT)
+    n.y = n.y - 22
+
+    local allBtn = Button(n, L.BTN_ALL, 130)
+    allBtn:SetPoint("TOPLEFT", 4, n.y)
+    local noneBtn = Button(n, L.BTN_NONE, 130)
+    noneBtn:SetPoint("LEFT", allBtn, "RIGHT", 6, 0)
+    n.y = n.y - 30
+
+    local sf = TryCreate("ScrollFrame", "GatherTrailNodesScroll", n, { "UIPanelScrollFrameTemplate" })
+    sf:SetPoint("TOPLEFT", 0, n.y)
+    sf:SetPoint("BOTTOMRIGHT", -26, 0)
+    local content = CreateFrame("Frame", nil, sf)
+    content:SetSize(380, 10)
+    sf:SetScrollChild(content)
+    sf:EnableMouseWheel(true)
+    sf:SetScript("OnMouseWheel", function(self, delta)
+        local cur, max = self:GetVerticalScroll(), self:GetVerticalScrollRange()
+        self:SetVerticalScroll(math.max(0, math.min(max, cur - delta * 48)))
     end)
+
+    local ids = {}
+    for id in pairs(ORE_REQ) do ids[#ids + 1] = id end
+    table.sort(ids, function(a, b)
+        local ka, kb = HERB_REQ[a] and 2 or 1, HERB_REQ[b] and 2 or 1
+        if ka ~= kb then return ka < kb end
+        local ra, rb = ORE_REQ[a], ORE_REQ[b]
+        if ra ~= rb then return ra < rb end
+        return a < b
+    end)
+
+    local ry, lastKind = 0, nil
+    for _, id in ipairs(ids) do
+        local kind = HERB_REQ[id] and "herb" or "mine"
+        if kind ~= lastKind then
+            lastKind = kind
+            local h = content:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+            h:SetPoint("TOPLEFT", 4, ry - 2)
+            h:SetText(KINDS[kind].label)
+            ry = ry - 22
+        end
+        local cb = TryCreate("CheckButton", nil, content, { "UICheckButtonTemplate", "ChatConfigCheckButtonTemplate" })
+        cb:SetSize(22, 22)
+        cb:SetPoint("TOPLEFT", 0, ry)
+        local icon = content:CreateTexture(nil, "ARTWORK")
+        icon:SetSize(18, 18)
+        icon:SetPoint("LEFT", cb, "RIGHT", 2, 0)
+        icon:SetTexture(kind == "mine" and MineIcon(id) or OreIcon(id))
+        icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+        local nm = content:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+        nm:SetPoint("LEFT", icon, "RIGHT", 6, 0)
+        nm:SetWidth(240)
+        nm:SetJustifyH("LEFT")
+        nm:SetWordWrap(false)
+        local rq = content:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+        rq:SetPoint("TOPRIGHT", content, "TOPRIGHT", -6, ry - 5)
+        rq:SetText(tostring(ORE_REQ[id]))
+        cb:SetScript("OnClick", function(self)
+            db.hideOre[id] = (not self:GetChecked()) or nil
+            ForceUpdate()
+        end)
+        refreshers[#refreshers + 1] = function() cb:SetChecked(not db.hideOre[id]) end
+        nameUpdaters[#nameUpdaters + 1] = function() nm:SetText(ItemName(id) or ("#" .. id)) end
+        ry = ry - 24
+    end
+    content:SetHeight(-ry + 10)
+
+    allBtn:SetScript("OnClick", function() wipe(db.hideOre) ForceUpdate() f:Refresh() end)
+    noneBtn:SetScript("OnClick", function()
+        for _, id in ipairs(ids) do db.hideOre[id] = true end
+        ForceUpdate()
+        f:Refresh()
+    end)
+
+    ---------------------------------------------------------- abas
+    local tabBtns = {}
+    local order = { { "general", L.TAB_GENERAL }, { "display", L.TAB_DISPLAY }, { "nodes", L.TAB_NODES } }
+    local function ShowTab(id)
+        for key, page in pairs(pages) do
+            if key == id then page:Show() else page:Hide() end
+        end
+        for key, b in pairs(tabBtns) do
+            if key == id then b:Disable() else b:Enable() end
+        end
+        db.lastTab = id
+    end
+    for i, def in ipairs(order) do
+        local b = Button(f, def[2], 130)
+        b:SetPoint("TOPLEFT", 16 + (i - 1) * 134, -34)
+        b:SetScript("OnClick", function() ShowTab(def[1]) end)
+        tabBtns[def[1]] = b
+    end
+
+    function f.RefreshNames()
+        for _, u in ipairs(nameUpdaters) do u() end
+    end
 
     function f:Refresh()
         for _, r in ipairs(refreshers) do r() end
-        local function sk(k) return skills[k].known and L.HAS_SKILL:format(skills[k].skill) or (skills[k].has and "?" or L.NO_SKILL) end
+        local function sk(k)
+            return skills[k].known and L.HAS_SKILL:format(skills[k].skill) or (skills[k].has and "?" or L.NO_SKILL)
+        end
         info:SetText(L.INFO:format(#db.nodes, sk("mine"), sk("herb"), sk("skin")))
+        f.RefreshNames()
+        ShowTab(pages[db.lastTab or ""] and db.lastTab or "general")
     end
     f:SetScript("OnShow", f.Refresh)
     options = f
@@ -1165,7 +1293,7 @@ UpdateMMButton = function()
         b:SetSize(31, 31)
         b:SetFrameStrata("MEDIUM")
         b:SetFrameLevel(Minimap:GetFrameLevel() + 8)
-        b:RegisterForClicks("LeftButtonUp", "RightButtonUp", "MiddleButtonUp")
+        b:RegisterForClicks("LeftButtonUp", "RightButtonUp")
         b:RegisterForDrag("LeftButton")
         local bg = b:CreateTexture(nil, "BACKGROUND")
         bg:SetSize(20, 20)
@@ -1184,9 +1312,7 @@ UpdateMMButton = function()
         b:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight")
 
         b:SetScript("OnClick", function(_, button)
-            if button == "MiddleButton" then
-                ScanNow()
-            elseif button == "RightButton" then
+            if button == "RightButton" then
                 db.enabled = not db.enabled
                 UpdateMMButton()
                 Print(db.enabled and L.MSG_ENABLED or L.MSG_DISABLED_MM)
@@ -1209,7 +1335,6 @@ UpdateMMButton = function()
             GameTooltip:AddLine("GatherTrail", 1, 0.82, 0)
             GameTooltip:AddLine(L.MM_LEFT, 1, 1, 1)
             GameTooltip:AddLine(L.MM_RIGHT, 1, 1, 1)
-            GameTooltip:AddLine(L.MM_MIDDLE, 1, 1, 1)
             GameTooltip:AddLine(L.MM_DRAG, 0.7, 0.7, 0.7)
             GameTooltip:AddLine(db.enabled and L.MM_ON or L.MM_OFF,
                 db.enabled and 0.3 or 1, db.enabled and 1 or 0.3, 0.3)
@@ -1286,11 +1411,11 @@ SlashCmdList.GATHERTRAIL = function(msg)
         local shown = 0
         for _, p in ipairs(worldPins) do if p:IsShown() then shown = shown + 1 end end
         local mid = WorldMapFrame and WorldMapFrame.GetMapID and WorldMapFrame:GetMapID()
-        Print(("map: frame=%s visible=%s size=%dx%d mapID=%s seeds=%s pins=%d strata=%s"):format(
+        Print(("map: frame=%s visible=%s size=%dx%d mapID=%s seeds=%s pins=%d strata=%s reshown=%d"):format(
             tostring(worldFrame ~= nil), tostring(worldFrame and worldFrame:IsVisible()),
             worldFrame and worldFrame:GetWidth() or 0, worldFrame and worldFrame:GetHeight() or 0,
             tostring(mid), tostring(mid and seedCache[mid] and #seedCache[mid]), shown,
-            tostring(worldFrame and worldFrame:GetFrameStrata())))
+            tostring(worldFrame and worldFrame:GetFrameStrata()), worldHidden))
     elseif cmd == "debug" then
         local ns_ = 0
         for _, l in pairs(seedCache) do ns_ = ns_ + #l end
@@ -1391,6 +1516,7 @@ ev:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 ev:RegisterEvent("LOOT_OPENED")
 ev:RegisterEvent("LOOT_CLOSED")
 ev:RegisterEvent("CHAT_MSG_SKILL")
+ev:RegisterEvent("GET_ITEM_INFO_RECEIVED")
 ev:RegisterEvent("PLAYER_ENTERING_WORLD")
 local function Handle(_, event, ...)
     if event == "ADDON_LOADED" then
@@ -1515,6 +1641,8 @@ local function Handle(_, event, ...)
             local name, rank = text:match(skillPat)
             if name and rank then SetSkill(name, tonumber(rank)) cacheAt = 0 worldDirty = true end
         end
+    elseif event == "GET_ITEM_INFO_RECEIVED" then
+        if options and options.RefreshNames and options:IsShown() then options.RefreshNames() end
     elseif event == "PLAYER_ENTERING_WORLD" then
         if db then RefreshSkill() cacheAt = 0 end
     end
