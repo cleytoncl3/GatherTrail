@@ -271,6 +271,24 @@ local function MineIcon(ore)
     return OreIcon(ore)
 end
 
+-- preco no leilao: le o banco do Auctionator (ultimo scan), se estiver instalado
+local function PriceOf(id)
+    local A = _G.Auctionator
+    if not (A and A.API and A.API.v1 and A.API.v1.GetAuctionPriceByItemID) then return nil end
+    local ok, p = pcall(A.API.v1.GetAuctionPriceByItemID, "GatherTrail", id)
+    if ok and type(p) == "number" and p > 0 then return p end
+    return nil
+end
+
+local function Money(c)
+    if not c then return nil end
+    c = floor(c)
+    local g, sv, cu = floor(c / 10000), floor(c / 100) % 100, c % 100
+    if g > 0 then return ("|cffffd700%d|rg |cffc0c0c0%d|rs"):format(g, sv) end
+    if sv > 0 then return ("|cffc0c0c0%d|rs |cffeda55f%d|rc"):format(sv, cu) end
+    return ("|cffeda55f%d|rc"):format(cu)
+end
+
 local function PlayerPos()
     local a, b, _, inst = UnitPosition("player")
     if not a then return nil end
@@ -584,6 +602,8 @@ local function SetupWorldMap()
                 GameTooltip:AddLine(L.REQ_SKILL:format(n.req, skills[n.kind or "mine"].skill),
                     self.can and 0.3 or 1, self.can and 1 or 0.3, 0.3)
             end
+            local pr = n.kind ~= "skin" and n.ore and PriceOf(n.ore)
+            if pr then GameTooltip:AddLine(L.PRICE_AH .. ": " .. Money(pr), 1, 1, 1) end
             if n.conf or not n.seed then GameTooltip:AddLine(L.CONFIRMED, 0.3, 1, 0.3) end
             if n.mined then
                 GameTooltip:AddLine(L.MINED_AGO:format((time() - n.mined) / 60), 0.7, 0.7, 0.7)
@@ -1229,13 +1249,21 @@ local function BuildOptions()
 
     local hint = n:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     hint:SetPoint("TOPLEFT", 4, n.y)
-    hint:SetText(L.NODES_HINT)
-    n.y = n.y - 22
+    hint:SetWidth(396)
+    hint:SetJustifyH("LEFT")
+    hint:SetWordWrap(false)
+    f.hint = hint
+    n.y = n.y - 20
 
     local allBtn = Button(n, L.BTN_ALL, 130)
     allBtn:SetPoint("TOPLEFT", 4, n.y)
     local noneBtn = Button(n, L.BTN_NONE, 130)
     noneBtn:SetPoint("LEFT", allBtn, "RIGHT", 6, 0)
+    n.y = n.y - 28
+    local sortBtn = Button(n, "", 130)
+    sortBtn:SetPoint("TOPLEFT", 4, n.y)
+    local bestBtn = Button(n, L.BTN_BEST, 130)
+    bestBtn:SetPoint("LEFT", sortBtn, "RIGHT", 6, 0)
     n.y = n.y - 30
 
     local sf = TryCreate("ScrollFrame", "GatherTrailNodesScroll", n, { "UIPanelScrollFrameTemplate" })
@@ -1252,27 +1280,24 @@ local function BuildOptions()
 
     local ids = {}
     for id in pairs(ORE_REQ) do ids[#ids + 1] = id end
-    table.sort(ids, function(a, b)
-        local ka, kb = HERB_REQ[a] and 2 or 1, HERB_REQ[b] and 2 or 1
-        if ka ~= kb then return ka < kb end
-        local ra, rb = ORE_REQ[a], ORE_REQ[b]
-        if ra ~= rb then return ra < rb end
-        return a < b
-    end)
 
-    local ry, lastKind = 0, nil
+    local rows, headers = {}, {}
+    for _, kind in ipairs({ "mine", "herb" }) do
+        local h = content:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+        h:SetText(KINDS[kind].label)
+        local cs = content:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+        cs:SetPoint("TOPLEFT", h, "TOPLEFT", 232, -2)
+        cs:SetText(L.COL_SKILL)
+        local cp = content:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+        cp:SetPoint("TOPRIGHT", content, "TOPRIGHT", -6, 0)
+        cp:SetText(L.COL_PRICE)
+        headers[kind] = { h = h, cs = cs, cp = cp }
+    end
+
     for _, id in ipairs(ids) do
         local kind = HERB_REQ[id] and "herb" or "mine"
-        if kind ~= lastKind then
-            lastKind = kind
-            local h = content:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-            h:SetPoint("TOPLEFT", 4, ry - 2)
-            h:SetText(KINDS[kind].label)
-            ry = ry - 22
-        end
         local cb = TryCreate("CheckButton", nil, content, { "UICheckButtonTemplate", "ChatConfigCheckButtonTemplate" })
         cb:SetSize(22, 22)
-        cb:SetPoint("TOPLEFT", 0, ry)
         local icon = content:CreateTexture(nil, "ARTWORK")
         icon:SetSize(18, 18)
         icon:SetPoint("LEFT", cb, "RIGHT", 2, 0)
@@ -1280,25 +1305,103 @@ local function BuildOptions()
         icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
         local nm = content:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
         nm:SetPoint("LEFT", icon, "RIGHT", 6, 0)
-        nm:SetWidth(240)
+        nm:SetWidth(160)
         nm:SetJustifyH("LEFT")
         nm:SetWordWrap(false)
         local rq = content:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-        rq:SetPoint("TOPRIGHT", content, "TOPRIGHT", -6, ry - 5)
         rq:SetText(tostring(ORE_REQ[id]))
+        local pr = content:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+        pr:SetWidth(110)
+        pr:SetJustifyH("RIGHT")
         cb:SetScript("OnClick", function(self)
             db.hideOre[id] = (not self:GetChecked()) or nil
             ForceUpdate()
         end)
         refreshers[#refreshers + 1] = function() cb:SetChecked(not db.hideOre[id]) end
         nameUpdaters[#nameUpdaters + 1] = function() nm:SetText(ItemName(id) or ("#" .. id)) end
-        ry = ry - 24
+        rows[#rows + 1] = { id = id, kind = kind, cb = cb, rq = rq, pr = pr }
     end
-    content:SetHeight(-ry + 10)
+
+    local function Layout()
+        local ry = 0
+        for _, kind in ipairs({ "mine", "herb" }) do
+            local list = {}
+            for _, r in ipairs(rows) do if r.kind == kind then list[#list + 1] = r end end
+            table.sort(list, function(a, b)
+                if db.sortByPrice then
+                    local pa, pb = a.price or -1, b.price or -1
+                    if pa ~= pb then return pa > pb end
+                end
+                if ORE_REQ[a.id] ~= ORE_REQ[b.id] then return ORE_REQ[a.id] < ORE_REQ[b.id] end
+                return a.id < b.id
+            end)
+            local hd = headers[kind]
+            hd.h:ClearAllPoints()
+            hd.h:SetPoint("TOPLEFT", content, "TOPLEFT", 4, ry - 2)
+            hd.cp:ClearAllPoints()
+            hd.cp:SetPoint("TOPRIGHT", content, "TOPRIGHT", -6, ry - 4)
+            ry = ry - 22
+            for _, r in ipairs(list) do
+                r.cb:ClearAllPoints()
+                r.cb:SetPoint("TOPLEFT", content, "TOPLEFT", 0, ry)
+                r.rq:ClearAllPoints()
+                r.rq:SetPoint("TOPLEFT", content, "TOPLEFT", 236, ry - 6)
+                r.pr:ClearAllPoints()
+                r.pr:SetPoint("TOPRIGHT", content, "TOPRIGHT", -6, ry - 6)
+                ry = ry - 24
+            end
+        end
+        content:SetHeight(-ry + 10)
+    end
+
+    function f.UpdatePrices()
+        local have = _G.Auctionator and _G.Auctionator.API and true or false
+        hint:SetText(have and L.NODES_HINT or L.NO_AUCTIONATOR)
+        for _, r in ipairs(rows) do
+            r.price = PriceOf(r.id)
+            r.pr:SetText(Money(r.price) or "-")
+            local sk = skills[r.kind]
+            if not sk.has then
+                r.rq:SetTextColor(0.6, 0.6, 0.6)
+            elseif not sk.known or ORE_REQ[r.id] <= sk.skill then
+                r.rq:SetTextColor(0.4, 1, 0.4)
+            else
+                r.rq:SetTextColor(1, 0.3, 0.3)
+            end
+        end
+        sortBtn:SetText(db.sortByPrice and L.SORT_PRICE or L.SORT_SKILL)
+        Layout()
+    end
 
     allBtn:SetScript("OnClick", function() wipe(db.hideOre) ForceUpdate() f:Refresh() end)
     noneBtn:SetScript("OnClick", function()
         for _, id in ipairs(ids) do db.hideOre[id] = true end
+        ForceUpdate()
+        f:Refresh()
+    end)
+    sortBtn:SetScript("OnClick", function()
+        db.sortByPrice = not db.sortByPrice
+        f.UpdatePrices()
+    end)
+    -- mantem so os 5 recursos mais caros (por profissao) que a skill atual alcanca
+    bestBtn:SetScript("OnClick", function()
+        for _, kind in ipairs({ "mine", "herb" }) do
+            local sk = skills[kind]
+            local cand = {}
+            for _, r in ipairs(rows) do
+                if r.kind == kind and r.price and (not sk.known or ORE_REQ[r.id] <= sk.skill) then
+                    cand[#cand + 1] = r
+                end
+            end
+            if #cand > 0 then
+                table.sort(cand, function(a, b) return a.price > b.price end)
+                local keep = {}
+                for i = 1, math.min(5, #cand) do keep[cand[i].id] = true end
+                for _, r in ipairs(rows) do
+                    if r.kind == kind then db.hideOre[r.id] = (not keep[r.id]) or nil end
+                end
+            end
+        end
         ForceUpdate()
         f:Refresh()
     end)
@@ -1333,6 +1436,7 @@ local function BuildOptions()
         end
         info:SetText(L.INFO:format(#db.nodes, sk("mine"), sk("herb"), sk("skin")))
         f.RefreshNames()
+        f.UpdatePrices()
         ShowTab(pages[db.lastTab or ""] and db.lastTab or "general")
     end
     f:SetScript("OnShow", f.Refresh)
