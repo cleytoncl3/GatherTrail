@@ -7,7 +7,7 @@ The full feature description, FAQ and commands are in [CURSEFORGE.md](CURSEFORGE
 ## Install
 
 - **CurseForge:** install **Trailsmith** and **GatherTrailData** (optional starter database).
-- **Manually:** copy the `GatherTrail` folder to `Interface/AddOns`. For the starter database also copy [GatherTrailData](https://github.com/cleytoncl3/GatherTrailData) next to it.
+- **Manually:** copy the `Trailsmith` folder to `Interface/AddOns`. For the starter database also copy [GatherTrailData](https://github.com/cleytoncl3/GatherTrailData) next to it.
 - **Update without git:** run `Update.bat` in the addon folder (it downloads the latest version of this repository).
 
 Languages: English, Spanish and Portuguese, chosen from the game language.

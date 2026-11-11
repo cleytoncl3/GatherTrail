@@ -3,8 +3,8 @@
 # uma pagina de "nova issue" no GitHub ja preenchida. Voce revisa e clica em Submit.
 $addon = $PSScriptRoot
 $wtf = Join-Path $addon '..\..\..\WTF\Account'
-$files = Get-ChildItem -Path $wtf -Recurse -Filter 'GatherTrail.lua' -ErrorAction SilentlyContinue |
-    Where-Object { $_.DirectoryName -like '*SavedVariables' }
+$files = Get-ChildItem -Path $wtf -Recurse -Filter '*.lua' -ErrorAction SilentlyContinue |
+    Where-Object { $_.DirectoryName -like '*SavedVariables' -and $_.BaseName -in @('Trailsmith','GatherTrail') }
 $keys = @()
 foreach ($f in $files) {
     $text = Get-Content $f.FullName -Raw

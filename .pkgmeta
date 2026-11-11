@@ -1,4 +1,4 @@
-package-as: GatherTrail
+package-as: Trailsmith
 
 ignore:
   - Update.bat

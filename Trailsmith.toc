@@ -20,5 +20,5 @@
 Locales.lua
 ConfirmedData.lua
 CombatTutor.lua
-GatherTrail.lua
+Trailsmith.lua
 Bindings.xml
