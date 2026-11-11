@@ -1,5 +1,8 @@
 # Trailsmith
 
+## 1.2.1
+- Profession planner: search bar at the top (recipes, crafted items and materials across all professions), separate text-size and number-size sliders in Settings, wider window, shorter card titles and labels so nothing overlaps.
+
 ## 1.2.0
 - New **Profession planner** (on by default). Open it with `/tsp`, `/gt prof`, Shift-click on the minimap button, or the button in the General tab.
 - Pick a profession (Alchemy, Blacksmithing, Cooking, Enchanting, Engineering, First Aid, Leatherworking, Mining/Smelting, Tailoring), set a skill range and get a step-by-step leveling plan with crafts, materials and cost.

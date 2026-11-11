@@ -10,12 +10,13 @@ LOC.en = {
     TITLE = "Trailsmith Professions", PLAN = "Plan", MATS = "Materials", RECIPES = "Recipes", SETTINGS = "Settings",
     FROM = "From", TO = "To", MYSKILL = "My skill", MAXSKILL = "Max",
     MODE_CHEAP = "Cheapest", MODE_PROFIT = "Best profit", MODE_FAST = "Fewest crafts",
-    CARD_POINTS = "Skill points", CARD_CRAFTS = "Crafts", CARD_COST = "Material cost", CARD_TIME = "Est. time", CARD_NET = "Net if sold",
+    CARD_POINTS = "Points", CARD_CRAFTS = "Crafts", CARD_COST = "Cost", CARD_TIME = "Time", CARD_NET = "Net if sold",
+    SEARCH_TOP = "Search recipes, items, materials...", OPT_FONT_TEXT = "Text size", OPT_FONT_NUM = "Numbers size", RESULT_NONE = "Nothing found",
     SRC_T = "Trainer", SRC_V = "Vendor recipe", SRC_I = "Recipe item", SRC_A = "Starting recipe", SRC_U = "Other source", KNOWN = "Known",
     NEED = "Need", HAVE = "Have", MISSING = "Missing", UNIT = "Unit", TOTAL = "Total", NOPRICE = "no price",
-    NOREC = "No recipe available for skill %d-%d. Allow more recipe sources in Settings.",
+    NOREC = "No recipe for skill %d-%d. Allow more sources in Settings or level by gathering.",
     LEARN = "Learn", MATSHDR = "Shopping list (raw materials)", SEARCH = "Search",
-    PRICES = "Prices: %s", PRICES_NONE = "Prices: vendor data only (install Auctionator or TSM for market prices)",
+    PRICES = "Prices: %s", PRICES_NONE = "Prices: vendor only",
     NOPROF = "You do not have this profession yet. Showing a plan from skill 1.",
     OPT_GATHER = "I gather raw materials myself (count them as free)",
     OPT_KNOWN = "Use only recipes I already know",
@@ -25,7 +26,7 @@ LOC.en = {
     UNIT_MIN = "min", CRAFT_X = "%d crafts", ORANGE = "orange", YELLOW = "yellow", GREEN = "green", GREY = "grey",
     LEGEND = "Difficulty: orange / yellow / green / grey",
     CLOSE = "Close", TIP_ROW = "Click a profession on the left, set the skill range and read the plan.",
-    PROFS = { alchemy = "Alchemy", blacksmithing = "Blacksmithing", cooking = "Cooking", enchanting = "Enchanting", engineering = "Engineering", firstaid = "First Aid", leatherworking = "Leatherworking", mining = "Mining (Smelting)", tailoring = "Tailoring" },
+    PROFS = { alchemy = "Alchemy", blacksmithing = "Blacksmithing", cooking = "Cooking", enchanting = "Enchanting", engineering = "Engineering", firstaid = "First Aid", leatherworking = "Leatherworking", mining = "Mining", tailoring = "Tailoring" },
     SKINS = { dark = "Dark", classic = "Classic", slate = "Slate", forest = "Forest" },
     NOTE_ESTIMATE = "Skill-up odds are estimates (orange 100%, yellow 75%, green 25%). Recipe requirements come from public data; a few are estimated.",
 }
@@ -33,12 +34,13 @@ LOC.es = {
     TITLE = "Trailsmith Profesiones", PLAN = "Plan", MATS = "Materiales", RECIPES = "Recetas", SETTINGS = "Ajustes",
     FROM = "Desde", TO = "Hasta", MYSKILL = "Mi nivel", MAXSKILL = "Máx.",
     MODE_CHEAP = "Más barato", MODE_PROFIT = "Mayor beneficio", MODE_FAST = "Menos creaciones",
-    CARD_POINTS = "Puntos de habilidad", CARD_CRAFTS = "Creaciones", CARD_COST = "Coste de materiales", CARD_TIME = "Tiempo est.", CARD_NET = "Neto si vendes",
+    CARD_POINTS = "Puntos", CARD_CRAFTS = "Creaciones", CARD_COST = "Coste", CARD_TIME = "Tiempo", CARD_NET = "Neto",
+    SEARCH_TOP = "Buscar recetas, objetos, materiales...", OPT_FONT_TEXT = "Tamaño del texto", OPT_FONT_NUM = "Tamaño de los números", RESULT_NONE = "No se encontró nada",
     SRC_T = "Instructor", SRC_V = "Receta de vendedor", SRC_I = "Objeto de receta", SRC_A = "Receta inicial", SRC_U = "Otra fuente", KNOWN = "Conocida",
     NEED = "Necesitas", HAVE = "Tienes", MISSING = "Faltan", UNIT = "Unidad", TOTAL = "Total", NOPRICE = "sin precio",
-    NOREC = "No hay receta disponible para el nivel %d-%d. Permite más fuentes de recetas en Ajustes.",
+    NOREC = "Sin receta para el nivel %d-%d. Permite más fuentes en Ajustes o sube recolectando.",
     LEARN = "Aprender", MATSHDR = "Lista de compra (materiales base)", SEARCH = "Buscar",
-    PRICES = "Precios: %s", PRICES_NONE = "Precios: solo datos de vendedor (instala Auctionator o TSM para precios de mercado)",
+    PRICES = "Precios: %s", PRICES_NONE = "Precios: solo vendedor",
     NOPROF = "Aún no tienes esta profesión. Se muestra un plan desde el nivel 1.",
     OPT_GATHER = "Recolecto los materiales base yo mismo (cuentan como gratis)",
     OPT_KNOWN = "Usar solo recetas que ya conozco",
@@ -48,7 +50,7 @@ LOC.es = {
     UNIT_MIN = "min", CRAFT_X = "%d creaciones", ORANGE = "naranja", YELLOW = "amarillo", GREEN = "verde", GREY = "gris",
     LEGEND = "Dificultad: naranja / amarillo / verde / gris",
     CLOSE = "Cerrar", TIP_ROW = "Elige una profesión a la izquierda, define el rango de nivel y lee el plan.",
-    PROFS = { alchemy = "Alquimia", blacksmithing = "Herrería", cooking = "Cocina", enchanting = "Encantamiento", engineering = "Ingeniería", firstaid = "Primeros auxilios", leatherworking = "Peletería", mining = "Minería (Fundición)", tailoring = "Sastrería" },
+    PROFS = { alchemy = "Alquimia", blacksmithing = "Herrería", cooking = "Cocina", enchanting = "Encantamiento", engineering = "Ingeniería", firstaid = "Primeros auxilios", leatherworking = "Peletería", mining = "Minería", tailoring = "Sastrería" },
     SKINS = { dark = "Oscuro", classic = "Clásico", slate = "Pizarra", forest = "Bosque" },
     NOTE_ESTIMATE = "Las probabilidades de subida son estimadas (naranja 100%, amarillo 75%, verde 25%). Los requisitos vienen de datos públicos; algunos son estimados.",
 }
@@ -56,12 +58,13 @@ LOC.pt = {
     TITLE = "Trailsmith Profissões", PLAN = "Plano", MATS = "Materiais", RECIPES = "Receitas", SETTINGS = "Opções",
     FROM = "De", TO = "Até", MYSKILL = "Minha perícia", MAXSKILL = "Máx.",
     MODE_CHEAP = "Mais barato", MODE_PROFIT = "Maior lucro", MODE_FAST = "Menos criações",
-    CARD_POINTS = "Pontos de perícia", CARD_CRAFTS = "Criações", CARD_COST = "Custo de materiais", CARD_TIME = "Tempo est.", CARD_NET = "Líquido se vender",
+    CARD_POINTS = "Pontos", CARD_CRAFTS = "Criações", CARD_COST = "Custo", CARD_TIME = "Tempo", CARD_NET = "Líquido",
+    SEARCH_TOP = "Buscar receitas, itens, materiais...", OPT_FONT_TEXT = "Tamanho do texto", OPT_FONT_NUM = "Tamanho dos números", RESULT_NONE = "Nada encontrado",
     SRC_T = "Treinador", SRC_V = "Receita de vendedor", SRC_I = "Item de receita", SRC_A = "Receita inicial", SRC_U = "Outra fonte", KNOWN = "Conhecida",
     NEED = "Precisa", HAVE = "Tem", MISSING = "Falta", UNIT = "Unid.", TOTAL = "Total", NOPRICE = "sem preço",
-    NOREC = "Nenhuma receita disponível para a perícia %d-%d. Permita mais fontes de receitas nas Opções.",
+    NOREC = "Sem receita para a perícia %d-%d. Permita mais fontes nas Opções ou suba coletando.",
     LEARN = "Aprender", MATSHDR = "Lista de compras (materiais básicos)", SEARCH = "Buscar",
-    PRICES = "Preços: %s", PRICES_NONE = "Preços: só dados de vendedor (instale Auctionator ou TSM para preços de mercado)",
+    PRICES = "Preços: %s", PRICES_NONE = "Preços: só vendedor",
     NOPROF = "Você ainda não tem esta profissão. Mostrando um plano a partir da perícia 1.",
     OPT_GATHER = "Eu mesmo coleto os materiais básicos (contam como grátis)",
     OPT_KNOWN = "Usar só receitas que eu já conheço",
@@ -71,7 +74,7 @@ LOC.pt = {
     UNIT_MIN = "min", CRAFT_X = "%d criações", ORANGE = "laranja", YELLOW = "amarelo", GREEN = "verde", GREY = "cinza",
     LEGEND = "Dificuldade: laranja / amarelo / verde / cinza",
     CLOSE = "Fechar", TIP_ROW = "Clique numa profissão à esquerda, defina a faixa de perícia e leia o plano.",
-    PROFS = { alchemy = "Alquimia", blacksmithing = "Ferraria", cooking = "Culinária", enchanting = "Encantamento", engineering = "Engenharia", firstaid = "Primeiros Socorros", leatherworking = "Couraria", mining = "Mineração (Fundição)", tailoring = "Alfaiataria" },
+    PROFS = { alchemy = "Alquimia", blacksmithing = "Ferraria", cooking = "Culinária", enchanting = "Encantamento", engineering = "Engenharia", firstaid = "Primeiros Socorros", leatherworking = "Couraria", mining = "Mineração", tailoring = "Alfaiataria" },
     SKINS = { dark = "Escuro", classic = "Clássico", slate = "Ardósia", forest = "Floresta" },
     NOTE_ESTIMATE = "As chances de subir são estimativas (laranja 100%, amarelo 75%, verde 25%). Os requisitos vêm de dados públicos; alguns são estimados.",
 }
@@ -110,7 +113,7 @@ for _, p in ipairs(PROFS) do PROF_BY_KEY[p.key] = p end
 local issecret = issecretvalue or function() return false end
 local QMARK = "Interface\\Icons\\INV_Misc_QuestionMark"
 local DEFAULTS = {
-    sel = "mining", skin = "dark", scale = 1, alpha = 0.96, provider = "auto", mode = "cheap",
+    sel = "mining", skin = "dark", scale = 1, alpha = 0.96, fontText = 1, fontNum = 1, provider = "auto", mode = "cheap",
     free = false, knownOnly = false, srcT = true, srcV = true, srcI = false, srcU = false, ahCut = true,
     range = {},
 }
@@ -471,13 +474,14 @@ local SKIN_ORDER = { "dark", "classic", "slate", "forest" }
 local PROVIDER_ORDER = { "auto", "auctionator", "tsm", "auctioneer", "vendor" }
 
 local UI = { skinned = {}, accents = {}, tab = "plan" }
-local W, H, SIDE = 840, 590, 176
+local W, H, SIDE = 900, 590, 196
 
 local function SetColor(tex, c, a)
     if tex.SetColorTexture then tex:SetColorTexture(c[1], c[2], c[3], a or 1)
     else tex:SetTexture(c[1], c[2], c[3], a or 1) end
 end
 
+local ApplyFonts
 -- flat panel: background + 1px border
 local function Skin(frame, kind)
     local bg = frame:CreateTexture(nil, "BACKGROUND")
@@ -503,13 +507,34 @@ local function ApplySkin()
         for i = 1, 4 do SetColor(f.skinEdges[i], ec, 1) end
     end
     for _, fs in ipairs(UI.accents) do fs:SetTextColor(t.accent[1], t.accent[2], t.accent[3]) end
+    ApplyFonts()
 end
 
-local function Label(parent, text, font, accent)
+UI.fonts = {}
+local function RegFont(obj, kind)
+    if not obj.GetFont then return end
+    local path, size, flags = obj:GetFont()
+    if type(path) == "string" and type(size) == "number" then
+        UI.fonts[#UI.fonts + 1] = { obj, path, size, flags, kind }
+    end
+end
+local lastFontKey
+ApplyFonts = function(force)
+    local key = (P.fontText or 1) .. "|" .. (P.fontNum or 1)
+    if key == lastFontKey and not force then return end
+    lastFontKey = key
+    for _, e in ipairs(UI.fonts) do
+        local sc = e[5] == "num" and (P.fontNum or 1) or (P.fontText or 1)
+        e[1]:SetFont(e[2], floor(e[3] * sc + 0.5), e[4])
+    end
+end
+-- kind: "num" for numbers (money, counts), nil for text
+local function Label(parent, text, font, accent, kind)
     local fs = parent:CreateFontString(nil, "OVERLAY", font or "GameFontHighlight")
     fs:SetJustifyH("LEFT")
     if text then fs:SetText(text) end
     if accent then UI.accents[#UI.accents + 1] = fs end
+    RegFont(fs, kind)
     return fs
 end
 
@@ -650,17 +675,17 @@ function UI:MakePlanRow(parent)
     row.icon:SetPoint("LEFT", 6, 0)
     row.t1 = Label(row, nil, "GameFontHighlight")
     row.t1:SetPoint("TOPLEFT", 46, -5)
-    row.t1:SetPoint("RIGHT", -150, 0)
+    row.t1:SetPoint("RIGHT", -112, 0)
     row.t1:SetWordWrap(false)
     row.t2 = Label(row, nil, "GameFontHighlightSmall")
     row.t2:SetPoint("BOTTOMLEFT", 46, 5)
-    row.t2:SetPoint("RIGHT", -150, 0)
+    row.t2:SetPoint("RIGHT", -112, 0)
     row.t2:SetWordWrap(false)
     row.t2:SetTextColor(0.7, 0.7, 0.7)
-    row.cost = Label(row, nil, "GameFontHighlight")
+    row.cost = Label(row, nil, "GameFontHighlight", false, "num")
     row.cost:SetPoint("RIGHT", -8, 6)
     row.cost:SetJustifyH("RIGHT")
-    row.sub = Label(row, nil, "GameFontHighlightSmall")
+    row.sub = Label(row, nil, "GameFontHighlightSmall", false, "num")
     row.sub:SetPoint("RIGHT", -8, -8)
     row.sub:SetJustifyH("RIGHT")
     row.sub:SetTextColor(0.7, 0.7, 0.7)
@@ -676,6 +701,7 @@ function UI.FillPlanRow(row, st)
         row.icon:SetTexture(QMARK)
         row.t1:SetText(("|cffff5050%d – %d|r"):format(st.from, st.to))
         row.t2:SetText(S.NOREC:format(st.from, st.to))
+        row.t2:SetTextColor(1, 0.6, 0.5)
         row.cost:SetText("")
         row.sub:SetText("")
         return
@@ -686,8 +712,9 @@ function UI.FillPlanRow(row, st)
     local col = BandColor(r, st.from)
     local name = SpellName(r.spell) or (r.item > 0 and ItemName(r.item)) or ("#" .. r.spell)
     local learn = ""
-    if not st.known then learn = ("  |cff66ccff[%s: %s]|r"):format(S.LEARN, SrcLabel(r)) end
+    if not st.known then learn = ("  |cff66ccff[%s]|r"):format(SrcLabel(r)) end
     row.t1:SetText(("|c%s%d – %d|r   %s%s"):format(col, st.from, st.to, name, learn))
+    row.t2:SetTextColor(0.7, 0.7, 0.7)
     row.t2:SetText(MatLine(r, st.crafts))
     row.cost:SetText(st.miss and ("|cffff8080" .. S.NOPRICE .. "|r") or Money(st.cost))
     row.sub:SetText(S.CRAFT_X:format(st.crafts))
@@ -703,16 +730,16 @@ function UI:MakeMatRow(parent)
     row.name:SetPoint("LEFT", 34, 0)
     row.name:SetWidth(250)
     row.name:SetWordWrap(false)
-    row.need = Label(row, nil, "GameFontHighlight")
+    row.need = Label(row, nil, "GameFontHighlight", false, "num")
     row.need:SetPoint("LEFT", 292, 0)
     row.need:SetWidth(50)
-    row.have = Label(row, nil, "GameFontHighlight")
+    row.have = Label(row, nil, "GameFontHighlight", false, "num")
     row.have:SetPoint("LEFT", 346, 0)
     row.have:SetWidth(50)
-    row.miss = Label(row, nil, "GameFontHighlight")
+    row.miss = Label(row, nil, "GameFontHighlight", false, "num")
     row.miss:SetPoint("LEFT", 400, 0)
     row.miss:SetWidth(50)
-    row.total = Label(row, nil, "GameFontHighlight")
+    row.total = Label(row, nil, "GameFontHighlight", false, "num")
     row.total:SetPoint("RIGHT", -8, 0)
     row.total:SetJustifyH("RIGHT")
     Tip(row, function(tt, self) if self.id then tt:SetHyperlink("item:" .. self.id) end end)
@@ -739,14 +766,14 @@ function UI:MakeRecRow(parent)
     row.name:SetPoint("LEFT", 34, 0)
     row.name:SetWidth(230)
     row.name:SetWordWrap(false)
-    row.bands = Label(row, nil, "GameFontHighlightSmall")
+    row.bands = Label(row, nil, "GameFontHighlightSmall", false, "num")
     row.bands:SetPoint("LEFT", 270, 0)
     row.bands:SetWidth(120)
     row.src = Label(row, nil, "GameFontHighlightSmall")
     row.src:SetPoint("LEFT", 394, 0)
     row.src:SetWidth(120)
     row.src:SetWordWrap(false)
-    row.cost = Label(row, nil, "GameFontHighlightSmall")
+    row.cost = Label(row, nil, "GameFontHighlightSmall", false, "num")
     row.cost:SetPoint("RIGHT", -8, 0)
     row.cost:SetJustifyH("RIGHT")
     Tip(row, function(tt, self) if self.rec then ItemOrSpellTip(tt, self.rec) end end)
@@ -846,6 +873,139 @@ end
 
 local function Close() if UI.frame then UI.frame:Hide() end end
 
+-- global search across every profession: recipe name, crafted item and reagents
+local nameIndex
+local function SearchAll(q)
+    q = q and q:lower() or ""
+    local out = {}
+    if #q < 2 then return out end
+    if not nameIndex then
+        nameIndex = {}
+        for _, p in ipairs(PROFS) do
+            for _, r in ipairs(Decode(p.key)) do
+                local n = SpellName(r.spell)
+                if n then nameIndex[#nameIndex + 1] = { key = p.key, r = r, name = n, low = n:lower() } end
+            end
+        end
+    end
+    for _, e in ipairs(nameIndex) do
+        local score
+        if e.low:find(q, 1, true) then score = e.low:sub(1, #q) == q and 1 or 2 end
+        if not score and e.r.item > 0 then
+            local n = ItemName(e.r.item)
+            if n and n:lower():find(q, 1, true) then score = 3 end
+        end
+        if not score then
+            for _, rg in ipairs(e.r.reag) do
+                local n = ItemName(rg[1])
+                if n and n:lower():find(q, 1, true) then score = 4 break end
+            end
+        end
+        if score then out[#out + 1] = { e = e, score = score } end
+    end
+    table.sort(out, function(a, b)
+        if a.score ~= b.score then return a.score < b.score end
+        if a.e.r.low ~= b.e.r.low then return a.e.r.low < b.e.r.low end
+        return a.e.r.spell < b.e.r.spell
+    end)
+    return out
+end
+
+ns.Prof.SearchAll = SearchAll
+
+function UI:BuildSearch()
+    local f = self.frame
+    local box = CreateFrame("EditBox", nil, f)
+    box:SetSize(300, 22)
+    box:SetPoint("TOP", f, "TOP", 10, -9)
+    box:SetAutoFocus(false)
+    box:SetFontObject("GameFontHighlight")
+    RegFont(box)
+    box:SetTextInsets(8, 8, 0, 0)
+    Skin(box, "panel")
+    self.topBox = box
+    local ph = Label(box, S.SEARCH_TOP, "GameFontHighlightSmall")
+    ph:SetPoint("LEFT", 8, 0)
+    ph:SetTextColor(0.5, 0.5, 0.5)
+    local dd = CreateFrame("Frame", nil, f)
+    dd:SetPoint("TOPLEFT", box, "BOTTOMLEFT", 0, -2)
+    dd:SetSize(420, 10)
+    dd:SetFrameStrata("DIALOG")
+    Skin(dd, "bg")
+    dd:Hide()
+    self.dropdown = dd
+    dd.rows = {}
+    local N = 9
+    for i = 1, N do
+        local b = CreateFrame("Button", nil, dd)
+        b:SetPoint("TOPLEFT", 3, -3 - (i - 1) * 26)
+        b:SetPoint("TOPRIGHT", -3, -3 - (i - 1) * 26)
+        b:SetHeight(24)
+        local ic = b:CreateTexture(nil, "ARTWORK")
+        ic:SetSize(20, 20)
+        ic:SetPoint("LEFT", 3, 0)
+        b.icon = ic
+        b.name = Label(b, nil, "GameFontHighlightSmall")
+        b.name:SetPoint("LEFT", 30, 0)
+        b.name:SetWidth(250)
+        b.name:SetWordWrap(false)
+        b.prof = Label(b, nil, "GameFontNormalSmall", true)
+        b.prof:SetPoint("RIGHT", -6, 0)
+        b.prof:SetJustifyH("RIGHT")
+        local hl = b:CreateTexture(nil, "HIGHLIGHT")
+        hl:SetAllPoints()
+        if hl.SetColorTexture then hl:SetColorTexture(1, 1, 1, 0.1) else hl:SetTexture(1, 1, 1, 0.1) end
+        b:SetScript("OnClick", function(self2)
+            local e = self2.entry
+            if type(e) ~= "table" then return end
+            P.sel = e.key
+            UI.tab = "recipes"
+            box:SetText("")
+            box:ClearFocus()
+            dd:Hide()
+            UI.search:SetText(e.name)
+            UI:Refresh()
+        end)
+        dd.rows[i] = b
+    end
+    local function Update()
+        local txt = box:GetText() or ""
+        ph:SetShown(txt == "")
+        if #txt < 2 then dd:Hide() return end
+        local res = SearchAll(txt)
+        local n = min(N, #res)
+        if n == 0 then
+            dd.rows[1].entry = nil
+            dd.rows[1].icon:SetTexture(QMARK)
+            dd.rows[1].name:SetText(S.RESULT_NONE)
+            dd.rows[1].prof:SetText("")
+            dd.rows[1]:Show()
+            n = 1
+            for i = 2, N do dd.rows[i]:Hide() end
+        else
+            for i = 1, N do
+                local b, r = dd.rows[i], res[i]
+                if r then
+                    local e = r.e
+                    b.entry = e
+                    b.icon:SetTexture(e.r.item > 0 and ItemIcon(e.r.item) or SpellIcon(e.r.spell))
+                    b.name:SetText(e.name)
+                    b.prof:SetText(ProfLabel(e.key))
+                    b:Show()
+                else b:Hide() end
+            end
+        end
+        dd:SetHeight(6 + n * 26)
+        dd:Show()
+    end
+    box:SetScript("OnTextChanged", Update)
+    box:SetScript("OnEscapePressed", function(s2) s2:SetText("") s2:ClearFocus() dd:Hide() end)
+    box:SetScript("OnEnterPressed", function(s2)
+        local first = dd.rows[1]
+        if first and first:IsShown() and type(first.entry) == "table" then first:Click() end
+    end)
+end
+
 function UI:BuildSettings(pane)
     local y = -4
     local checks = {}
@@ -925,6 +1085,8 @@ function UI:BuildSettings(pane)
     UI.sliders = {}
     Slide(S.OPT_SCALE, "scale", 0.7, 1.3, 0.05, function() UI.frame:SetScale(P.scale) end)
     Slide(S.OPT_ALPHA, "alpha", 0.4, 1, 0.02, function() ApplySkin() end)
+    Slide(S.OPT_FONT_TEXT, "fontText", 0.8, 1.3, 0.05, function() ApplyFonts() end)
+    Slide(S.OPT_FONT_NUM, "fontNum", 0.8, 1.4, 0.05, function() ApplyFonts() end)
     local note = Label(pane, S.NOTE_ESTIMATE, "GameFontHighlightSmall")
     note:SetPoint("BOTTOMLEFT", 0, 0)
     note:SetWidth(600)
@@ -968,6 +1130,8 @@ function UI:Build()
     close:SetPoint("TOPRIGHT", -8, -8)
     self.priceLine = Label(f, "", "GameFontHighlightSmall")
     self.priceLine:SetPoint("TOPRIGHT", -40, -14)
+    self.priceLine:SetWidth(170)
+    self.priceLine:SetJustifyH("RIGHT")
     self.priceLine:SetTextColor(0.7, 0.7, 0.7)
 
     -- sidebar
@@ -992,7 +1156,7 @@ function UI:Build()
         nm:SetPoint("RIGHT", -4, 0)
         nm:SetWordWrap(false)
         b.nameFS = nm
-        b.sub = Label(b, "", "GameFontHighlightSmall")
+        b.sub = Label(b, "", "GameFontHighlightSmall", false, "num")
         b.sub:SetPoint("BOTTOMLEFT", 42, 6)
         b.sub:SetTextColor(0.7, 0.7, 0.7)
         local hl = b:CreateTexture(nil, "HIGHLIGHT")
@@ -1016,6 +1180,7 @@ function UI:Build()
         eb:SetNumeric(true)
         eb:SetMaxLetters(3)
         eb:SetFontObject("GameFontHighlight")
+        RegFont(eb, "num")
         eb:SetJustifyH("CENTER")
         Skin(eb, "panel")
         return eb
@@ -1068,13 +1233,17 @@ function UI:Build()
     local cw = floor((MW - 4 * 6) / 5)
     for i, c in ipairs(cardDefs) do
         local card = CreateFrame("Frame", nil, f)
-        card:SetPoint("TOPLEFT", X + (i - 1) * (cw + 6), -106)
-        card:SetSize(cw, 46)
+        card:SetPoint("TOPLEFT", X + (i - 1) * (cw + 6), -104)
+        card:SetSize(cw, 50)
         Skin(card, "panel")
         local cap = Label(card, c[2], "GameFontNormalSmall", true)
         cap:SetPoint("TOPLEFT", 8, -6)
-        local v = Label(card, "", "GameFontHighlightLarge")
+        cap:SetPoint("RIGHT", -6, 0)
+        cap:SetWordWrap(false)
+        local v = Label(card, "", "GameFontHighlightLarge", false, "num")
         v:SetPoint("BOTTOMLEFT", 8, 6)
+        v:SetPoint("RIGHT", -4, 0)
+        v:SetWordWrap(false)
         card.v = v
         self.cards[c[1]] = card
     end
@@ -1084,12 +1253,12 @@ function UI:Build()
     local tabs = { { "plan", S.PLAN }, { "mats", S.MATS }, { "recipes", S.RECIPES }, { "settings", S.SETTINGS } }
     for i, t in ipairs(tabs) do
         local b = FlatButton(f, t[2], 110, 24, function() UI.tab = t[1] UI:Refresh() end)
-        b:SetPoint("TOPLEFT", X + (i - 1) * 114, -160)
+        b:SetPoint("TOPLEFT", X + (i - 1) * 114, -162)
         b.tab = t[1]
         self.tabBtns[i] = b
     end
 
-    local LY, LH = -190, H - 190 - 14
+    local LY, LH = -192, H - 192 - 14
     local function Pane()
         local p = CreateFrame("Frame", nil, f)
         p:SetPoint("TOPLEFT", X, LY)
@@ -1125,6 +1294,7 @@ function UI:Build()
     self.search:SetPoint("LEFT", sl, "RIGHT", 8, 0)
     self.search:SetAutoFocus(false)
     self.search:SetFontObject("GameFontHighlight")
+    RegFont(self.search)
     Skin(self.search, "panel")
     self.search:SetTextInsets(4, 4, 0, 0)
     self.search:SetScript("OnTextChanged", function() UI:Refresh() end)
@@ -1135,10 +1305,12 @@ function UI:Build()
     self.recList = NewList(self.recPane, 0, -28, MW, LH - 28, 28, function(p) return UI:MakeRecRow(p) end, UI.FillRecRow)
 
     self:BuildSettings(self.setPane)
+    self:BuildSearch()
 
     f:SetScript("OnShow", function() UI:RefreshSettings() UI:Refresh() end)
     f:SetScript("OnHide", function() if GameTooltip then GameTooltip:Hide() end end)
     f:SetScale(P.scale or 1)
+    ApplyFonts(true)
 end
 
 ---------------------------------------------------------------- abrir
