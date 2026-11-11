@@ -412,15 +412,9 @@ end
 
 ---------------------------------------------------------------- pins
 
--- Redondo sem MaskTexture: SetPortraitToTexture recorta em circulo. Se nao existir,
--- cai para o quadrado.
-local function SetRound(tex, src)
-    if SetPortraitToTexture and src then
-        if pcall(SetPortraitToTexture, tex, src) then return end
-    end
-    tex:SetTexture(src)
-    tex:SetTexCoord(0.08, 0.92, 0.08, 0.92)
-end
+-- Redondo com duas MaskTextures: uma recorta o anel (borda), outra o icone, um pouco menor.
+-- Se o cliente nao criar mascaras, o pin fica quadrado.
+local MASK_TEX = "Interface/CharacterFrame/TempPortraitAlphaMask"
 
 local function MakePin(parent, size)
     local f = CreateFrame("Frame", nil, parent)
@@ -428,22 +422,37 @@ local function MakePin(parent, size)
     f:SetSize(size, size)
     f.border = f:CreateTexture(nil, "BACKGROUND")
     f.border:SetAllPoints()
-    SetRound(f.border, "Interface/Buttons/WHITE8X8")
+    f.border:SetColorTexture(1, 1, 1, 1)
     f.icon = f:CreateTexture(nil, "ARTWORK")
     f.icon:SetPoint("TOPLEFT", 2, -2)
     f.icon:SetPoint("BOTTOMRIGHT", -2, 2)
+    f.icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+    if f.CreateMaskTexture then
+        local ok1, m1 = pcall(f.CreateMaskTexture, f)
+        local ok2, m2 = pcall(f.CreateMaskTexture, f)
+        if ok1 and m1 and ok2 and m2 then
+            m1:SetTexture(MASK_TEX)
+            m1:SetAllPoints()
+            m2:SetTexture(MASK_TEX)
+            m2:SetPoint("TOPLEFT", 2, -2)
+            m2:SetPoint("BOTTOMRIGHT", -2, 2)
+            f.border:AddMaskTexture(m1)
+            f.icon:AddMaskTexture(m2)
+            f.mask, f.imask = m1, m2
+        end
+    end
     f:Hide()
     return f
 end
 
 local function StylePin(pin, node, can)
     local c = can and YELLOW or RED
-    pin.border:SetVertexColor(c[1], c[2], c[3], 0.8)
+    pin.border:SetColorTexture(c[1], c[2], c[3], 0.8)
     local kind = node.kind or "mine"
     local tex = kind == "mine" and MineIcon(node.ore) or KIND_ICON[kind] or OreIcon(node.ore)
     if pin.curTex ~= tex then
         pin.curTex = tex
-        SetRound(pin.icon, tex)
+        pin.icon:SetTexture(tex)
     end
     pin.icon:SetDesaturated(not can)
     if not pin.noScale then
