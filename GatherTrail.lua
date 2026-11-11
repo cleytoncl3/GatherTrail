@@ -44,6 +44,13 @@ local HERB_REQ = {
 }
 for id, r in pairs(HERB_REQ) do ORE_REQ[id] = r end
 
+-- minerio bruto -> barra fundida (o icone da barra identifica melhor o tipo de veio)
+local BAR_OF = {
+    [2770] = 2840, [2771] = 3576, [2775] = 2842, [2772] = 3575, [2776] = 3577, [3858] = 3860,
+    [7911] = 6037, [11370] = 11371, [10620] = 12359, [23424] = 23445, [23425] = 23446,
+    [23426] = 23449, [23427] = 23447, [36909] = 36916, [36912] = 36913, [36910] = 41163,
+}
+
 local SKIN_ICON = "Interface/Icons/INV_Misc_Pelt_Wolf_01"
 -- um icone por tipo, facil de reconhecer: picareta, flor, couro
 local KIND_ICON = {
@@ -80,7 +87,8 @@ local DEFAULTS = {
     scanButton = true,    -- botao Scan sempre visivel junto da seta
     minimapButton = true,
     minimapAngle = 225,
-    pinAlpha = 70,        -- opacidade dos icones (porcento)
+    pinTransp = 30,       -- transparencia dos icones (porcento)
+    autoLoot = true,      -- pega sozinho o que veio de coleta (minerio/erva/couro)
     skipSecs = 1800,      -- tempo que um veio pulado fica escondido
     hoverLearn = true,    -- aprende veios passando o mouse no minimapa
 }
@@ -185,6 +193,19 @@ local function OreIcon(id)
     end
     if icon then iconCache[id] = icon end
     return icon or "Interface\\Icons\\INV_Misc_QuestionMark"
+end
+
+local function MineIcon(ore)
+    local bar = BAR_OF[ore]
+    if bar and GetItemInfoInstant then
+        local icon = iconCache[bar]
+        if not icon then
+            icon = select(5, GetItemInfoInstant(bar))
+            if icon then iconCache[bar] = icon end
+        end
+        if icon then return icon end
+    end
+    return OreIcon(ore)
 end
 
 local function PlayerPos()
@@ -337,7 +358,7 @@ local function StylePin(pin, node, can)
     local c = can and YELLOW or RED
     pin.border:SetColorTexture(c[1], c[2], c[3], 1)
     local kind = node.kind or "mine"
-    pin.icon:SetTexture(KIND_ICON[kind] or OreIcon(node.ore))
+    pin.icon:SetTexture(kind == "mine" and MineIcon(node.ore) or KIND_ICON[kind] or OreIcon(node.ore))
     pin.icon:SetDesaturated(not can)
     if pin.mask then
         local round = kind == "herb"
@@ -350,7 +371,7 @@ local function StylePin(pin, node, can)
         end
         pin.round = round
     end
-    pin:SetAlpha((db.pinAlpha or 100) / 100)
+    pin:SetAlpha(1 - (db.pinTransp or 0) / 100)
     pin.node, pin.can = node, can
 end
 
@@ -478,7 +499,8 @@ local function SetupWorldMap()
     local canvas = WorldMapFrame:GetCanvas()
     worldFrame = CreateFrame("Frame", nil, canvas)
     worldFrame:SetAllPoints()
-    worldFrame:SetFrameLevel(canvas:GetFrameLevel() + 50)
+    worldFrame:SetFrameStrata("DIALOG")
+    worldFrame:SetFrameLevel(canvas:GetFrameLevel() + 500)
     for i = 1, 100 do
         local p = MakePin(worldFrame, 18)
         p:EnableMouse(true)
@@ -863,7 +885,7 @@ end
 local function BuildOptions()
     if options then return options end
     local f = TryCreate("Frame", "GatherTrailOptions", UIParent, { "BasicFrameTemplateWithInset", "DialogBoxFrame" })
-    f:SetSize(360, 760)
+    f:SetSize(360, 790)
     f:SetPoint("LEFT", UIParent, "LEFT", 60, 0)
     f:SetMovable(true)
     f:EnableMouse(true)
@@ -935,6 +957,7 @@ local function BuildOptions()
 
     Check(L.OPT_TEST, "testMode")
     Check(L.OPT_ENABLED, "enabled")
+    Check(L.OPT_AUTOLOOT, "autoLoot")
     Check(L.OPT_MINE, "trackMine", ForceUpdate)
     Check(L.OPT_HERB, "trackHerb", ForceUpdate)
     Check(L.OPT_SKIN, "trackSkin", ForceUpdate)
@@ -951,7 +974,7 @@ local function BuildOptions()
     y = y - 6
     Slider(L.OPT_RANGE, "range", 50, 2000, 50, L.UNIT_YD, ForceUpdate)
     Slider(L.OPT_HIDE, "hideMinedSecs", 0, 900, 30, L.UNIT_S, ForceUpdate)
-    Slider(L.OPT_ALPHA, "pinAlpha", 20, 100, 5, "%", ForceUpdate)
+    Slider(L.OPT_TRANSP, "pinTransp", 0, 80, 5, "%", ForceUpdate)
     Slider(L.OPT_SCALE, "arrowScale", 50, 200, 10, "%", ApplyArrowPos)
 
     local lock = TryCreate("CheckButton", nil, f, { "UICheckButtonTemplate", "ChatConfigCheckButtonTemplate" })
@@ -1239,7 +1262,7 @@ local function RemoveNearestCorpse()
     end
 end
 
-local lootGUID, lootPos
+local lootGUID, lootPos, skinCastAt
 
 local ev = CreateFrame("Frame")
 ev:RegisterEvent("ADDON_LOADED")
@@ -1285,6 +1308,7 @@ local function Handle(_, event, ...)
         if unit ~= "player" or not db then return end
         if issecret(spellID) then return end
         local kind = castKind[Lower(SpellName(spellID))]
+        if kind == "skin" then skinCastAt = GetTime() end
         if kind and kind ~= "skin" then
             local a, b, inst = PlayerPos()
             if a then
@@ -1306,6 +1330,19 @@ local function Handle(_, event, ...)
             lootGUID = guid
             local a, b, inst = PlayerPos()
             lootPos = a and { a, b, inst } or nil
+        end
+        if db.autoLoot then
+            local now = GetTime()
+            local fromCreature = guid and guid:find("^Creature")
+            local gather = (pending and now - pending.t <= 20 and not fromCreature)
+                or (skinCastAt and now - skinCastAt <= 15 and (fromCreature or not guid))
+            if gather then
+                skinCastAt = nil
+                -- depois que o registro abaixo ler os itens
+                C_Timer.After(0, function()
+                    for i = (GetNumLootItems() or 0), 1, -1 do pcall(LootSlot, i) end
+                end)
+            end
         end
         if not pending then return end
         -- so conta recurso de objeto do mundo (nao drop de criatura)
