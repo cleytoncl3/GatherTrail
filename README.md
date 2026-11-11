@@ -21,7 +21,7 @@ O cliente Classic **não deixa addons ler os pontos de tracking do minimapa** (F
 - **Seta direcional** na tela apontando para o ponto mais próximo que você consegue coletar, com o tipo e a distância em jardas.
 - **Linha no minimapa** até o alvo. É uma linha reta: o jogo não oferece pathfinding para addons.
 - **Ícones no minimapa e no mapa (M)** com o ícone do recurso:
-  - borda **amarela**: sua skill da profissão alcança;
+  - borda **verde**: sua skill da profissão alcança;
   - borda **vermelha** (ícone cinza): skill insuficiente.
 - **Alcance ajustável** de 50 a 2000 jardas, por barra de rolagem.
 - **Três profissões**, cada uma liga/desliga: Mineração, Herbalismo e Esfolamento.

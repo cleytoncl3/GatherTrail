@@ -87,6 +87,7 @@ local DEFAULTS = {
     scanButton = true,    -- botao Scan sempre visivel junto da seta
     minimapButton = true,
     minimapAngle = 225,
+    pinSize = 100,        -- tamanho dos icones (porcento)
     pinTransp = 30,       -- transparencia dos icones (porcento)
     autoLoot = true,      -- pega sozinho o que veio de coleta (minerio/erva/couro)
     skipSecs = 1800,      -- tempo que um veio pulado fica escondido
@@ -102,8 +103,8 @@ local SkipTarget, UpdateMMButton, ScanNow -- definidos mais abaixo
 local MAX_PINS = 50
 local DIAM_IN = { 300, 240, 192, 150, 120, 96 }
 local DIAM_OUT = { 466.67, 400, 333.33, 266.67, 200, 133.33 }
-local YELLOW = { 1, 0.82, 0 }
-local RED = { 0.9, 0.1, 0.1 }
+local YELLOW = { 0.3, 0.85, 0.35 } -- verde: a skill alcanca (nome antigo da variavel)
+local RED = { 0.85, 0.25, 0.25 }
 
 ---------------------------------------------------------------- utilidades
 
@@ -235,16 +236,26 @@ local function OreIcon(id)
     return icon or "Interface\\Icons\\INV_Misc_QuestionMark"
 end
 
-local function MineIcon(ore)
-    local bar = BAR_OF[ore]
-    if bar and GetItemInfoInstant then
-        local icon = iconCache[bar]
-        if not icon then
-            icon = select(5, GetItemInfoInstant(bar))
-            if icon then iconCache[bar] = icon end
+local barIcon, barOwner
+local function BuildBarIcons()
+    if barIcon or not GetItemInfoInstant then return end
+    local bi, owner, list = {}, {}, {}
+    for ore, bar in pairs(BAR_OF) do list[#list + 1] = ore end
+    table.sort(list, function(x, y) return (ORE_REQ[x] or 0) > (ORE_REQ[y] or 0) end)
+    for _, ore in ipairs(list) do
+        local icon = select(5, GetItemInfoInstant(BAR_OF[ore]))
+        if icon then
+            bi[ore] = icon
+            if not owner[icon] then owner[icon] = ore end
         end
-        if icon then return icon end
     end
+    barIcon, barOwner = bi, owner
+end
+
+local function MineIcon(ore)
+    BuildBarIcons()
+    local icon = barIcon and barIcon[ore]
+    if icon and barOwner[icon] == ore then return icon end
     return OreIcon(ore)
 end
 
@@ -374,8 +385,11 @@ end
 
 ---------------------------------------------------------------- pins
 
+local MASK_TEX = "Interface/CharacterFrame/TempPortraitAlphaMask"
+
 local function MakePin(parent, size)
     local f = CreateFrame("Frame", nil, parent)
+    f.baseSize = size
     f:SetSize(size, size)
     f.border = f:CreateTexture(nil, "BACKGROUND")
     f.border:SetAllPoints()
@@ -383,12 +397,16 @@ local function MakePin(parent, size)
     f.icon:SetPoint("TOPLEFT", 2, -2)
     f.icon:SetPoint("BOTTOMRIGHT", -2, 2)
     f.icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
-    -- mascara circular: ervas sao redondas, minerios e couro quadrados
+    -- duas mascaras circulares: o anel (borda) e o icone, um pouco menor
     local ok, mask = pcall(f.CreateMaskTexture, f)
-    if ok and mask then
-        mask:SetTexture("Interface/CharacterFrame/TempPortraitAlphaMask")
+    local ok2, imask = pcall(f.CreateMaskTexture, f)
+    if ok and mask and ok2 and imask then
+        mask:SetTexture(MASK_TEX)
         mask:SetAllPoints()
-        f.mask = mask
+        imask:SetTexture(MASK_TEX)
+        imask:SetPoint("TOPLEFT", 2, -2)
+        imask:SetPoint("BOTTOMRIGHT", -2, 2)
+        f.mask, f.imask = mask, imask
     end
     f:Hide()
     return f
@@ -396,20 +414,18 @@ end
 
 local function StylePin(pin, node, can)
     local c = can and YELLOW or RED
-    pin.border:SetColorTexture(c[1], c[2], c[3], 1)
+    pin.border:SetColorTexture(c[1], c[2], c[3], 0.8)
     local kind = node.kind or "mine"
     pin.icon:SetTexture(kind == "mine" and MineIcon(node.ore) or KIND_ICON[kind] or OreIcon(node.ore))
     pin.icon:SetDesaturated(not can)
-    if pin.mask then
-        local round = kind == "herb"
-        if round and not pin.round then
-            pin.icon:AddMaskTexture(pin.mask)
-            pin.border:AddMaskTexture(pin.mask)
-        elseif pin.round and not round then
-            pin.icon:RemoveMaskTexture(pin.mask)
-            pin.border:RemoveMaskTexture(pin.mask)
-        end
-        pin.round = round
+    if pin.mask and not pin.round then
+        pin.icon:AddMaskTexture(pin.imask)
+        pin.border:AddMaskTexture(pin.mask)
+        pin.round = true
+    end
+    if not pin.noScale then
+        local sz = pin.baseSize * (db.pinSize or 100) / 100
+        pin:SetSize(sz, sz)
     end
     pin:SetAlpha(1 - (db.pinTransp or 0) / 100)
     pin.node, pin.can = node, can
@@ -440,6 +456,7 @@ arrow.tex = arrow:CreateTexture(nil, "ARTWORK")
 arrow.tex:SetAllPoints()
 arrow.tex:SetTexture("Interface\\Minimap\\ROTATING-MINIMAPARROW")
 arrow.pin = MakePin(arrow, 22)
+arrow.pin.noScale = true
 arrow.pin:SetPoint("BOTTOM", arrow, "TOP", 0, 2)
 arrow.text = arrow:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 arrow.text:SetPoint("TOP", arrow, "BOTTOM", 0, -2)
@@ -956,7 +973,7 @@ local function BuildOptions()
             if after then after() end
         end)
         refreshers[#refreshers + 1] = function() cb:SetChecked(db[key]) end
-        y = y - 26
+        y = y - 24
     end
 
     local sliderN = 0
@@ -992,7 +1009,7 @@ local function BuildOptions()
             s.syncing = false
             val:SetText(db[key] .. unit)
         end
-        y = y - 46
+        y = y - 42
     end
 
     local function ForceUpdate() cacheAt = 0 worldDirty = true end
@@ -1015,6 +1032,7 @@ local function BuildOptions()
     y = y - 6
     Slider(L.OPT_RANGE, "range", 50, 2000, 50, L.UNIT_YD, ForceUpdate)
     Slider(L.OPT_HIDE, "hideMinedSecs", 0, 900, 30, L.UNIT_S, ForceUpdate)
+    Slider(L.OPT_PINSIZE, "pinSize", 50, 200, 10, "%", ForceUpdate)
     Slider(L.OPT_TRANSP, "pinTransp", 0, 80, 5, "%", ForceUpdate)
     Slider(L.OPT_SCALE, "arrowScale", 50, 200, 10, "%", ApplyArrowPos)
 
