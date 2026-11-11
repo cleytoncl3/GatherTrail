@@ -1096,7 +1096,10 @@ end
 local function BuildOptions()
     if options then return options end
     local f = TryCreate("Frame", "GatherTrailOptions", UIParent, { "BasicFrameTemplateWithInset", "DialogBoxFrame" })
-    f:SetSize(440, 540)
+    f:SetSize(db.optW or 440, db.optH or 540)
+    f:SetResizable(true)
+    if f.SetResizeBounds then f:SetResizeBounds(400, 420, 900, 900)
+    elseif f.SetMinResize then f:SetMinResize(400, 420) end
     f:SetPoint("LEFT", UIParent, "LEFT", 60, 0)
     f:SetMovable(true)
     f:EnableMouse(true)
@@ -1111,6 +1114,7 @@ local function BuildOptions()
     tinsert(UISpecialFrames, "GatherTrailOptions")
 
     local refreshers, nameUpdaters = {}, {}
+    local fixw = {} -- { fontstring, margem }: largura = largura da janela - margem
     local function ForceUpdate() cacheAt = 0 worldDirty = true end
 
     local function NewPage()
@@ -1129,6 +1133,7 @@ local function BuildOptions()
         local fs = cb:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
         fs:SetPoint("LEFT", cb, "RIGHT", 4, 0)
         fs:SetWidth(360)
+        fixw[#fixw + 1] = { fs, 60 }
         fs:SetJustifyH("LEFT")
         fs:SetWordWrap(false)
         fs:SetText(label)
@@ -1148,6 +1153,7 @@ local function BuildOptions()
         local cap = page:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
         cap:SetPoint("TOPLEFT", 4, y)
         cap:SetWidth(300)
+        fixw[#fixw + 1] = { cap, 142 }
         cap:SetJustifyH("LEFT")
         cap:SetWordWrap(false)
         cap:SetText(label)
@@ -1160,7 +1166,8 @@ local function BuildOptions()
         end
         s:SetOrientation("HORIZONTAL")
         s:SetPoint("TOPLEFT", 6, y - 20)
-        s:SetSize(396, 16)
+        s:SetPoint("TOPRIGHT", -6, y - 20)
+        s:SetHeight(16)
         s:SetMinMaxValues(minV, maxV)
         s:SetValueStep(step)
         if s.SetObeyStepOnDrag then s:SetObeyStepOnDrag(true) end
@@ -1208,6 +1215,7 @@ local function BuildOptions()
     local info = g:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     info:SetPoint("BOTTOMLEFT", 4, 70)
     info:SetWidth(390)
+    fixw[#fixw + 1] = { info, 36 }
     info:SetJustifyH("LEFT")
     f.info = info
 
@@ -1250,6 +1258,7 @@ local function BuildOptions()
     local hint = n:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     hint:SetPoint("TOPLEFT", 4, n.y)
     hint:SetWidth(396)
+    fixw[#fixw + 1] = { hint, 36 }
     hint:SetJustifyH("LEFT")
     hint:SetWordWrap(false)
     f.hint = hint
@@ -1286,7 +1295,8 @@ local function BuildOptions()
         local h = content:CreateFontString(nil, "OVERLAY", "GameFontNormal")
         h:SetText(KINDS[kind].label)
         local cs = content:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-        cs:SetPoint("TOPLEFT", h, "TOPLEFT", 232, -2)
+        cs:SetWidth(40)
+        cs:SetJustifyH("RIGHT")
         cs:SetText(L.COL_SKILL)
         local cp = content:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
         cp:SetPoint("TOPRIGHT", content, "TOPRIGHT", -6, 0)
@@ -1310,6 +1320,8 @@ local function BuildOptions()
         nm:SetWordWrap(false)
         local rq = content:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
         rq:SetText(tostring(ORE_REQ[id]))
+        rq:SetWidth(40)
+        rq:SetJustifyH("RIGHT")
         local pr = content:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
         pr:SetWidth(110)
         pr:SetJustifyH("RIGHT")
@@ -1319,7 +1331,7 @@ local function BuildOptions()
         end)
         refreshers[#refreshers + 1] = function() cb:SetChecked(not db.hideOre[id]) end
         nameUpdaters[#nameUpdaters + 1] = function() nm:SetText(ItemName(id) or ("#" .. id)) end
-        rows[#rows + 1] = { id = id, kind = kind, cb = cb, rq = rq, pr = pr }
+        rows[#rows + 1] = { id = id, kind = kind, cb = cb, nm = nm, rq = rq, pr = pr }
     end
 
     local function Layout()
@@ -1340,12 +1352,14 @@ local function BuildOptions()
             hd.h:SetPoint("TOPLEFT", content, "TOPLEFT", 4, ry - 2)
             hd.cp:ClearAllPoints()
             hd.cp:SetPoint("TOPRIGHT", content, "TOPRIGHT", -6, ry - 4)
+            hd.cs:ClearAllPoints()
+            hd.cs:SetPoint("TOPRIGHT", content, "TOPRIGHT", -124, ry - 4)
             ry = ry - 22
             for _, r in ipairs(list) do
                 r.cb:ClearAllPoints()
                 r.cb:SetPoint("TOPLEFT", content, "TOPLEFT", 0, ry)
                 r.rq:ClearAllPoints()
-                r.rq:SetPoint("TOPLEFT", content, "TOPLEFT", 236, ry - 6)
+                r.rq:SetPoint("TOPRIGHT", content, "TOPRIGHT", -124, ry - 6)
                 r.pr:ClearAllPoints()
                 r.pr:SetPoint("TOPRIGHT", content, "TOPRIGHT", -6, ry - 6)
                 ry = ry - 24
@@ -1406,6 +1420,29 @@ local function BuildOptions()
         f:Refresh()
     end)
 
+    ---------------------------------------------------------- redimensionar
+    local function Resize()
+        local w = f:GetWidth()
+        for _, e in ipairs(fixw) do e[1]:SetWidth(math.max(60, w - e[2])) end
+        local cw = w - 28 - 26
+        content:SetWidth(cw)
+        for _, r in ipairs(rows) do r.nm:SetWidth(math.max(80, cw - 50 - 175)) end
+    end
+    f:SetScript("OnSizeChanged", Resize)
+
+    local grip = CreateFrame("Button", nil, f)
+    grip:SetSize(16, 16)
+    grip:SetPoint("BOTTOMRIGHT", -4, 4)
+    grip:SetFrameLevel(f:GetFrameLevel() + 20)
+    grip:SetNormalTexture("Interface/ChatFrame/UI-ChatIM-SizeGrabber-Up")
+    grip:SetPushedTexture("Interface/ChatFrame/UI-ChatIM-SizeGrabber-Down")
+    grip:SetHighlightTexture("Interface/ChatFrame/UI-ChatIM-SizeGrabber-Highlight")
+    grip:SetScript("OnMouseDown", function() f:StartSizing("BOTTOMRIGHT") end)
+    grip:SetScript("OnMouseUp", function()
+        f:StopMovingOrSizing()
+        db.optW, db.optH = floor(f:GetWidth()), floor(f:GetHeight())
+    end)
+
     ---------------------------------------------------------- abas
     local tabBtns = {}
     local order = { { "general", L.TAB_GENERAL }, { "display", L.TAB_DISPLAY }, { "nodes", L.TAB_NODES } }
@@ -1440,6 +1477,7 @@ local function BuildOptions()
         ShowTab(pages[db.lastTab or ""] and db.lastTab or "general")
     end
     f:SetScript("OnShow", f.Refresh)
+    Resize()
     options = f
     return f
 end
