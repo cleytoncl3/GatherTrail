@@ -94,7 +94,7 @@ local en = {
 
     BTN_CLEAR = "Delete saved nodes",
     BTN_UNSKIP = "Clear skipped points",
-    BTN_PROF = "Profession planner",
+    BTN_PROF = "Crafting simulator",
     MSG_CLEARED = "nodes deleted.",
     MSG_UNSKIPPED = "skipped points will show again.",
 
@@ -209,7 +209,7 @@ local es = {
 
     BTN_CLEAR = "Borrar nodos guardados",
     BTN_UNSKIP = "Limpiar puntos saltados",
-    BTN_PROF = "Planificador de profesiones",
+    BTN_PROF = "Simulador de crafting",
     MSG_CLEARED = "nodos borrados.",
     MSG_UNSKIPPED = "los puntos saltados volverán a aparecer.",
 
@@ -324,7 +324,7 @@ local pt = {
 
     BTN_CLEAR = "Apagar veios salvos",
     BTN_UNSKIP = "Limpar pontos pulados",
-    BTN_PROF = "Planejador de profissões",
+    BTN_PROF = "Simulador de crafting",
     MSG_CLEARED = "veios apagados.",
     MSG_UNSKIPPED = "pontos pulados voltaram a aparecer.",
 

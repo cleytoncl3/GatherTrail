@@ -1,5 +1,14 @@
 # Trailsmith
 
+## 1.4.0
+- The profession window is now a **crafting simulator** that complements the game's own crafting window and never replaces it. The K key is no longer taken over (older versions did; that is switched off automatically).
+- Open it from the minimap button (Shift+click), the General options tab, `/tsp`, or the new **Simulation** button added next to the game's crafting window.
+- Tabs: **Profession leveling** (from skill X to Y: steps, crafts, what to buy at market price, what the items sell for, profit or loss) and **Simulator** (pick any recipe and a quantity: step-by-step crafts including intermediate items such as bars, shopping list with prices, cost, sale value and profit or loss).
+- Intermediate items can come from any profession you have (for example Copper Bar from Mining when you craft Blacksmithing items).
+- **Pin to screen**: a small movable tracker like a quest objective list. Materials turn green when you have them, with the raw materials shown for items you still have to craft.
+- **Open the game's crafting window** buttons open the real profession window (and try to select the recipe). Crafting itself is always done by the game.
+- Plan rows are taller so the full material list is readable; click a row to simulate it.
+
 ## 1.3.3
 - Debug log: every click, option change, profession/recipe selection, craft attempt (APIs tried and their results), trainer lookup, key binding and Lua error in the Professions window and in the main options is recorded. Game events during crafting (spell cast start/fail/success, UI error messages, blocked actions) are recorded too. View it with `/tsp log` (copy with Ctrl+C), clear with `/tsp log clear`, switch it off in Settings. It is saved in the SavedVariables file.
 

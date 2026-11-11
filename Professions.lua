@@ -9,8 +9,8 @@ local pairs, ipairs, type, tonumber, tostring = pairs, ipairs, type, tonumber, t
 local LOC = {}
 LOC.en = {
     TAB_CRAFT = "Crafting", TAB_GATHER = "Gathering", NORECIPES = "%s has no crafting recipes. Use the Gathering tab for the guide and options.", SKILL = "Skill",
-    OPT_SHOWALL = "Show professions I do not have in the side list", KEY_USE = "Open this window with a key (replaces that key's default action)",
-    KEY_NOTE = "The old action stays on Shift + the same key.", KEY_PRESS = "Press a key... (Esc cancels)", KEY_BTN = "Key: %s (click to change)", BTN_BLIZZ = "Blizzard's window",
+    OPT_SHOWALL = "Show professions I do not have in the side list", KEY_USE = "Open the simulator with a key (off by default; K keeps opening the game's crafting window)",
+    KEY_NOTE = "If you pick a key that already does something, the old action moves to Shift + that key.", KEY_PRESS = "Press a key... (Esc cancels)", KEY_BTN = "Key: %s (click to change)", BTN_BLIZZ = "Blizzard's window",
     GATHER_TITLE = "Gathering guide", GATHER_INFO = "Trailsmith points to the nearest ore and herb you can gather and draws it on the minimap and world map. More options (resources, display, filters) are in the full options.",
     G_ENABLED = "Gathering guide enabled", G_MINE = "Track ore (Mining)", G_HERB = "Track herbs (Herbalism)", G_SEED = "Use the seed database", G_AUTOLOOT = "Gathering autoloot",
     G_AUTOLOOTQ = "Quest and gold autoloot", G_AUTOHIDE = "Auto-hide empty points", G_HOVER = "Learn nodes when hovering the minimap", G_RANGE = "Range", BTN_FULLOPT = "Open full options",
@@ -21,6 +21,10 @@ LOC.en = {
     MSG_NEAREST = "Nearest %s: %s in %s (%.1f, %.1f). Marked on the map.", MSG_NOSPOT = "No known location for this recipe.", FOOT_SELECT = "Click a recipe to see its details here.",
     FOCUS = { Anvil = "Anvil", Forge = "Forge", Loom = "Loom", ["Cooking Fire"] = "Cooking fire", ["Alchemy Lab"] = "Alchemy lab", ["Tanning Rack"] = "Tanning rack", ["Spinning Wheel"] = "Spinning wheel", ["Master Forge"] = "Master forge", ["Iron Oven"] = "Iron oven" },
     OPT_LOG = "Record a debug log of craft attempts", BTN_SHOWLOG = "Show log (copy with Ctrl+C)", BTN_CLEARLOG = "Clear log",
+    TAB_LEVEL = "Profession leveling", TAB_SIM = "Simulator", NEEDLEARN = "learn first", CARD_BUY = "To buy", CARD_SELL = "Sells for", PROFIT = "Profit", LOSS = "Loss",
+    SIM_QTY = "Quantity", SIM_USEOWNED = "Use what I already have in my bags", SIM_STEPS = "Step by step", SIM_BUY = "Shopping list (market price)", SIM_NOBUY = "Nothing to buy: you already have everything.",
+    SIM_USES = "uses: %s", SIM_FINAL = "final item", SIM_PICK = "Pick a recipe on the left to simulate it.", BTN_PIN = "Pin to screen", BTN_UNPIN = "Remove from screen",
+    BTN_CRAFTWIN = "Open the game's crafting window", MSG_SELECT_MANUAL = "Crafting window opened. Look for %s in the list.", TRACK_DONE = "ready!", TRACK_CRAFT = "craft", SIM_BTN = "Simulation",
     TITLE = "Trailsmith Professions", PLAN = "Plan", MATS = "Materials", RECIPES = "Recipes", SETTINGS = "Settings",
     FROM = "From", TO = "To", MYSKILL = "My skill", MAXSKILL = "Max",
     MODE_CHEAP = "Cheapest", MODE_PROFIT = "Best profit", MODE_FAST = "Fewest crafts",
@@ -46,8 +50,8 @@ LOC.en = {
 }
 LOC.es = {
     TAB_CRAFT = "Fabricación", TAB_GATHER = "Recolección", NORECIPES = "%s no tiene recetas de fabricación. Usa la pestaña Recolección para la guía y las opciones.", SKILL = "Habilidad",
-    OPT_SHOWALL = "Mostrar en la lista lateral las profesiones que no tengo", KEY_USE = "Abrir esta ventana con una tecla (reemplaza la acción original de esa tecla)",
-    KEY_NOTE = "La acción original queda en Mayús + la misma tecla.", KEY_PRESS = "Pulsa una tecla... (Esc cancela)", KEY_BTN = "Tecla: %s (clic para cambiar)", BTN_BLIZZ = "Ventana de Blizzard",
+    OPT_SHOWALL = "Mostrar en la lista lateral las profesiones que no tengo", KEY_USE = "Abrir el simulador con una tecla (desactivado por defecto; K sigue abriendo la ventana de creación del juego)",
+    KEY_NOTE = "Si eliges una tecla que ya hace algo, la acción original pasa a Mayús + esa tecla.", KEY_PRESS = "Pulsa una tecla... (Esc cancela)", KEY_BTN = "Tecla: %s (clic para cambiar)", BTN_BLIZZ = "Ventana de Blizzard",
     GATHER_TITLE = "Guía de recolección", GATHER_INFO = "Trailsmith señala el mineral y la hierba más cercanos que puedes recolectar y los dibuja en el minimapa y el mapa del mundo. Más opciones (recursos, visualización, filtros) en las opciones completas.",
     G_ENABLED = "Guía de recolección activada", G_MINE = "Rastrear minerales (Minería)", G_HERB = "Rastrear hierbas (Herboristería)", G_SEED = "Usar la base de datos inicial", G_AUTOLOOT = "Autobotín de recolección",
     G_AUTOLOOTQ = "Autobotín de misión y oro", G_AUTOHIDE = "Ocultar puntos vacíos automáticamente", G_HOVER = "Aprender nodos al pasar por el minimapa", G_RANGE = "Alcance", BTN_FULLOPT = "Abrir opciones completas",
@@ -58,6 +62,10 @@ LOC.es = {
     MSG_NEAREST = "%s más cercano: %s en %s (%.1f, %.1f). Marcado en el mapa.", MSG_NOSPOT = "No se conoce la ubicación de esta receta.", FOOT_SELECT = "Haz clic en una receta para ver sus detalles aquí.",
     FOCUS = { Anvil = "Yunque", Forge = "Forja", Loom = "Telar", ["Cooking Fire"] = "Fuego de cocina", ["Alchemy Lab"] = "Laboratorio de alquimia", ["Tanning Rack"] = "Caballete de curtido", ["Spinning Wheel"] = "Rueca", ["Master Forge"] = "Forja maestra", ["Iron Oven"] = "Horno de hierro" },
     OPT_LOG = "Registrar un log de depuración de los intentos de creación", BTN_SHOWLOG = "Mostrar log (copiar con Ctrl+C)", BTN_CLEARLOG = "Borrar log",
+    TAB_LEVEL = "Subir profesión", TAB_SIM = "Simulador", NEEDLEARN = "aprender primero", CARD_BUY = "A comprar", CARD_SELL = "Se vende por", PROFIT = "Beneficio", LOSS = "Pérdida",
+    SIM_QTY = "Cantidad", SIM_USEOWNED = "Usar lo que ya tengo en las bolsas", SIM_STEPS = "Paso a paso", SIM_BUY = "Lista de compra (precio de mercado)", SIM_NOBUY = "Nada que comprar: ya tienes todo.",
+    SIM_USES = "usa: %s", SIM_FINAL = "objeto final", SIM_PICK = "Elige una receta a la izquierda para simularla.", BTN_PIN = "Fijar en pantalla", BTN_UNPIN = "Quitar de la pantalla",
+    BTN_CRAFTWIN = "Abrir la ventana de creación del juego", MSG_SELECT_MANUAL = "Ventana de creación abierta. Busca %s en la lista.", TRACK_DONE = "¡listo!", TRACK_CRAFT = "crear", SIM_BTN = "Simulación",
     TITLE = "Trailsmith Profesiones", PLAN = "Plan", MATS = "Materiales", RECIPES = "Recetas", SETTINGS = "Ajustes",
     FROM = "Desde", TO = "Hasta", MYSKILL = "Mi nivel", MAXSKILL = "Máx.",
     MODE_CHEAP = "Más barato", MODE_PROFIT = "Mayor beneficio", MODE_FAST = "Menos creaciones",
@@ -83,8 +91,8 @@ LOC.es = {
 }
 LOC.pt = {
     TAB_CRAFT = "Criação", TAB_GATHER = "Coleta", NORECIPES = "%s não tem receitas de criação. Use a aba Coleta para o guia e as opções.", SKILL = "Perícia",
-    OPT_SHOWALL = "Mostrar na lista lateral as profissões que eu não tenho", KEY_USE = "Abrir esta janela com uma tecla (substitui a ação original dessa tecla)",
-    KEY_NOTE = "A ação original continua em Shift + a mesma tecla.", KEY_PRESS = "Aperte uma tecla... (Esc cancela)", KEY_BTN = "Tecla: %s (clique para trocar)", BTN_BLIZZ = "Janela da Blizzard",
+    OPT_SHOWALL = "Mostrar na lista lateral as profissões que eu não tenho", KEY_USE = "Abrir o simulador com uma tecla (desligado por padrão; o K continua abrindo a janela de criação do jogo)",
+    KEY_NOTE = "Se você escolher uma tecla que já faz algo, a ação original passa para Shift + essa tecla.", KEY_PRESS = "Aperte uma tecla... (Esc cancela)", KEY_BTN = "Tecla: %s (clique para trocar)", BTN_BLIZZ = "Janela da Blizzard",
     GATHER_TITLE = "Guia de coleta", GATHER_INFO = "O Trailsmith aponta o minério e a erva mais próximos que você consegue coletar e desenha no minimapa e no mapa-múndi. Mais opções (recursos, exibição, filtros) estão nas opções completas.",
     G_ENABLED = "Guia de coleta ligado", G_MINE = "Rastrear minérios (Mineração)", G_HERB = "Rastrear ervas (Herborismo)", G_SEED = "Usar o banco de dados inicial", G_AUTOLOOT = "Autosaque de coleta",
     G_AUTOLOOTQ = "Autosaque de missão e ouro", G_AUTOHIDE = "Esconder pontos vazios automaticamente", G_HOVER = "Aprender pontos ao passar o mouse no minimapa", G_RANGE = "Alcance", BTN_FULLOPT = "Abrir opções completas",
@@ -95,6 +103,10 @@ LOC.pt = {
     MSG_NEAREST = "%s mais próximo: %s em %s (%.1f, %.1f). Marcado no mapa.", MSG_NOSPOT = "Local desta receita desconhecido.", FOOT_SELECT = "Clique numa receita para ver os detalhes aqui.",
     FOCUS = { Anvil = "Bigorna", Forge = "Forja", Loom = "Tear", ["Cooking Fire"] = "Fogueira de cozinha", ["Alchemy Lab"] = "Laboratório de alquimia", ["Tanning Rack"] = "Cavalete de curtimento", ["Spinning Wheel"] = "Roda de fiar", ["Master Forge"] = "Forja mestra", ["Iron Oven"] = "Forno de ferro" },
     OPT_LOG = "Gravar um log de depuração das tentativas de criação", BTN_SHOWLOG = "Mostrar log (copiar com Ctrl+C)", BTN_CLEARLOG = "Limpar log",
+    TAB_LEVEL = "Subir profissão", TAB_SIM = "Simulador", NEEDLEARN = "aprender antes", CARD_BUY = "Comprar", CARD_SELL = "Vende por", PROFIT = "Lucro", LOSS = "Prejuízo",
+    SIM_QTY = "Quantidade", SIM_USEOWNED = "Usar o que eu já tenho nas bolsas", SIM_STEPS = "Passo a passo", SIM_BUY = "Lista de compras (preço de mercado)", SIM_NOBUY = "Nada para comprar: você já tem tudo.",
+    SIM_USES = "usa: %s", SIM_FINAL = "item final", SIM_PICK = "Escolha uma receita à esquerda para simular.", BTN_PIN = "Fixar na tela", BTN_UNPIN = "Remover da tela",
+    BTN_CRAFTWIN = "Abrir a janela de criação do jogo", MSG_SELECT_MANUAL = "Janela de criação aberta. Procure %s na lista.", TRACK_DONE = "pronto!", TRACK_CRAFT = "criar", SIM_BTN = "Simulação",
     TITLE = "Trailsmith Profissões", PLAN = "Plano", MATS = "Materiais", RECIPES = "Receitas", SETTINGS = "Opções",
     FROM = "De", TO = "Até", MYSKILL = "Minha perícia", MAXSKILL = "Máx.",
     MODE_CHEAP = "Mais barato", MODE_PROFIT = "Maior lucro", MODE_FAST = "Menos criações",
@@ -156,7 +168,7 @@ for _, p in ipairs(PROFS) do PROF_BY_KEY[p.key] = p end
 local issecret = issecretvalue or function() return false end
 local QMARK = "Interface\\Icons\\INV_Misc_QuestionMark"
 local DEFAULTS = {
-    sel = "mining", skin = "dark", scale = 1, alpha = 0.96, fontText = 1, fontNum = 1, key = "K", useKey = true, showAll = false, autoText = true, w = 980, h = 680, logOn = true, log = {}, provider = "auto", mode = "cheap",
+    sel = "mining", skin = "dark", scale = 1, alpha = 0.96, fontText = 1, fontNum = 1, key = "", useKey = false, keyVersion = 2, showAll = false, simOwned = true, autoText = true, w = 980, h = 680, logOn = true, log = {}, provider = "auto", mode = "cheap",
     free = false, knownOnly = false, srcT = true, srcV = true, srcI = false, srcU = false, ahCut = true,
     range = {},
 }
@@ -342,7 +354,25 @@ local function ActiveProvider()
 end
 
 local pcache, ccache, known = {}, {}, {}
-local curProd, curRecipes
+local skills = {}
+local curProd, curRecipes, curKey
+-- intermediate items (bars, cured leather...) can be made by recipes of any profession the player has
+local allProd
+local function MergedProducers()
+    if allProd then return allProd end
+    allProd = {}
+    for _, p in ipairs(PROFS) do
+        if not p.gather then
+            local _, prod = Decode(p.key)
+            for item, list in pairs(prod) do
+                local t = allProd[item]
+                if not t then t = {} allProd[item] = t end
+                for _, r in ipairs(list) do r.key = p.key t[#t + 1] = r end
+            end
+        end
+    end
+    return allProd
+end
 local function ClearCaches() pcache, ccache, known = {}, {}, {} end
 
 local function MarketPrice(id)
@@ -378,6 +408,7 @@ local function SellValue(id)
 end
 
 local function Allowed(r)
+    if r.key and curKey and r.key ~= curKey and not (skills[r.key] or SpellKnown(r.spell)) then return false end
     if known[r.spell] == nil then known[r.spell] = SpellKnown(r.spell) end
     if known[r.spell] or r.src == "a" then return true end
     if P.knownOnly then return false end
@@ -449,7 +480,7 @@ end
 local function BuildPlan(key, from, to)
     ClearCaches()
     local recipes, prod = Decode(key)
-    curProd, curRecipes = prod, recipes
+    curProd, curRecipes, curKey = MergedProducers(), recipes, key
     local plan = { steps = {}, points = 0, crafts = 0, cost = 0, net = 0, secs = 0, missing = false, mats = {}, key = key, from = from, to = to }
     if to <= from then return plan end
     local mode = P.mode
@@ -543,7 +574,6 @@ local function BuildNameMap()
         end
     end
 end
-local skills = {}
 local function ReadSkills()
     if not nameToKey then BuildNameMap() end
     for k in pairs(skills) do skills[k] = nil end
@@ -758,6 +788,7 @@ end
 local function NewList(parent, topOff, heightFn, makeRow, fillRow, layoutRow, baseH)
     local list = { data = {}, offset = 0, rows = {}, n = 1 }
     local view = CreateFrame("Frame", nil, parent)
+    list.view = view
     view:SetPoint("TOPLEFT", 0, -topOff)
     view:SetPoint("BOTTOMRIGHT", -18, 0)
     view:EnableMouseWheel(true)
@@ -906,7 +937,7 @@ end
 local function BuildRecList(key, filter)
     local recipes = Decode(key)
     ClearCaches()
-    curProd = producers[key]
+    curProd, curKey = MergedProducers(), key
     local out = {}
     filter = filter and filter:lower() or ""
     for _, r in ipairs(recipes) do
@@ -924,76 +955,69 @@ end
 local function MakePlanRow(parent)
     local row = RowBase(parent)
     row.cost = Label(row, nil, "GameFontHighlight", "num")
-    row.cost:SetPoint("TOPRIGHT", -8, -4)
+    row.cost:SetPoint("TOPRIGHT", -8, -6)
     row.cost:SetJustifyH("RIGHT")
     row.sub = Label(row, nil, "GameFontHighlightSmall", "num")
-    row.sub:SetPoint("BOTTOMRIGHT", -8, 4)
+    row.sub:SetPoint("TOPRIGHT", row.cost, "BOTTOMRIGHT", 0, -2)
     row.sub:SetJustifyH("RIGHT")
     row.sub:SetTextColor(0.7, 0.7, 0.7)
-    row.go = Btn(row, "", 130, 20, function(b) if row.rec then Locate(row.rec) end end)
-    row.go:SetPoint("RIGHT", row.cost, "LEFT", -10, 0)
+    row.go = Btn(row, "", 130, 20, function() if row.rec then Locate(row.rec) end end)
+    row.go:SetPoint("BOTTOMRIGHT", -8, 6)
     row.go:Hide()
     row.t1 = Label(row, nil, "GameFontHighlight")
     row.t1:SetPoint("TOPLEFT", row.icon, "TOPRIGHT", 8, 0)
     row.t1:SetPoint("RIGHT", row.cost, "LEFT", -8, 0)
     row.t1:SetWordWrap(false)
     row.t2 = Label(row, nil, "GameFontHighlightSmall")
-    row.t2:SetPoint("BOTTOMLEFT", row.icon, "BOTTOMRIGHT", 8, 0)
-    row.t2:SetPoint("RIGHT", row.sub, "LEFT", -8, 0)
-    row.t2:SetWordWrap(false)
+    row.t2:SetPoint("TOPLEFT", row.t1, "BOTTOMLEFT", 0, -3)
+    row.t2:SetPoint("RIGHT", row, "RIGHT", -150, 0)
+    row.t2:SetPoint("BOTTOM", row, "BOTTOM", 0, 4)
+    row.t2:SetWordWrap(true)
+    row.t2:SetJustifyV("TOP")
     Tip(row, function(tt, self) if self.rec then ItemOrSpellTip(tt, self.rec) end end)
-    row:SetScript("OnClick", function(self) if self.rec then UI:Select(self.rec, self.crafts) end end)
+    row:SetScript("OnClick", Safe("plan row", function(self) if self.rec then UI:OpenSim(self.rec, self.crafts) end end))
     return row
 end
 local function FillPlanRow(row, st, idx)
     Zebra(row, idx)
+    row.t2:ClearAllPoints()
+    row.t2:SetPoint("TOPLEFT", row.t1, "BOTTOMLEFT", 0, -3)
+    row.t2:SetPoint("BOTTOM", row, "BOTTOM", 0, 4)
     if st.gap then
         row.rec = nil
         row.icon:SetTexture(QMARK)
         row.t1:SetText(("|cffff5050%d – %d|r"):format(st.from, st.to))
         row.t2:SetTextColor(1, 0.6, 0.5)
         row.t2:SetText(S.NOREC:format(st.from, st.to))
+        row.t2:SetPoint("RIGHT", row, "RIGHT", -10, 0)
         row.cost:SetText("")
         row.sub:SetText("")
         row.go:Hide()
-        row.t1:ClearAllPoints()
-        row.t1:SetPoint("TOPLEFT", row.icon, "TOPRIGHT", 8, 0)
-        row.t1:SetPoint("RIGHT", row.cost, "LEFT", -8, 0)
-        row.t2:ClearAllPoints()
-        row.t2:SetPoint("BOTTOMLEFT", row.icon, "BOTTOMRIGHT", 8, 0)
-        row.t2:SetPoint("RIGHT", row.sub, "LEFT", -8, 0)
         return
     end
     local r = st.r
     row.rec = r
+    row.crafts = st.crafts
     row.icon:SetTexture(r.item > 0 and ItemIcon(r.item) or SpellIcon(r.spell))
     local col = BandColor(r, st.from)
     local name = SpellName(r.spell) or (r.item > 0 and ItemName(r.item)) or ("#" .. r.spell)
-    row.t1:SetText(("|c%s%d – %d|r   %s"):format(col, st.from, st.to, name))
-    row.t2:SetTextColor(0.7, 0.7, 0.7)
+    local tag = st.known and "" or ("  |cffff9933[" .. S.NEEDLEARN .. "]|r")
+    row.t1:SetText(("|c%s%d – %d|r   %s  |cffffffff×%d|r%s"):format(col, st.from, st.to, name, st.crafts, tag))
+    row.t2:SetTextColor(0.75, 0.75, 0.75)
     row.t2:SetText(MatLine(r, st.crafts))
     row.cost:SetText(st.miss and ("|cffff8080" .. S.NOPRICE .. "|r") or Money(st.cost))
     row.sub:SetText(S.CRAFT_X:format(st.crafts))
-    row.crafts = st.crafts
     local canLocate = (not st.known) and r.set and r.set > 0 and (r.src == "t" or r.src == "v")
-    row.t1:ClearAllPoints()
-    row.t1:SetPoint("TOPLEFT", row.icon, "TOPRIGHT", 8, 0)
-    row.t2:ClearAllPoints()
-    row.t2:SetPoint("BOTTOMLEFT", row.icon, "BOTTOMRIGHT", 8, 0)
     if canLocate then
         row.go:SetText(r.src == "v" and S.GO_VENDOR or S.GO_TRAINER)
         local w = row.go.fs and row.go.fs:GetStringWidth() or 100
-        row.go:SetWidth(max(90, floor(w + 24)))
+        local gw = max(110, floor(w + 24))
+        row.go:SetWidth(gw)
         row.go:Show()
-        row.t1:SetPoint("RIGHT", row.go, "LEFT", -8, 0)
-        row.t2:SetPoint("RIGHT", row.go, "LEFT", -8, 0)
+        row.t2:SetPoint("RIGHT", row, "RIGHT", -(gw + 18), 0)
     else
         row.go:Hide()
-        row.t1:SetPoint("RIGHT", row.cost, "LEFT", -8, 0)
-        row.t2:SetPoint("RIGHT", row.sub, "LEFT", -8, 0)
-    end
-    if UI.sel and UI.sel.r == r then
-        if row.bg.SetColorTexture then row.bg:SetColorTexture(1, 0.8, 0.2, 0.16) else row.bg:SetTexture(1, 0.8, 0.2, 0.16) end
+        row.t2:SetPoint("RIGHT", row, "RIGHT", -130, 0)
     end
 end
 local function LayoutPlanRow(row, rh) IconSize(row, rh) end
@@ -1166,12 +1190,11 @@ function UI:BuildSearch()
             if type(e) ~= "table" then return end
             Log("search result chosen: %s (%s)", tostring(e.name), tostring(e.key))
             P.sel = e.key
-            UI.top, UI.tab = "craft", "recipes"
             box:SetText("")
             box:ClearFocus()
             dd:Hide()
-            UI.search:SetText(e.name)
-            UI:Refresh()
+            UI.simSearch:SetText("")
+            UI:OpenSim(e.r, 1)
         end)
         dd.rows[i] = b
     end
@@ -1497,41 +1520,375 @@ local function StartCapture(onDone)
     if capture.SetPropagateKeyboardInput then capture:SetPropagateKeyboardInput(false) end
 end
 
----------------------------------------------------------------- Refresh
+---------------------------------------------------------------- simulacao
 local function Close() if UI.frame then UI.frame:Hide() end end
 local function Heading(parent, text) return Label(parent, text, "GameFontNormal") end
 
+local function Have(id) return (GetItemCount and GetItemCount(id)) or 0 end
+
+-- full material tree for crafting `count` of recipe r (using what is in the bags first)
+local function SimBuild(key, r, count, useOwned)
+    ClearCaches()
+    Decode(key)
+    curProd, curKey = MergedProducers(), key
+    local owned = {}
+    local lines, steps, buy = {}, {}, {}
+    local function Need(id, qty, depth)
+        local have = Have(id)
+        local avail = 0
+        if useOwned then
+            avail = owned[id]
+            if avail == nil then avail = have end
+        end
+        local use = min(avail, qty)
+        if useOwned then owned[id] = avail - use end
+        local remaining = qty - use
+        local _, _, prod = ItemCost(id, 0)
+        local line = { id = id, need = qty, have = have, depth = depth, remaining = remaining }
+        lines[#lines + 1] = line
+        if remaining > 0 then
+            if prod and depth < 3 then
+                local crafts = ceil(remaining / prod.qty)
+                line.prod, line.crafts = prod, crafts
+                for _, rg in ipairs(prod.reag) do Need(rg[1], rg[2] * crafts, depth + 1) end
+                steps[#steps + 1] = { r = prod, crafts = crafts, item = id }
+            else
+                buy[id] = (buy[id] or 0) + remaining
+                line.buy = remaining
+            end
+        end
+    end
+    for _, rg in ipairs(r.reag) do Need(rg[1], rg[2] * count, 0) end
+    steps[#steps + 1] = { r = r, crafts = count, final = true }
+    local cost, missing = 0, false
+    local list = {}
+    for id, n in pairs(buy) do
+        local c = ItemCost(id, 0)
+        local total = c and c * n or nil
+        if total then cost = cost + total else missing = true end
+        list[#list + 1] = { id = id, n = n, unit = c, total = total, have = Have(id) }
+    end
+    table.sort(list, function(a, b)
+        if (a.total or 0) ~= (b.total or 0) then return (a.total or 0) > (b.total or 0) end
+        return a.id < b.id
+    end)
+    local sell = 0
+    if r.item > 0 then sell = SellValue(r.item) * r.qty * count end
+    return { lines = lines, steps = steps, buy = list, cost = cost, missing = missing, sell = sell, profit = sell - cost, r = r, count = count, key = key }
+end
+ns.Prof.SimBuild = SimBuild
+
+local recBySpell = {}
+local function RecipeOf(key, spell)
+    local m = recBySpell[key]
+    if not m then
+        m = {}
+        for _, r in ipairs(Decode(key)) do m[r.spell] = r end
+        recBySpell[key] = m
+    end
+    return m[spell]
+end
+
+---------------------------------------------------------------- janela de criacao do jogo
+local function SelectInGame(r, count)
+    if not r then return end
+    Log("SelectInGame: spell %s count %s", tostring(r.spell), tostring(count))
+    local done = false
+    local T = _G.C_TradeSkillUI
+    if T and T.OpenRecipe then
+        local ok, err = pcall(T.OpenRecipe, r.spell)
+        Log("C_TradeSkillUI.OpenRecipe(%d) -> ok=%s err=%s", r.spell, tostring(ok), tostring(err))
+        done = ok
+    end
+    if GetNumTradeSkills and GetTradeSkillInfo then
+        local total = GetNumTradeSkills() or 0
+        Log("classic list: %d entries", total)
+        for i = 1, total do
+            local _, kind = GetTradeSkillInfo(i)
+            if kind ~= "header" then
+                local link = GetTradeSkillRecipeLink and GetTradeSkillRecipeLink(i)
+                local id = link and tonumber(link:match("enchant:(%d+)") or link:match("spell:(%d+)"))
+                if id == r.spell then
+                    local ok, err = pcall(function()
+                        if TradeSkillFrame_SetSelection then TradeSkillFrame_SetSelection(i) elseif SelectTradeSkill then SelectTradeSkill(i) end
+                    end)
+                    Log("selected entry %d -> ok=%s err=%s", i, tostring(ok), tostring(err))
+                    if count and _G.TradeSkillInputBox then pcall(function() _G.TradeSkillInputBox:SetNumber(count) end) end
+                    done = true
+                    break
+                end
+            end
+        end
+    end
+    if not done then
+        local n = SpellName(r.spell) or "?"
+        print("|cffffd100Trailsmith:|r " .. S.MSG_SELECT_MANUAL:format(n))
+    end
+end
+
+local createBtns = {}
+local function ApplyCreateTarget(b)
+    local tg = b.target
+    if not tg then return end
+    local p = PROF_BY_KEY[tg.key]
+    local name = p and p.spell and SpellName(p.spell)
+    if InCombatLockdown and InCombatLockdown() then b.pendingAttr = true return end
+    b.pendingAttr = false
+    b:SetAttribute("type", "spell")
+    b:SetAttribute("spell", name)
+    Log("create target: profession %s spell attr=%s recipe=%s", tostring(tg.key), tostring(name), tostring(tg.r and tg.r.spell))
+end
+local function MakeCreateButton(parent, text, w, h)
+    local b = TryCreate("Button", nil, parent, { "SecureActionButtonTemplate,UIPanelButtonTemplate", "SecureActionButtonTemplate" })
+    b:SetSize(w, h or 22)
+    b:SetText(text or "")
+    local fs = b.GetFontString and b:GetFontString()
+    if fs then RegFont(fs) end
+    b:RegisterForClicks("AnyUp")
+    b:SetAttribute("type", "spell")
+    b:HookScript("PostClick", function(self2)
+        Log("open-crafting button clicked: spell attr=%s", tostring(self2:GetAttribute("spell")))
+        local tg = self2.target
+        if tg and tg.r then C_Timer.After(0.6, function() SelectInGame(tg.r, tg.count) end) end
+    end)
+    createBtns[#createBtns + 1] = b
+    return b
+end
+local function SetCreateTarget(b, key, r, count)
+    b.target = { key = key, r = r, count = count }
+    ApplyCreateTarget(b)
+end
+local function FlushCreateTargets()
+    for _, b in ipairs(createBtns) do if b.pendingAttr then ApplyCreateTarget(b) end end
+end
+
+---------------------------------------------------------------- janelinha fixa (rastreador)
+local Tracker = {}
+local TRACK_LINES = 22
+function Tracker:Build()
+    if self.frame then return end
+    local f = Panel(UIParent, 0.85)
+    f:SetSize(280, 120)
+    f:SetFrameStrata("MEDIUM")
+    f:SetClampedToScreen(true)
+    f:SetMovable(true)
+    f:EnableMouse(true)
+    f:RegisterForDrag("LeftButton")
+    f:SetScript("OnDragStart", f.StartMoving)
+    f:SetScript("OnDragStop", function(s2)
+        s2:StopMovingOrSizing()
+        local p, _, rp, x, y = s2:GetPoint()
+        if P then P.trackPos = { p, rp, x, y } end
+    end)
+    local pos = P and P.trackPos
+    if pos then f:SetPoint(pos[1], UIParent, pos[2], pos[3], pos[4]) else f:SetPoint("TOPRIGHT", UIParent, "TOPRIGHT", -220, -260) end
+    f.title = Label(f, "", "GameFontNormal")
+    f.title:SetPoint("TOPLEFT", 10, -8)
+    f.title:SetPoint("RIGHT", -28, 0)
+    f.title:SetWordWrap(false)
+    f.close = Btn(f, "x", 18, 18, function() if P then P.track = nil end Tracker:Refresh() end)
+    f.close:SetPoint("TOPRIGHT", -5, -5)
+    f.rows = {}
+    for i = 1, TRACK_LINES do
+        local fs = Label(f, "", "GameFontHighlightSmall")
+        fs:SetPoint("TOPLEFT", 12, -26 - (i - 1) * 15)
+        fs:SetPoint("RIGHT", -10, 0)
+        fs:SetWordWrap(false)
+        f.rows[i] = fs
+    end
+    f.create = MakeCreateButton(f, S.BTN_CRAFTWIN, 150, 20)
+    f.create:SetPoint("BOTTOMLEFT", 10, 8)
+    f.sim = Btn(f, S.TAB_SIM, 100, 20, function()
+        local t = P and P.track
+        if not t then return end
+        P.sel = t.key
+        local r = RecipeOf(t.key, t.spell)
+        ns.OpenProf()
+        if UI.frame and not UI.frame:IsShown() then ns.OpenProf() end
+        if r then UI:OpenSim(r, t.count) end
+    end)
+    f.sim:SetPoint("BOTTOMRIGHT", -10, 8)
+    self.frame = f
+    ApplyFonts(true)
+end
+
+function Tracker:Refresh()
+    local t = P and P.track
+    if not t or not t.spell then
+        if self.frame then self.frame:Hide() end
+        return
+    end
+    local r = RecipeOf(t.key, t.spell)
+    if not r then if self.frame then self.frame:Hide() end return end
+    self:Build()
+    local f = self.frame
+    local res = SimBuild(t.key, r, t.count or 1, true)
+    local name = SpellName(r.spell) or ("#" .. r.spell)
+    local allDone = true
+    local n = 0
+    for _, ln in ipairs(res.lines) do
+        if n >= TRACK_LINES then break end
+        n = n + 1
+        local done = ln.have >= ln.need
+        if ln.depth == 0 and not done then allDone = false end
+        local indent = string.rep("   ", ln.depth)
+        local col = done and "|cff40ff40" or (ln.depth == 0 and "|cffffffff" or "|cffc0c0c0")
+        local tag = (ln.prod and not done) and ("  |cffffd100(" .. S.TRACK_CRAFT .. ")|r") or ""
+        f.rows[n]:SetText(("%s%s%s|r  %d/%d%s"):format(indent, col, ItemName(ln.id) or ("#" .. ln.id), ln.have, ln.need, tag))
+        f.rows[n]:Show()
+    end
+    for i = n + 1, TRACK_LINES do f.rows[i]:Hide() end
+    f.title:SetText((allDone and "|cff40ff40" or "") .. name .. " ×" .. (t.count or 1) .. (allDone and ("  " .. S.TRACK_DONE .. "|r") or ""))
+    local h = 26 + n * 15 + 38
+    f:SetHeight(h)
+    SetCreateTarget(f.create, t.key, r, t.count)
+    f:Show()
+end
+ns.Prof.Tracker = Tracker
+
+local function PinRecipe(key, r, count)
+    if not P then return end
+    if P.track and P.track.spell == r.spell and P.track.count == count then
+        P.track = nil
+        Log("tracker removed")
+    else
+        P.track = { key = key, spell = r.spell, count = count }
+        Log("tracker set: %s x%d", tostring(SpellName(r.spell)), count)
+    end
+    Tracker:Refresh()
+end
+
+---------------------------------------------------------------- layout e Refresh
 function UI:LayoutCraft()
     local f = self.frame
     if not f or not self.cards then return end
     local cw = f:GetWidth() - 2 * M - LEFTW - RIGHTW - 2 * GAP
     local w = floor((cw - 4 * 6) / 5)
     local ch = floor(46 * max(1, UI.factor or 1))
-    for i, key in ipairs({ "points", "crafts", "cost", "time", "net" }) do
+    self.cardY = 52
+    for i, key in ipairs({ "points", "crafts", "cost", "sell", "net" }) do
         local c = self.cards[key]
         c:ClearAllPoints()
-        c:SetPoint("TOPLEFT", self.craftPane, "TOPLEFT", (i - 1) * (w + 6), -32)
+        c:SetPoint("TOPLEFT", self.craftPane, "TOPLEFT", (i - 1) * (w + 6), -self.cardY)
         c:SetSize(w, ch)
     end
-    self.subY = 32 + ch + 8
+    self.subY = self.cardY + ch + 8
     for i, b in ipairs(self.tabBtns) do
         b:ClearAllPoints()
-        b:SetPoint("TOPLEFT", self.craftPane, "TOPLEFT", (i - 1) * 114, -self.subY)
+        b:SetPoint("TOPLEFT", self.craftPane, "TOPLEFT", (i - 1) * 134, -self.subY)
     end
     self.listTop = self.subY + 28
-    for _, p in ipairs({ self.planPane, self.matPane, self.recPane }) do
+    for _, p in ipairs({ self.planPane, self.matPane }) do
         p:ClearAllPoints()
         p:SetPoint("TOPLEFT", self.craftPane, "TOPLEFT", 0, -self.listTop)
-        p:SetPoint("BOTTOMRIGHT", self.craftPane, "BOTTOMRIGHT", 0, FootH() + 8)
+        p:SetPoint("BOTTOMRIGHT", self.craftPane, "BOTTOMRIGHT", 0, 0)
     end
-    self.foot:SetHeight(FootH())
     self.matHeader:ClearAllPoints()
     self.matHeader:SetPoint("TOPLEFT", self.matPane, "TOPLEFT", 0, 0)
     self.matHeader:SetPoint("TOPRIGHT", self.matPane, "TOPRIGHT", -18, 0)
     self.matHeader:SetHeight(20)
     MatCols(self.matHeader)
 end
-local function ListHeight() return (UI.frame:GetHeight() - TOP - BOT) - (UI.listTop or 120) - FootH() - 8 end
+local function ListHeight() return (UI.frame:GetHeight() - TOP - BOT) - (UI.listTop or 120) end
+
+local function MoneySigned(c)
+    if not c then return "?" end
+    if c < 0 then return "|cffff6060-" .. Money(-c) .. "|r" end
+    return "|cff40ff40+" .. Money(c) .. "|r"
+end
+
+function UI:LayoutSim()
+    if not self.simDetail then return end
+    local f = self.frame
+    local dpw = f:GetWidth() - 2 * M - LEFTW - RIGHTW - 2 * GAP - self.simLeftW - GAP
+    local w = floor((dpw - 20 - 12) / 3)
+    local ch = floor(44 * max(1, UI.factor or 1))
+    for i, key in ipairs({ "cost", "sell", "net" }) do
+        local c = self.simCards[key]
+        c:ClearAllPoints()
+        c:SetPoint("TOPLEFT", self.simDetail, "TOPLEFT", 10 + (i - 1) * (w + 6), -92)
+        c:SetSize(w, ch)
+    end
+    self.simListTop = 92 + ch + 8
+    self.simSteps.view:ClearAllPoints()
+    self.simSteps.view:SetPoint("TOPLEFT", self.simDetail, "TOPLEFT", 4, -self.simListTop)
+    self.simSteps.view:SetPoint("BOTTOMRIGHT", self.simDetail, "BOTTOMRIGHT", -22, 46)
+end
+
+function UI:RefreshSim()
+    local key = P.sel
+    local def = PROF_BY_KEY[key]
+    local crafting = not (def and def.gather)
+    self.simDetail:SetShown(crafting)
+    self.simLeft:SetShown(crafting)
+    self.simNote:SetShown(not crafting)
+    if not crafting then
+        self.simNote:SetText(S.NORECIPES:format(ProfLabel(key)))
+        return
+    end
+    self:LayoutSim()
+    local list = BuildRecList(key, self.simSearch:GetText())
+    self.simList:SetData(list, true)
+    local r = self.simSel
+    if r and RecipeOf(key, r.spell) ~= r then r = nil self.simSel = nil end
+    local d = self.simDetail
+    if not r then
+        d.name:SetText(S.SIM_PICK)
+        d.info:SetText("")
+        d.icon:SetTexture(QMARK)
+        d.locate:Hide()
+        for _, c in pairs(self.simCards) do c.v:SetText("") end
+        self.simSteps:SetData({}, true)
+        d.pin:Disable()
+        d.create:Hide()
+        return
+    end
+    d.pin:Enable()
+    d.create:Show()
+    local qty = max(1, min(999, self.simQty or 1))
+    self.simQty = qty
+    if not d.qty:HasFocus() then d.qty:SetText(tostring(qty)) end
+    local res = SimBuild(key, r, qty, P.simOwned ~= false)
+    local isKnown = known[r.spell] or SpellKnown(r.spell) or r.src == "a"
+    d.icon:SetTexture(r.item > 0 and ItemIcon(r.item) or SpellIcon(r.spell))
+    local name = SpellName(r.spell) or (r.item > 0 and ItemName(r.item)) or ("#" .. r.spell)
+    d.name:SetText(name)
+    local focus = FocusLabel(r.spell)
+    local mid = floor((r.low + r.high) / 2)
+    local info = ("|cffff8040%d|r |cffffff00%d|r |cff40c040%d|r |cff808080%d|r"):format(r.req, r.low, mid, r.high)
+    info = info .. "   " .. (isKnown and ("|cff40c040" .. S.KNOWN .. "|r") or ("|cffff9933" .. S.NEEDLEARN .. " (" .. SrcLabel(r) .. ")|r"))
+    info = info .. "   " .. (focus and ("|cffffd100" .. S.FOOT_REQ:format(focus) .. "|r") or ("|cff909090" .. S.FOOT_NOREQ .. "|r"))
+    d.info:SetText(info)
+    if (not isKnown) and r.set and r.set > 0 and (r.src == "t" or r.src == "v") then
+        d.locate:SetText(r.src == "v" and S.GO_VENDOR or S.GO_TRAINER)
+        d.locate:Show()
+    else
+        d.locate:Hide()
+    end
+    self.simCards.cost.v:SetText(res.missing and (Money(res.cost) .. " |cffff8080+?|r") or Money(res.cost))
+    self.simCards.sell.v:SetText(Money(res.sell))
+    self.simCards.net.v:SetText(MoneySigned(res.profit))
+    self.simCards.net.cap:SetText(res.profit >= 0 and S.PROFIT or S.LOSS)
+    -- step list
+    local items = {}
+    items[#items + 1] = { kind = "head", text = S.SIM_STEPS }
+    for i, st in ipairs(res.steps) do items[#items + 1] = { kind = "step", i = i, st = st } end
+    items[#items + 1] = { kind = "head", text = S.SIM_BUY }
+    if #res.buy == 0 then items[#items + 1] = { kind = "note", text = S.SIM_NOBUY } end
+    for _, b in ipairs(res.buy) do items[#items + 1] = { kind = "buy", b = b } end
+    self.simSteps:SetData(items, true)
+    d.pin:SetText((P.track and P.track.spell == r.spell and P.track.count == qty) and S.BTN_UNPIN or S.BTN_PIN)
+    SetCreateTarget(d.create, key, r, qty)
+    self.simRes = res
+end
+
+function UI:OpenSim(r, count)
+    Log("open simulator: spell %s count %s", tostring(r and r.spell), tostring(count))
+    self.top = "sim"
+    self.simSel = r
+    self.simQty = max(1, count or 1)
+    self:Refresh()
+end
 
 function UI:Refresh()
     if not self.frame or not self.frame:IsShown() then return end
@@ -1540,23 +1897,25 @@ function UI:Refresh()
     local key = P.sel
     local def = PROF_BY_KEY[key]
     local sk = skills[key]
-    local craft = self.top == "craft"
-    for _, b in ipairs(self.topBtns) do SetSel(b, b.top == self.top) end
-    self.leftPanel:SetShown(craft)
-    self.rightPanel:SetShown(craft)
-    self.craftPane:SetShown(craft)
-    self.gatherPane:SetShown(self.top == "gather")
-    self.setPane:SetShown(self.top == "settings")
-    if self.top == "gather" then
+    local top = self.top
+    local sidebar = (top == "craft" or top == "sim")
+    for _, b in ipairs(self.topBtns) do SetSel(b, b.top == top) end
+    self.leftPanel:SetShown(sidebar)
+    self.rightPanel:SetShown(sidebar)
+    self.craftPane:SetShown(top == "craft")
+    self.simPane:SetShown(top == "sim")
+    self.gatherPane:SetShown(top == "gather")
+    self.setPane:SetShown(top == "settings")
+    if top == "gather" then
         self.gatherStack:Layout()
         local m, h = skills.mining, skills.herbalism
         self.gatherSkill:SetText(("%s: %s     %s: %s"):format(ProfLabel("mining"), m and (m.rank .. "/" .. m.max) or "—",
             ProfLabel("herbalism"), h and (h.rank .. "/" .. h.max) or "—"))
-    elseif self.top == "settings" then
+    elseif top == "settings" then
         self.setStack:Layout()
     end
     for _, s in ipairs(self.syncs) do s() end
-    if not craft then return end
+    if not sidebar then return end
 
     -- profession list
     local fct = UI.factor or 1
@@ -1582,11 +1941,16 @@ function UI:Refresh()
         if b.icon.SetDesaturated then b.icon:SetDesaturated(not s) end
         b.icon:SetAlpha(s and 1 or 0.5)
     end
-    -- right panel
     self.optStack:Layout()
     for _, b in ipairs(self.modeBtns) do SetSel(b, b.mode == P.mode) end
+    SetCreateTarget(self.openCraft, key, nil, nil)
 
     local crafting = not (def and def.gather)
+    if top == "sim" then
+        Recompute()
+        self:RefreshSim()
+        return
+    end
     self.craftBody:SetShown(crafting)
     self.noRec:SetShown(not crafting)
     if not crafting then
@@ -1603,134 +1967,120 @@ function UI:Refresh()
     self.cards.points.v:SetText(tostring(p.points))
     self.cards.crafts.v:SetText(tostring(p.crafts))
     self.cards.cost.v:SetText(p.missing and (Money(p.cost) .. " |cffff8080+?|r") or Money(p.cost))
-    self.cards.time.v:SetText(FormatTime(p.secs))
-    self.cards.net.v:SetText(Money(p.net))
+    local sellTotal = p.net + p.cost
+    self.cards.sell.v:SetText(Money(sellTotal))
+    self.cards.net.v:SetText(MoneySigned(p.net))
+    self.cards.net.cap:SetText(p.net >= 0 and S.PROFIT or S.LOSS)
     self.priceLine:SetText(p.provider and S.PRICES:format(p.provider) or S.PRICES_NONE)
     self.noProf:SetText(sk and "" or S.NOPROF)
-    self:RefreshFoot()
     self.planPane:SetShown(self.tab == "plan")
     self.matPane:SetShown(self.tab == "mats")
-    self.recPane:SetShown(self.tab == "recipes")
     if self.tab == "plan" then self.planList:SetData(p.steps, true)
-    elseif self.tab == "mats" then self.matList:SetData(BuildMatList(p), true)
-    else self.recList:SetData(BuildRecList(key, self.search:GetText()), true) end
+    else self.matList:SetData(BuildMatList(p), true) end
     ApplyFonts(UI.dirtyFonts)
 end
 
 ---------------------------------------------------------------- construcao
-function UI:Select(r, crafts)
-    Log("recipe selected: spell %s (%s) crafts %s", tostring(r and r.spell), tostring(r and SpellName(r.spell)), tostring(crafts))
-    self.sel = { r = r, crafts = crafts or 1, key = P.sel }
-    self:Refresh()
-end
-
-function UI:RefreshFoot()
-    local ft = self.foot
-    local sel = self.sel
-    if not sel or sel.key ~= P.sel then
-        -- default: the first real step of the plan
-        sel = nil
-        if current then
-            for _, st in ipairs(current.steps) do
-                if st.r then sel = { r = st.r, crafts = st.crafts, key = P.sel } break end
-            end
+local function MakeSimRow(parent)
+    local row = RowBase(parent)
+    row.tag = Label(row, nil, "GameFontHighlightSmall")
+    row.tag:SetPoint("RIGHT", -6, 0)
+    row.tag:SetJustifyH("RIGHT")
+    row.name = Label(row, nil, "GameFontHighlight")
+    row.name:SetPoint("LEFT", row.icon, "RIGHT", 6, 0)
+    row.name:SetPoint("RIGHT", row.tag, "LEFT", -4, 0)
+    row.name:SetWordWrap(false)
+    Tip(row, function(tt, self) if self.rec then ItemOrSpellTip(tt, self.rec) end end)
+    row:SetScript("OnClick", Safe("simulator row", function(self)
+        if self.rec then
+            Log("simulator recipe picked: %s", tostring(SpellName(self.rec.spell)))
+            UI.simSel = self.rec
+            UI.simQty = UI.simQty or 1
+            UI:Refresh()
         end
-        self.sel = sel
+    end))
+    return row
+end
+local function FillSimRow(row, d, idx)
+    Zebra(row, idx)
+    local r = d.r
+    row.rec = r
+    row.icon:SetTexture(r.item > 0 and ItemIcon(r.item) or SpellIcon(r.spell))
+    local sk = skills[P.sel]
+    local col = BandColor(r, sk and sk.rank or 1)
+    local name = SpellName(r.spell) or (r.item > 0 and ItemName(r.item)) or ("#" .. r.spell)
+    row.name:SetText(("|c%s%s|r"):format(col, name))
+    row.tag:SetText(d.known and ("|cff40c040" .. S.KNOWN .. "|r") or ("|cff909090" .. SrcLabel(r) .. "|r"))
+    if UI.simSel == r then
+        if row.bg.SetColorTexture then row.bg:SetColorTexture(1, 0.8, 0.2, 0.18) else row.bg:SetTexture(1, 0.8, 0.2, 0.18) end
     end
-    if not sel then
-        ft.name:SetText(S.FOOT_SELECT)
-        ft.req:SetText("")
-        ft.mats:SetText("")
-        ft.icon:SetTexture(QMARK)
-        ft.locate:Hide()
-        ft.one:Disable() ft.all:Disable() ft.qty:Hide()
+end
+local function LayoutSimRow(row, rh) IconSize(row, rh) end
+
+local function MakeStepRow(parent)
+    local row = RowBase(parent)
+    row.right = Label(row, nil, "GameFontHighlight", "num")
+    row.right:SetPoint("TOPRIGHT", -8, -5)
+    row.right:SetJustifyH("RIGHT")
+    row.t1 = Label(row, nil, "GameFontHighlight")
+    row.t1:SetPoint("TOPLEFT", row.icon, "TOPRIGHT", 8, 0)
+    row.t1:SetPoint("RIGHT", row.right, "LEFT", -8, 0)
+    row.t1:SetWordWrap(false)
+    row.t2 = Label(row, nil, "GameFontHighlightSmall")
+    row.t2:SetPoint("TOPLEFT", row.t1, "BOTTOMLEFT", 0, -2)
+    row.t2:SetPoint("RIGHT", row, "RIGHT", -8, 0)
+    row.t2:SetPoint("BOTTOM", row, "BOTTOM", 0, 3)
+    row.t2:SetWordWrap(true)
+    row.t2:SetJustifyV("TOP")
+    row.t2:SetTextColor(0.72, 0.72, 0.72)
+    Tip(row, function(tt, self) if self.link then tt:SetHyperlink(self.link) end end)
+    return row
+end
+local function FillStepRow(row, it, idx)
+    row.link = nil
+    row.right:SetText("")
+    row.t2:SetText("")
+    if it.kind == "head" then
+        if row.bg.SetColorTexture then row.bg:SetColorTexture(1, 0.8, 0.2, 0.10) else row.bg:SetTexture(1, 0.8, 0.2, 0.10) end
+        row.icon:Hide()
+        row.t1:ClearAllPoints()
+        row.t1:SetPoint("LEFT", 8, 0)
+        row.t1:SetPoint("RIGHT", row.right, "LEFT", -8, 0)
+        row.t1:SetText("|cffffd100" .. it.text .. "|r")
         return
     end
-    local r = sel.r
-    ft.icon:SetTexture(r.item > 0 and ItemIcon(r.item) or SpellIcon(r.spell))
-    local isKnown = known[r.spell] or SpellKnown(r.spell) or r.src == "a"
-    local name = SpellName(r.spell) or (r.item > 0 and ItemName(r.item)) or ("#" .. r.spell)
-    ft.name:SetText(name .. (isKnown and "" or "  |cff66ccff[" .. SrcLabel(r) .. "]|r"))
-    local focus = FocusLabel(r.spell)
-    ft.req:SetText(focus and ("|cffffd100" .. S.FOOT_REQ:format(focus) .. "|r") or ("|cff909090" .. S.FOOT_NOREQ .. "|r"))
-    local parts = {}
-    for _, rg in ipairs(r.reag) do
-        local have = GetItemCount and GetItemCount(rg[1]) or 0
-        local col = have >= rg[2] and "|cff40c040" or "|cffff8080"
-        parts[#parts + 1] = ("%d× %s %s(%s)|r"):format(rg[2], ItemName(rg[1]) or ("#" .. rg[1]), col, S.FOOT_HAVE:format(have))
+    Zebra(row, idx)
+    row.t1:ClearAllPoints()
+    row.t1:SetPoint("TOPLEFT", row.icon, "TOPRIGHT", 8, 0)
+    row.t1:SetPoint("RIGHT", row.right, "LEFT", -8, 0)
+    if it.kind == "note" then
+        row.icon:Hide()
+        row.t1:ClearAllPoints()
+        row.t1:SetPoint("LEFT", 8, 0)
+        row.t1:SetPoint("RIGHT", row, "RIGHT", -8, 0)
+        row.t1:SetText("|cff909090" .. it.text .. "|r")
+        return
     end
-    ft.mats:SetText(table.concat(parts, ",  "))
-    if (not isKnown) and r.set and r.set > 0 and (r.src == "t" or r.src == "v") then
-        ft.locate:SetText(r.src == "v" and S.GO_VENDOR or S.GO_TRAINER)
-        ft.locate:Show()
+    row.icon:Show()
+    if it.kind == "step" then
+        local st = it.st
+        local r = st.r
+        row.icon:SetTexture(r.item > 0 and ItemIcon(r.item) or SpellIcon(r.spell))
+        row.link = r.item > 0 and ("item:" .. r.item) or ("spell:" .. r.spell)
+        local name = SpellName(r.spell) or ("#" .. r.spell)
+        row.t1:SetText(("|cffffd100%d)|r %s  |cffffffff×%d|r"):format(it.i, name, st.crafts))
+        row.t2:SetText(S.SIM_USES:format(MatLine(r, st.crafts)))
+        row.right:SetText(st.final and ("|cff40c040" .. S.SIM_FINAL .. "|r") or "")
     else
-        ft.locate:Hide()
+        local b = it.b
+        row.icon:SetTexture(ItemIcon(b.id))
+        row.link = "item:" .. b.id
+        row.t1:SetText(("|cffffffff%d×|r %s"):format(b.n, ItemName(b.id) or ("#" .. b.id)))
+        row.t2:SetText(("%s  ·  %s"):format(S.FOOT_HAVE:format(b.have), b.unit and (S.UNIT .. ": " .. Money(b.unit)) or S.NOPRICE))
+        row.right:SetText(b.total and Money(b.total) or ("|cffff8080" .. S.NOPRICE .. "|r"))
     end
-    ft.qty:Show()
-    if isKnown then ft.one:Enable() ft.all:Enable() else ft.one:Disable() ft.all:Disable() end
 end
-
-function UI:BuildFoot(body)
-    local ft = Panel(body, 0.8)
-    ft:SetPoint("BOTTOMLEFT", 0, 0)
-    ft:SetPoint("BOTTOMRIGHT", 0, 0)
-    ft:SetHeight(FOOT)
-    self.foot = ft
-    ft.icon = ft:CreateTexture(nil, "ARTWORK")
-    ft.icon:SetSize(40, 40)
-    ft.icon:SetPoint("TOPLEFT", 10, -10)
-    ft.icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
-    ft.all = Btn(ft, S.BTN_CRAFTALL, 100, 24, function()
-        local sel = UI.sel
-        if not sel then return end
-        local n = CanMake(sel.r)
-        if n < 1 then print("|cffffd100Trailsmith:|r " .. S.MISSING) return end
-        if not TryCraft(sel.r, n) then
-            local p = PROF_BY_KEY[P.sel]
-            if p and p.spell and CastSpellByID then pcall(CastSpellByID, p.spell) print("|cffffd100Trailsmith:|r " .. S.MSG_CRAFT_OPEN)
-            else print("|cffffd100Trailsmith:|r " .. S.MSG_CRAFT_FAIL) end
-        end
-    end)
-    ft.all:SetPoint("BOTTOMRIGHT", -10, 10)
-    ft.one = Btn(ft, S.BTN_CRAFT, 80, 24, function()
-        local sel = UI.sel
-        if not sel then return end
-        local q = tonumber(ft.qty:GetText()) or 1
-        if not TryCraft(sel.r, max(1, q)) then
-            local p = PROF_BY_KEY[P.sel]
-            if p and p.spell and CastSpellByID then pcall(CastSpellByID, p.spell) print("|cffffd100Trailsmith:|r " .. S.MSG_CRAFT_OPEN)
-            else print("|cffffd100Trailsmith:|r " .. S.MSG_CRAFT_FAIL) end
-        end
-    end)
-    ft.one:SetPoint("RIGHT", ft.all, "LEFT", -6, 0)
-    ft.qty = TryCreate("EditBox", nil, ft, { "InputBoxTemplate" })
-    ft.qty:SetSize(36, 20)
-    ft.qty:SetPoint("RIGHT", ft.one, "LEFT", -10, 0)
-    ft.qty:SetAutoFocus(false)
-    ft.qty:SetNumeric(true)
-    ft.qty:SetMaxLetters(3)
-    ft.qty:SetText("1")
-    RegFont(ft.qty, "num")
-    ft.qty:SetScript("OnEscapePressed", function(s2) s2:ClearFocus() end)
-    ft.qty:SetScript("OnEnterPressed", function(s2) s2:ClearFocus() end)
-    ft.locate = Btn(ft, "", 150, 22, function() if UI.sel then Locate(UI.sel.r) end end)
-    ft.locate:SetPoint("TOPRIGHT", -10, -10)
-    ft.locate:Hide()
-    ft.name = Label(ft, "", "GameFontNormal")
-    ft.name:SetPoint("TOPLEFT", ft.icon, "TOPRIGHT", 10, 0)
-    ft.name:SetPoint("RIGHT", ft.locate, "LEFT", -8, 0)
-    ft.name:SetWordWrap(false)
-    ft.req = Label(ft, "", "GameFontHighlightSmall")
-    ft.req:SetPoint("TOPLEFT", ft.name, "BOTTOMLEFT", 0, -3)
-    ft.req:SetPoint("RIGHT", ft.locate, "LEFT", -8, 0)
-    ft.req:SetWordWrap(false)
-    ft.mats = Label(ft, "", "GameFontHighlightSmall")
-    ft.mats:SetPoint("TOPLEFT", ft.req, "BOTTOMLEFT", 0, -4)
-    ft.mats:SetPoint("RIGHT", ft.qty, "LEFT", -12, 0)
-    ft.mats:SetPoint("BOTTOM", ft, "BOTTOM", 0, 8)
-    ft.mats:SetWordWrap(true)
-    ft.mats:SetJustifyV("TOP")
-end
+local function LayoutStepRow(row, rh) IconSize(row, rh) end
 
 function UI:BuildCraft(f)
     local lp = Panel(f, 0.7)
@@ -1782,7 +2132,7 @@ function UI:BuildCraft(f)
         st:Add(b, 22, 0, 4, true)
         self.modeBtns[#self.modeBtns + 1] = b
     end
-    st:Add(Label(rp, S.SRC_TITLE, "GameFontNormalSmall"), 14, 0, 4, false, nil)
+    st:Add(Label(rp, S.SRC_TITLE, "GameFontNormalSmall"), 14, 0, 4)
     st.items[#st.items].gapBefore = 8
     local function Chk(label, key)
         local cb = Check(rp, label, function() return P[key] end, function(v) P[key] = v UI:Refresh() end, RIGHTW - 54)
@@ -1803,7 +2153,8 @@ function UI:BuildCraft(f)
         UI:Refresh()
     end)
     st:Add(self.provBtn, 22, 0, 8, true)
-    st:Add(Btn(rp, S.BTN_BLIZZ, RIGHTW - 20, 22, function() if ns.OpenBlizzProf then ns.OpenBlizzProf() end end), 22, 0, 0, true)
+    self.openCraft = MakeCreateButton(rp, S.BTN_CRAFTWIN, RIGHTW - 20, 24)
+    st:Add(self.openCraft, 24, 0, 0, true)
     self.syncs[#self.syncs + 1] = function()
         local pv = P.provider
         local name = pv == "auto" and S.OPT_AUTO or pv == "vendor" and S.OPT_VENDOR or pv
@@ -1815,7 +2166,7 @@ function UI:BuildCraft(f)
         self.provBtn:SetText(name)
     end
 
-    -- center
+    -- leveling tab (center)
     local cp = CreateFrame("Frame", nil, f)
     cp:SetPoint("TOPLEFT", M + LEFTW + GAP, -TOP)
     cp:SetPoint("BOTTOMRIGHT", -(M + RIGHTW + GAP), BOT)
@@ -1827,7 +2178,6 @@ function UI:BuildCraft(f)
     local body = CreateFrame("Frame", nil, cp)
     body:SetAllPoints()
     self.craftBody = body
-    self:BuildFoot(body)
 
     local function Box(label, after, dx)
         local cap = Label(body, label, "GameFontNormal")
@@ -1876,12 +2226,13 @@ function UI:BuildCraft(f)
     self.priceLine:SetJustifyH("RIGHT")
     self.priceLine:SetTextColor(0.7, 0.7, 0.7)
     self.noProf = Label(body, "", "GameFontHighlightSmall")
-    self.noProf:SetPoint("TOPLEFT", 4, -9)
-    self.noProf:SetPoint("TOPLEFT", maxb, "TOPRIGHT", 12, -3)
+    self.noProf:SetPoint("TOPLEFT", 4, -32)
+    self.noProf:SetPoint("RIGHT", -4, 0)
+    self.noProf:SetWordWrap(false)
     self.noProf:SetTextColor(1, 0.6, 0.3)
 
     self.cards = {}
-    local defs = { { "points", S.CARD_POINTS }, { "crafts", S.CARD_CRAFTS }, { "cost", S.CARD_COST }, { "time", S.CARD_TIME }, { "net", S.CARD_NET } }
+    local defs = { { "points", S.CARD_POINTS }, { "crafts", S.CARD_CRAFTS }, { "cost", S.CARD_BUY }, { "sell", S.CARD_SELL }, { "net", S.PROFIT } }
     for _, c in ipairs(defs) do
         local card = Panel(body, 0.7)
         local cap = Label(card, c[2], "GameFontNormalSmall")
@@ -1892,13 +2243,13 @@ function UI:BuildCraft(f)
         v:SetPoint("BOTTOMLEFT", 8, 7)
         v:SetPoint("RIGHT", -4, 0)
         v:SetWordWrap(false)
-        card.v = v
+        card.v, card.cap = v, cap
         self.cards[c[1]] = card
     end
 
     self.tabBtns = {}
-    for _, t in ipairs({ { "plan", S.PLAN }, { "mats", S.MATS }, { "recipes", S.RECIPES } }) do
-        local b = Btn(body, t[2], 110, 24, function() UI.tab = t[1] UI:Refresh() end)
+    for _, t in ipairs({ { "plan", S.PLAN }, { "mats", S.MATS } }) do
+        local b = Btn(body, t[2], 130, 24, function() UI.tab = t[1] UI:Refresh() end)
         b.tab = t[1]
         self.tabBtns[#self.tabBtns + 1] = b
     end
@@ -1907,11 +2258,10 @@ function UI:BuildCraft(f)
         p:Hide()
         return p
     end
-    self.planPane, self.matPane, self.recPane = SubPane(), SubPane(), SubPane()
-    self.planList = NewList(self.planPane, 0, ListHeight, MakePlanRow, FillPlanRow, LayoutPlanRow, 46)
+    self.planPane, self.matPane = SubPane(), SubPane()
+    self.planList = NewList(self.planPane, 0, ListHeight, MakePlanRow, FillPlanRow, LayoutPlanRow, 68)
 
     local mh = CreateFrame("Frame", nil, self.matPane)
-    mh.icon = nil
     MakeMatCols(mh, "GameFontNormalSmall", nil, nil)
     mh.name:SetText(S.MATSHDR)
     mh.need:SetText(S.NEED)
@@ -1922,19 +2272,99 @@ function UI:BuildCraft(f)
     self.matHeader = mh
     self.matList = NewList(self.matPane, 22, ListHeight, MakeMatRow, FillMatRow, LayoutMatRow, 30)
 
-    local sl = Label(self.recPane, S.SEARCH, "GameFontNormalSmall")
-    sl:SetPoint("TOPLEFT", 6, -6)
-    self.search = TryCreate("EditBox", nil, self.recPane, { "InputBoxTemplate" })
-    self.search:SetSize(200, 20)
-    self.search:SetPoint("LEFT", sl, "RIGHT", 10, 0)
-    self.search:SetAutoFocus(false)
-    RegFont(self.search)
-    self.search:SetScript("OnTextChanged", function() UI:Refresh() end)
-    self.search:SetScript("OnEscapePressed", function(s2) s2:ClearFocus() end)
-    local legend = Label(self.recPane, S.LEGEND, "GameFontHighlightSmall")
-    legend:SetPoint("TOPRIGHT", -24, -8)
-    legend:SetTextColor(0.7, 0.7, 0.7)
-    self.recList = NewList(self.recPane, 30, ListHeight, MakeRecRow, FillRecRow, LayoutRecRow, 30)
+    self:BuildSim(f)
+end
+
+function UI:BuildSim(f)
+    local sp = CreateFrame("Frame", nil, f)
+    sp:SetPoint("TOPLEFT", M + LEFTW + GAP, -TOP)
+    sp:SetPoint("BOTTOMRIGHT", -(M + RIGHTW + GAP), BOT)
+    sp:Hide()
+    self.simPane = sp
+    self.simLeftW = 230
+    self.simQty = 1
+    self.simNote = Label(sp, "", "GameFontHighlight")
+    self.simNote:SetPoint("TOPLEFT", 8, -20)
+    self.simNote:SetWidth(500)
+
+    local lp = Panel(sp, 0.7)
+    lp:SetPoint("TOPLEFT", 0, 0)
+    lp:SetPoint("BOTTOMLEFT", 0, 0)
+    lp:SetWidth(self.simLeftW)
+    self.simLeft = lp
+    local sl = Label(lp, S.SEARCH, "GameFontNormalSmall")
+    sl:SetPoint("TOPLEFT", 10, -12)
+    self.simSearch = TryCreate("EditBox", nil, lp, { "InputBoxTemplate" })
+    self.simSearch:SetPoint("LEFT", sl, "RIGHT", 10, 0)
+    self.simSearch:SetPoint("RIGHT", lp, "RIGHT", -12, 0)
+    self.simSearch:SetHeight(20)
+    self.simSearch:SetAutoFocus(false)
+    RegFont(self.simSearch)
+    self.simSearch:SetScript("OnTextChanged", function(_, user) if user then UI:Refresh() end end)
+    self.simSearch:SetScript("OnEscapePressed", function(s2) s2:ClearFocus() end)
+    self.simList = NewList(lp, 38, function() return UI.frame:GetHeight() - TOP - BOT end, MakeSimRow, FillSimRow, LayoutSimRow, 30)
+
+    local dp = Panel(sp, 0.7)
+    dp:SetPoint("TOPLEFT", self.simLeftW + GAP, 0)
+    dp:SetPoint("BOTTOMRIGHT", 0, 0)
+    self.simDetail = dp
+    dp.icon = dp:CreateTexture(nil, "ARTWORK")
+    dp.icon:SetSize(42, 42)
+    dp.icon:SetPoint("TOPLEFT", 10, -10)
+    dp.icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+    dp.locate = Btn(dp, "", 150, 22, function() if UI.simSel then Locate(UI.simSel) end end)
+    dp.locate:SetPoint("TOPRIGHT", -10, -10)
+    dp.locate:Hide()
+    dp.name = Label(dp, "", "GameFontNormalLarge")
+    dp.name:SetPoint("TOPLEFT", dp.icon, "TOPRIGHT", 10, -1)
+    dp.name:SetPoint("RIGHT", dp.locate, "LEFT", -8, 0)
+    dp.name:SetWordWrap(false)
+    dp.info = Label(dp, "", "GameFontHighlightSmall")
+    dp.info:SetPoint("TOPLEFT", dp.name, "BOTTOMLEFT", 0, -6)
+    dp.info:SetPoint("RIGHT", dp, "RIGHT", -10, 0)
+    dp.info:SetWordWrap(false)
+    local ql = Label(dp, S.SIM_QTY, "GameFontNormal")
+    ql:SetPoint("TOPLEFT", 10, -66)
+    dp.qty = TryCreate("EditBox", nil, dp, { "InputBoxTemplate" })
+    dp.qty:SetSize(54, 20)
+    dp.qty:SetPoint("LEFT", ql, "RIGHT", 10, 0)
+    dp.qty:SetAutoFocus(false)
+    dp.qty:SetNumeric(true)
+    dp.qty:SetMaxLetters(3)
+    RegFont(dp.qty, "num")
+    dp.qty:SetScript("OnTextChanged", function(self2, user)
+        if not user then return end
+        local n = tonumber(self2:GetText())
+        if n and n >= 1 then LogOpt("simulator quantity", n) UI.simQty = n UI:Refresh() end
+    end)
+    dp.qty:SetScript("OnEnterPressed", function(s2) s2:ClearFocus() end)
+    dp.qty:SetScript("OnEscapePressed", function(s2) s2:ClearFocus() end)
+    dp.own = Check(dp, S.SIM_USEOWNED, function() return P.simOwned ~= false end, function(v) P.simOwned = v UI:Refresh() end, 300)
+    dp.own:SetPoint("LEFT", dp.qty, "RIGHT", 16, 0)
+
+    self.simCards = {}
+    for _, c in ipairs({ { "cost", S.CARD_BUY }, { "sell", S.CARD_SELL }, { "net", S.PROFIT } }) do
+        local card = Panel(dp, 0.7)
+        local cap = Label(card, c[2], "GameFontNormalSmall")
+        cap:SetPoint("TOPLEFT", 8, -7)
+        cap:SetPoint("RIGHT", -6, 0)
+        cap:SetWordWrap(false)
+        local v = Label(card, "", "GameFontHighlight", "num")
+        v:SetPoint("BOTTOMLEFT", 8, 7)
+        v:SetPoint("RIGHT", -4, 0)
+        v:SetWordWrap(false)
+        card.v, card.cap = v, cap
+        self.simCards[c[1]] = card
+    end
+    self.simSteps = NewList(dp, 150, function() return UI.frame:GetHeight() - TOP - BOT - 46 end, MakeStepRow, FillStepRow, LayoutStepRow, 46)
+    dp.pin = Btn(dp, S.BTN_PIN, 200, 24, function()
+        local r = UI.simSel
+        if r then PinRecipe(P.sel, r, UI.simQty or 1) UI:Refresh() end
+    end)
+    dp.pin:SetPoint("BOTTOMLEFT", 10, 10)
+    dp.create = MakeCreateButton(dp, S.BTN_CRAFTWIN, 260, 24)
+    dp.create:SetPoint("BOTTOMRIGHT", -10, 10)
+    self.simStepsHost = dp
 end
 
 function UI:BuildGather(pane)
@@ -2054,9 +2484,9 @@ function UI:Build()
 
     -- top tabs
     self.topBtns = {}
-    for i, t in ipairs({ { "craft", S.TAB_CRAFT }, { "gather", S.TAB_GATHER }, { "settings", S.SETTINGS } }) do
-        local b = Btn(f, t[2], 118, 24, function() UI.top = t[1] UI:Refresh() end)
-        b:SetPoint("TOPLEFT", M + (i - 1) * 122, -34)
+    for i, t in ipairs({ { "craft", S.TAB_LEVEL }, { "sim", S.TAB_SIM }, { "gather", S.TAB_GATHER }, { "settings", S.SETTINGS } }) do
+        local b = Btn(f, t[2], 150, 24, function() UI.top = t[1] UI:Refresh() end)
+        b:SetPoint("TOPLEFT", M + (i - 1) * 154, -34)
         b.top = t[1]
         self.topBtns[i] = b
     end
@@ -2119,13 +2549,26 @@ local function Setup()
             if type(v) == "table" then P[k] = {} else P[k] = v end
         end
     end
+    -- the game's own K window must stay untouched: older versions took the key over, so switch that off once
+    if P.keyVersion ~= 2 then
+        P.keyVersion = 2
+        P.useKey = false
+        P.key = ""
+        Log("migration: key takeover switched off")
+    end
     return true
 end
 
-function ns.OpenProf(arg)
+function ns.OpenProf(arg, top)
     if not P and not Setup() then return end
-    Log("open/toggle window arg=%s", tostring(arg))
+    Log("open/toggle window arg=%s top=%s", tostring(arg), tostring(top))
     if not UI.frame then UI:Build() end
+    if top then
+        UI.top = top
+        UI.frame:Show()
+        UI:Refresh()
+        return
+    end
     arg = arg and arg:lower() or ""
     if arg ~= "" then
         for _, p in ipairs(PROFS) do
@@ -2141,16 +2584,46 @@ ev:RegisterEvent("SKILL_LINES_CHANGED")
 ev:RegisterEvent("GET_ITEM_INFO_RECEIVED")
 ev:RegisterEvent("TRADE_SKILL_SHOW")
 ev:RegisterEvent("PLAYER_REGEN_ENABLED")
+ev:RegisterEvent("BAG_UPDATE_DELAYED")
 local pending = false
+local simBtn
+local function EnsureSimButton()
+    local parent = _G.TradeSkillFrame or _G.ProfessionsFrame or _G.CraftFrame
+    if not parent then Log("simulation button: no profession frame found") return end
+    if not simBtn then
+        simBtn = TryCreate("Button", "TrailsmithSimButton", parent, { "UIPanelButtonTemplate" })
+        simBtn:SetSize(120, 22)
+        simBtn:SetText(S.SIM_BTN)
+        simBtn:SetScript("OnClick", Safe("simulation button", function()
+            Log("Simulation button clicked on the game's crafting window")
+            ns.OpenProf(nil, "sim")
+        end))
+        Log("simulation button created on %s", tostring(parent.GetName and parent:GetName()))
+    end
+    simBtn:SetParent(parent)
+    simBtn:ClearAllPoints()
+    simBtn:SetPoint("BOTTOMRIGHT", parent, "TOPRIGHT", -12, -4)
+    simBtn:SetFrameStrata(parent:GetFrameStrata())
+    simBtn:SetFrameLevel((parent:GetFrameLevel() or 1) + 10)
+    simBtn:Show()
+end
 ev:SetScript("OnEvent", function(_, event)
     if event == "PLAYER_LOGIN" then
         if Setup() then
             Log("== login")
             pcall(Env)
             ApplyKey()
+            Tracker:Refresh()
+        end
+    elseif event == "BAG_UPDATE_DELAYED" then
+        if P and P.track then Tracker:Refresh() end
+        if UI.frame and UI.frame:IsShown() and UI.top == "sim" and not pending then
+            pending = true
+            C_Timer.After(0.3, function() pending = false UI:Refresh() end)
         end
     elseif event == "PLAYER_REGEN_ENABLED" then
         if UI.keyPending then ApplyKey() end
+        FlushCreateTargets()
     elseif event == "GET_ITEM_INFO_RECEIVED" or event == "SKILL_LINES_CHANGED" then
         if UI.frame and UI.frame:IsShown() and not pending then
             pending = true
@@ -2169,6 +2642,7 @@ ev:SetScript("OnEvent", function(_, event)
             local k = nameToKey[n:lower()]
             Log("trade skill window opened: %s -> %s", tostring(n), tostring(k))
             if k then P.sel = k end
+            pcall(EnsureSimButton)
         end
     end
 end)
@@ -2248,5 +2722,6 @@ SlashCmdList.TRAILSMITHPROF = Safe("slash", function(msg)
         end
         return
     end
+    if m:match("^sim") then ns.OpenProf(nil, "sim") return end
     ns.OpenProf(msg)
 end)

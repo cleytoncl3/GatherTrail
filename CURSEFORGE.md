@@ -6,7 +6,7 @@
 
 # Trailsmith
 
-Trailsmith is a toolkit for **gathering and crafting**: a gathering guide for **Mining** and **Herbalism**, a **profession leveling planner**, a smart autoloot, and an optional **Combat Tutor**. It points you to the nearest node you can actually gather, draws icons on the minimap and the world map, and keeps the screen clean with filters. It also includes an autoloot made for gatherers.
+Trailsmith is a toolkit for **gathering and crafting**: a gathering guide for **Mining** and **Herbalism**, a **crafting simulator**, a smart autoloot, and an optional **Combat Tutor**. It points you to the nearest node you can actually gather, draws icons on the minimap and the world map, and keeps the screen clean with filters. It also includes an autoloot made for gatherers.
 
 > Trailsmith only **shows information**. It never moves, targets, casts or clicks for your character.
 
@@ -25,17 +25,16 @@ Trailsmith is a toolkit for **gathering and crafting**: a gathering guide for **
   - *Quest and gold autoloot*: on mobs and containers, takes only **money and quest items** and leaves the rest in the loot window.
 - **Languages**: English, Espanol and Portugues, picked automatically from your game client.
 
-## Profession planner (on by default)
+## Crafting simulator (on by default)
 
-Open it with the **K** key (you can change the key or turn this off in Settings; the old action of K stays on Shift+K), `/tsp`, `/gt prof`, Shift + click on the minimap button, or the button in the General tab. The window has top tabs (**Crafting**, **Gathering**, **Settings**) and a square icon per profession on the left.
+A companion to the game's crafting window: it never replaces it and never crafts for you. Open it with **Shift + click on the minimap button**, the button in the General options tab, `/tsp`, or the **Simulation** button that appears next to the game's own crafting window. The K key and the game's crafting window stay exactly as they are.
 
-- Choose a profession: Alchemy, Blacksmithing, Cooking, Enchanting, Engineering, First Aid, Leatherworking, Mining (smelting) or Tailoring.
-- Set **from** and **to** skill (one click fills in your current skill and your max) and read a step-by-step plan: which recipe to craft at each skill range, how many crafts, which materials, and what it costs.
-- Three modes: **Cheapest**, **Best profit** (counts what the crafted items sell for) and **Fewest crafts**.
-- **Materials** tab: a shopping list of raw materials with how many you already own. **Recipes** tab: every recipe with its difficulty bands (orange / yellow / green / grey), where you learn it, and its cost.
-- **Prices** come from Auctionator, TradeSkillMaster or Auctioneer (picked automatically, or choose in Settings). Without one of them it falls back to vendor values. Tick *I gather raw materials myself* to count ores, herbs and leather as free.
-- Recipes you already know are used first. You choose which other sources are allowed: trainer, vendor-sold recipes, recipe items (drops and quests), or unknown source.
-- Four window skins, plus scale and opacity sliders. Works in English, Spanish and Portuguese.
+- **Profession leveling**: choose a profession and a skill range (from 1 to 300, or from your current skill) and get a step-by-step plan: which recipe to craft, how many times, the materials, what to buy at market price, what the crafted items sell for, and the profit or loss. Three modes: cheapest, best profit, fewest crafts. Recipes you still have to learn show a **Find trainer** button that marks the nearest trainer on the world map.
+- **Simulator**: pick any recipe and a quantity. You get the full step-by-step (including intermediate items such as bars, which can come from a profession you have), a shopping list with prices, the total cost, the sale value and the profit or loss. It can use what you already have in your bags.
+- **Pin to screen**: a small movable list like a quest tracker. Items turn green when you have them, and raw materials are shown for items you still have to craft.
+- **Open the game's crafting window** buttons open the real profession window for the recipe; the game does the crafting.
+- **Prices** come from Auctionator, TradeSkillMaster or Auctioneer (picked automatically, or choose in Settings), with vendor values as a fallback. You can count raw materials as free if you gather them yourself.
+- Four tabs: Profession leveling, Simulator, Gathering and Settings. Resizable window, text that scales with it, English, Spanish and Portuguese.
 - The recipe database (about 2,500 recipes) is built from public data (see Credits). Skill-up odds are estimates, and a few recipe requirements are estimated too.
 
 ## Combat Tutor (optional module, off by default)
