@@ -1,24 +1,87 @@
-# Texto para a página do CurseForge (copie e cole)
+# Text for the CurseForge project page (copy and paste)
 
-**Resumo (uma linha):** Guia de coleta: seta, linha e ícones para minérios e ervas, filtro por recurso, preços do Auctionator e autoloot inteligente.
+**Summary (one line):** Gathering guide: arrow, line and icons for ore and herbs, per-resource filter, Auctionator prices and smart autoloot.
 
-## English
-GatherTrail shows where mining nodes and herbs are: a directional arrow to the nearest one you can gather, icons on the minimap and world map (green = your skill is enough, red = too low), a per-resource filter with Auctionator prices, and autoloot for gathering plus a smart autoloot for mobs (gold and quest items only). It learns confirmed spawns when you gather or hover them on the minimap. Menu in English, Español and Português, picked from your game language.
+---
 
-It only shows information. It never moves or acts for your character. Optional starter database: GatherTrailData (data from GatherMate2, GPL).
+# GatherTrail
 
-## Español
-GatherTrail muestra dónde hay vetas y hierbas: una flecha hacia la más cercana que puedes recoger, iconos en el minimapa y en el mapa del mundo (verde = tu habilidad alcanza, rojo = insuficiente), filtro por recurso con precios de Auctionator, botín automático de recolección y botín inteligente para mobs (solo oro y objetos de misión). Aprende puntos confirmados al recolectar o pasar el ratón por el minimapa. El menú sigue el idioma del juego.
+GatherTrail is a gathering guide for **Mining** and **Herbalism**. It points you to the nearest node you can actually gather, draws icons on the minimap and the world map, and keeps the screen clean with filters. It also includes an autoloot made for gatherers.
 
-Solo muestra información: nunca mueve ni actúa por tu personaje.
+> GatherTrail only **shows information**. It never moves, targets, casts or clicks for your character.
 
-## Português
-O GatherTrail mostra onde há veios e ervas: seta até o mais próximo que você consegue coletar, ícones no minimapa e no mapa-múndi (verde = sua skill alcança, vermelho = insuficiente), filtro por recurso com preços do Auctionator, autoloot de coleta e autoloot inteligente para mobs (só dinheiro e itens de missão). Aprende pontos confirmados ao coletar ou passar o mouse no minimapa. O menu segue o idioma do jogo.
+## What you get
 
-Só mostra informação: nunca move nem age pelo seu personagem.
+- **Directional arrow** to the nearest node your skill can gather, with its name and distance. Move it with Shift+drag. A **Skip** button hides a node that turned out to be empty (Shift+click removes it for good).
+- **Minimap and world map icons**, round and clean:
+  - green ring = your skill is high enough, red ring (grey icon) = your skill is too low;
+  - ores use the icon of the smelted bar, so Tin and Gold are easy to tell apart;
+  - **transparency scales with rarity**: common nodes (Copper, Tin) fade out, rare ones (Mithril, Thorium, ...) stay visible. You choose the base transparency and the icon size.
+- **Line on the minimap** to the closest node, drawn only when the node is confirmed.
+- **Adjustable range**, 50 to 2000 yards. Only nodes inside the circle around you are shown.
+- **Resources tab** with every ore and herb: tick or untick each one, see the skill it needs, and see its **current Auctionator price** (from your last Auctionator scan). Sort by price, or press **Best value only** to keep just the 5 most expensive nodes your skill can gather. A slider can also hide nodes far below your skill.
+- **Smart autoloot**:
+  - *Gathering autoloot*: after mining, picking herbs or skinning, loots everything from that gather automatically (works with the game autoloot turned off);
+  - *Quest and gold autoloot*: on mobs and containers, takes only **money and quest items** and leaves the rest in the loot window.
+- **Languages**: English, Espanol and Portugues, picked automatically from your game client.
 
-## Licença
-MIT.
+## How it finds nodes (read this)
 
-## Dependências no CurseForge
-Na página do projeto, em *Relations*, adicione **GatherTrailData** como dependência **opcional** (recomendada). Sem ele o addon só mostra os pontos que você aprender.
+The game draws the nodes of *Find Minerals* / *Find Herbs* on the minimap itself and **does not give their positions to addons**. No addon can read them, so GatherTrail works from known locations:
+
+1. **Starter database** (optional, recommended): install **GatherTrailData**, which carries node locations from GatherMate2 data.
+2. **What you gather**: when you gather a node, its exact location is saved as *confirmed*.
+3. **Minimap hover**: with tracking on, hovering a node on the minimap shows its name; GatherTrail learns it and snaps it to the nearest known location.
+4. **Auto-hide empty points**: if you rest the mouse on a GatherTrail icon on the minimap with tracking on and the game shows nothing there, the point is hidden for a while (you choose how long).
+
+So the icons show **where nodes can be**, and the game's own tracking shows what is up *right now*. Use both together.
+
+## Setup
+
+1. Install GatherTrail and **GatherTrailData** (optional dependency; without it only points you learn yourself are shown).
+2. Learn *Find Minerals* / *Find Herbs* tracking if your class has it (optional but useful).
+3. Open the options with `/gt` or by clicking the minimap button.
+
+## Options
+
+- **General**: enable, autoloot types, which gathering professions to track, starter database, learning from minimap hover, auto-hide empty points, test mode (shows the arrow so you can move it), detection range, respawn hide time.
+- **Display**: arrow, lock arrow position, minimap button, minimap icons, world map icons, line to confirmed nodes, red nodes, only confirmed points, icon size, transparency, arrow size.
+- **Resources**: per-resource list with skill and Auctionator price, hide nodes far below your skill, sort and best-value buttons.
+
+The options window can be resized from its bottom-right corner.
+
+## Commands
+
+`/gt` or `/gathertrail` opens the options.
+
+- `/gt range <50-2000>`: set the detection range
+- `/gt test`: toggle test mode (show the arrow so you can drag it)
+- `/gt lock`: lock or unlock the arrow
+- `/gt skip` / `/gt skip always`: skip the current node for a while / forever
+- `/gt unskip`: bring skipped nodes back
+- `/gt toggle`: enable or disable the addon
+- `/gt scan`: print what is known around you
+- `/gt clear`: delete saved nodes
+- `/gt debug`, `/gt map`, `/gt probe`: diagnostics
+
+Minimap button: **left click** opens the options, **right click** enables or disables the addon, **drag** moves the button. There is also a key binding for *Skip current point* under Key Bindings > AddOns.
+
+## FAQ
+
+**Does it show nodes that are spawned right now?** No. The game does not expose that to addons. It shows known locations; use the game tracking for live spawns.
+
+**Is it safe to use?** Yes. It only reads public API data and draws information. It does not automate anything.
+
+**Prices are missing.** Prices come from the last Auctionator scan. Install Auctionator and scan the auction house.
+
+**Does it need GatherTrailData?** Not to run, but without it only the points you learn yourself are shown.
+
+## Credits and license
+
+- Starter locations: GatherMate2 data by kagaro, Xinhuan and Nevcairiel (GPL), shipped separately as GatherTrailData.
+- Optional prices: Auctionator.
+- GatherTrail itself is MIT licensed.
+
+## Project setup notes (for the author, not for the page)
+
+On the project page, under *Relations*, add **GatherTrailData** as an **optional** dependency.
