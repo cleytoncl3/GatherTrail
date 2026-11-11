@@ -111,6 +111,94 @@ for (const a of sla) {
 }
 console.log(stats, "difficulty ranges filled from Anniversary data:", patched);
 
+// ---- NPC locations (trainers and recipe vendors) converted to world map coordinates
+const ftpl = {};
+for (const r of csv("FactionTemplate.csv")) ftpl[r.ID] = r;
+function facOf(id) { // 1 alliance only, 2 horde only, 0 both
+  const f = ftpl[id]; if (!f) return 0;
+  const g = +f.FactionGroup, fr = +f.FriendGroup;
+  const a = (g & 2) || (fr & 2), h = (g & 4) || (fr & 4);
+  return a && !h ? 1 : h && !a ? 2 : 0;
+}
+const NOT_ZONE = new Set(["1414", "1415", "1463", "1464", "947"]);
+const assigns = [];
+for (const r of csv("UiMapAssignment.csv")) {
+  if (NOT_ZONE.has(r.UiMapID)) continue;
+  const a = { ui: +r.UiMapID, map: +r.MapID, minX: +r.Region_0, minY: +r.Region_1, maxX: +r.Region_3, maxY: +r.Region_4 };
+  a.area = (a.maxX - a.minX) * (a.maxY - a.minY);
+  assigns.push(a);
+}
+function toMap(map, X, Y) {
+  let best;
+  for (const a of assigns) {
+    if (a.map !== map || X < a.minX || X > a.maxX || Y < a.minY || Y > a.maxY) continue;
+    if (!best || a.area < best.area) best = a;
+  }
+  if (!best) return null;
+  return { ui: best.ui, x: (best.maxY - Y) / (best.maxY - best.minY), y: (best.maxX - X) / (best.maxX - best.minX) };
+}
+const cT = {};
+for (const r of P.rows("creature_template", ["Entry", "Name", "Faction", "NpcFlags", "TrainerTemplateId", "VendorTemplateId"]))
+  cT[r[0]] = { name: r[1], faction: +r[2], ttpl: +r[4], vtpl: +r[5] };
+const spawns = {};
+for (const [id, map, x, y] of P.rows("creature", ["id", "map", "position_x", "position_y"]))
+  if (map === "0" || map === "1") (spawns[id] = spawns[id] || []).push([+map, +x, +y]);
+// trainer -> craft spells
+const trainSpells = {}; // npc entry -> Set(spell)
+function addT(npc, spell) { (trainSpells[npc] = trainSpells[npc] || new Set()).add(spell); }
+for (const [entry, spell] of P.rows("npc_trainer", ["entry", "spell"])) addT(entry, teach[+spell] || +spell);
+const tplSpells = {};
+for (const [entry, spell] of P.rows("npc_trainer_template", ["entry", "spell"])) (tplSpells[entry] = tplSpells[entry] || new Set()).add(teach[+spell] || +spell);
+for (const id in cT) if (cT[id].ttpl && tplSpells[cT[id].ttpl]) for (const sp of tplSpells[cT[id].ttpl]) addT(id, sp);
+// vendors: item -> npc entries
+const vendItems = {};
+function addV(item, npc) { (vendItems[item] = vendItems[item] || new Set()).add(npc); }
+for (const [entry, item] of P.rows("npc_vendor", ["entry", "item"])) addV(+item, entry);
+const vtplItems = {};
+for (const [entry, item] of P.rows("npc_vendor_template", ["entry", "item"])) (vtplItems[entry] = vtplItems[entry] || new Set()).add(+item);
+for (const id in cT) if (cT[id].vtpl && vtplItems[cT[id].vtpl]) for (const it of vtplItems[cT[id].vtpl]) addV(it, id);
+
+const spots = []; const spotIdx = {}; const npcSpots = {};
+function spotsOf(npc) {
+  if (npcSpots[npc]) return npcSpots[npc];
+  const out = []; const seen = [];
+  for (const [map, X, Y] of spawns[npc] || []) {
+    const m = toMap(map, X, Y);
+    if (!m) continue;
+    if (seen.some(q => q.ui === m.ui && Math.hypot(q.x - m.x, q.y - m.y) < 0.012)) continue;
+    seen.push(m);
+    const x = Math.round(m.x * 10000), y = Math.round(m.y * 10000);
+    const name = (cT[npc] ? cT[npc].name : "?").replace(/[|"\\]/g, "");
+    const fac = cT[npc] ? facOf(cT[npc].faction) : 0;
+    const key = name + "|" + fac + "|" + m.ui + "|" + x + "|" + y;
+    if (spotIdx[key] === undefined) { spots.push(key); spotIdx[key] = spots.length; }
+    out.push(spotIdx[key]);
+  }
+  npcSpots[npc] = out;
+  return out;
+}
+const sets = []; const setIdx = {}; let withSet = 0, withoutSet = 0;
+for (const p of PROF) for (const r of recipes[p.key]) {
+  let npcs = [];
+  if (r.src === "t") for (const n in trainSpells) { if (trainSpells[n].has(r.spell)) npcs.push(n); }
+  else if (r.src === "v" && vendItems[r.srcItem]) npcs = [...vendItems[r.srcItem]];
+  const ids = new Set();
+  for (const n of npcs) for (const i of spotsOf(n)) ids.add(i);
+  if (ids.size === 0) { r.set = 0; if (r.src === "t" || r.src === "v") withoutSet++; continue; }
+  const k = [...ids].sort((a, b) => a - b).join(",");
+  if (!setIdx[k]) { sets.push(k); setIdx[k] = sets.length; }
+  r.set = setIdx[k]; withSet++;
+}
+console.log("recipes with NPC locations:", withSet, "without:", withoutSet, "spots:", spots.length, "sets:", sets.length);
+
+// ---- tools / focus objects (forge, anvil, cooking fire...)
+const focusNames = {}; for (const r of csv("SpellFocusObject.csv")) focusNames[r.ID] = r.Name_lang;
+const focusBySpell = {};
+for (const r of csv("SpellCastingRequirements.csv")) if (+r.RequiresSpellFocus > 0) focusBySpell[r.SpellID] = +r.RequiresSpellFocus;
+const recFocus = {}; const usedFocus = {};
+for (const p of PROF) for (const r of recipes[p.key]) if (focusBySpell[r.spell]) { recFocus[r.spell] = focusBySpell[r.spell]; usedFocus[focusBySpell[r.spell]] = true; }
+console.log("focus objects used:", Object.keys(usedFocus).map(i => i + "=" + focusNames[i]).join(", "));
+
 // ---- emit
 const lines = [];
 lines.push("-- GENERATED FILE (tools/build_recipes.js). Do not edit by hand.");
@@ -125,12 +213,26 @@ for (const p of PROF) {
   for (const r of recipes[p.key]) {
     const rg = r.reag.map(([i, n]) => i + ":" + n).join(",");
     // spell|req|low|high|item|qty|src|srcItem|reagents
-    lines.push(`    "${r.spell}|${r.req}|${r.low}|${r.high}|${r.item}|${r.qty}|${r.src}|${r.srcItem}|${rg}",`);
+    lines.push(`    "${r.spell}|${r.req}|${r.low}|${r.high}|${r.item}|${r.qty}|${r.src}|${r.srcItem}|${rg}|${r.set || ""}",`);
   }
   lines.push("  } },");
 }
 lines.push("}");
 // item meta: sell price, vendor buy price (only when a vendor sells it without limit)
+lines.push("-- NPC spots: name|faction(0 both,1 alliance,2 horde)|uiMapID|x*10000|y*10000");
+lines.push("ns.Spots = {");
+spots.forEach((sp, i) => lines.push("  " + JSON.stringify(sp) + ", -- " + (i + 1)));
+lines.push("}");
+lines.push("ns.SpotSets = {");
+sets.forEach((st, i) => lines.push("  " + JSON.stringify(st) + ", -- " + (i + 1)));
+lines.push("}");
+lines.push("-- recipe spell -> required nearby object (forge, anvil...)");
+lines.push("ns.RecipeFocus = {");
+for (const sp in recFocus) lines.push("  [" + sp + "] = " + recFocus[sp] + ",");
+lines.push("}");
+lines.push("ns.FocusNames = {");
+for (const id in usedFocus) lines.push("  [" + id + "] = " + JSON.stringify(focusNames[id]) + ",");
+lines.push("}");
 lines.push("-- itemId = \"sellPrice|vendorBuyPrice\" (vendorBuyPrice 0 = not sold by vendors)");
 lines.push("ns.ItemData = {");
 const ids = Object.keys(itemsUsed).map(Number).sort((a, b) => a - b);

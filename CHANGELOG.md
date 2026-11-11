@@ -1,5 +1,11 @@
 # Trailsmith
 
+## 1.3.2
+- Recipes you still have to learn now have a **Find trainer / Find vendor** button. It picks the nearest one for your faction, opens the world map on the right zone, marks it with a pin (and a map waypoint or TomTom arrow when available) and prints the name and coordinates in chat.
+- New footer in the Crafting tab, like the default crafting window: selected recipe, required station (forge, anvil, loom, cooking fire...), materials with how many you have, and Craft / Craft all buttons.
+- Layout fixes: the crafting options panel no longer overlaps (long labels wrap and spacing follows the text size), smaller numbers in the summary cards, wider profession list so names such as First Aid are not cut.
+- The recipe database now includes about 280 trainer and vendor locations (converted to world-map coordinates) and the station each recipe needs.
+
 ## 1.3.1
 - Profession window redesigned in the standard WoW style (same frame and red buttons as the Trailsmith options). Profession list with names on the left, crafting options (mode, recipe sources, prices) in a panel on the right, plan/materials/recipes in the middle.
 - The window can be resized by dragging the bottom-right corner, and the text scales with the window size. + / - buttons on the title bar change the window scale; sliders for text and number size in Settings.

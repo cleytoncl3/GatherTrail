@@ -15,6 +15,10 @@ LOC.en = {
     G_AUTOLOOTQ = "Quest and gold autoloot", G_AUTOHIDE = "Auto-hide empty points", G_HOVER = "Learn nodes when hovering the minimap", G_RANGE = "Range", BTN_FULLOPT = "Open full options",
     CRAFTOPT = "Crafting options", MODE_TITLE = "Plan mode", SRC_TITLE = "Recipe sources", PRICE_TITLE = "Prices",
     OPT_AUTOTEXT = "Scale text with the window size", BTN_RESETSIZE = "Reset window size and text",
+    GO_TRAINER = "Find trainer", GO_VENDOR = "Find vendor", FOOT_REQ = "Requires: %s", FOOT_NOREQ = "No special tool or station needed", FOOT_HAVE = "have %d",
+    BTN_CRAFT = "Craft", BTN_CRAFTALL = "Craft all", MSG_CRAFT_OPEN = "Opening the profession window. Click Craft again.", MSG_CRAFT_FAIL = "Could not start the craft. Open the profession window and try again.",
+    MSG_NEAREST = "Nearest %s: %s in %s (%.1f, %.1f). Marked on the map.", MSG_NOSPOT = "No known location for this recipe.", FOOT_SELECT = "Click a recipe to see its details here.",
+    FOCUS = { Anvil = "Anvil", Forge = "Forge", Loom = "Loom", ["Cooking Fire"] = "Cooking fire", ["Alchemy Lab"] = "Alchemy lab", ["Tanning Rack"] = "Tanning rack", ["Spinning Wheel"] = "Spinning wheel", ["Master Forge"] = "Master forge", ["Iron Oven"] = "Iron oven" },
     TITLE = "Trailsmith Professions", PLAN = "Plan", MATS = "Materials", RECIPES = "Recipes", SETTINGS = "Settings",
     FROM = "From", TO = "To", MYSKILL = "My skill", MAXSKILL = "Max",
     MODE_CHEAP = "Cheapest", MODE_PROFIT = "Best profit", MODE_FAST = "Fewest crafts",
@@ -29,7 +33,7 @@ LOC.en = {
     OPT_GATHER = "I gather raw materials myself (count them as free)",
     OPT_KNOWN = "Use only recipes I already know",
     OPT_SRC_T = "Allow trainer recipes", OPT_SRC_V = "Allow recipes sold by vendors", OPT_SRC_I = "Allow recipe items (drops, quests, rare)", OPT_SRC_U = "Allow recipes of other or unknown source",
-    OPT_PROVIDER = "Price source", OPT_SKIN = "Skin", OPT_SCALE = "Window scale", OPT_ALPHA = "Window opacity", OPT_AUTO = "Automatic",
+    OPT_PROVIDER = "Price source", OPT_SKIN = "Skin", OPT_SCALE = "Window scale", OPT_ALPHA = "Window opacity", OPT_AUTO = "Auto",
     OPT_AHCUT = "Subtract the 5% auction house cut when selling", OPT_VENDOR = "Vendor only",
     UNIT_MIN = "min", CRAFT_X = "%d crafts", ORANGE = "orange", YELLOW = "yellow", GREEN = "green", GREY = "grey",
     LEGEND = "Difficulty: orange / yellow / green / grey",
@@ -47,6 +51,10 @@ LOC.es = {
     G_AUTOLOOTQ = "Autobotín de misión y oro", G_AUTOHIDE = "Ocultar puntos vacíos automáticamente", G_HOVER = "Aprender nodos al pasar por el minimapa", G_RANGE = "Alcance", BTN_FULLOPT = "Abrir opciones completas",
     CRAFTOPT = "Opciones de fabricación", MODE_TITLE = "Modo del plan", SRC_TITLE = "Fuentes de recetas", PRICE_TITLE = "Precios",
     OPT_AUTOTEXT = "Escalar el texto con el tamaño de la ventana", BTN_RESETSIZE = "Restablecer tamaño de ventana y texto",
+    GO_TRAINER = "Buscar instructor", GO_VENDOR = "Buscar vendedor", FOOT_REQ = "Requiere: %s", FOOT_NOREQ = "No necesita herramienta ni estación", FOOT_HAVE = "tienes %d",
+    BTN_CRAFT = "Crear", BTN_CRAFTALL = "Crear todo", MSG_CRAFT_OPEN = "Abriendo la ventana de profesión. Pulsa Crear de nuevo.", MSG_CRAFT_FAIL = "No se pudo iniciar la creación. Abre la ventana de profesión e inténtalo de nuevo.",
+    MSG_NEAREST = "%s más cercano: %s en %s (%.1f, %.1f). Marcado en el mapa.", MSG_NOSPOT = "No se conoce la ubicación de esta receta.", FOOT_SELECT = "Haz clic en una receta para ver sus detalles aquí.",
+    FOCUS = { Anvil = "Yunque", Forge = "Forja", Loom = "Telar", ["Cooking Fire"] = "Fuego de cocina", ["Alchemy Lab"] = "Laboratorio de alquimia", ["Tanning Rack"] = "Caballete de curtido", ["Spinning Wheel"] = "Rueca", ["Master Forge"] = "Forja maestra", ["Iron Oven"] = "Horno de hierro" },
     TITLE = "Trailsmith Profesiones", PLAN = "Plan", MATS = "Materiales", RECIPES = "Recetas", SETTINGS = "Ajustes",
     FROM = "Desde", TO = "Hasta", MYSKILL = "Mi nivel", MAXSKILL = "Máx.",
     MODE_CHEAP = "Más barato", MODE_PROFIT = "Mayor beneficio", MODE_FAST = "Menos creaciones",
@@ -61,7 +69,7 @@ LOC.es = {
     OPT_GATHER = "Recolecto los materiales base yo mismo (cuentan como gratis)",
     OPT_KNOWN = "Usar solo recetas que ya conozco",
     OPT_SRC_T = "Permitir recetas de instructor", OPT_SRC_V = "Permitir recetas vendidas por vendedores", OPT_SRC_I = "Permitir objetos de receta (botín, misiones, raros)", OPT_SRC_U = "Permitir recetas de otra fuente o desconocida",
-    OPT_PROVIDER = "Fuente de precios", OPT_SKIN = "Aspecto", OPT_SCALE = "Escala de la ventana", OPT_ALPHA = "Opacidad de la ventana", OPT_AUTO = "Automático",
+    OPT_PROVIDER = "Fuente de precios", OPT_SKIN = "Aspecto", OPT_SCALE = "Escala de la ventana", OPT_ALPHA = "Opacidad de la ventana", OPT_AUTO = "Auto",
     OPT_AHCUT = "Restar el 5% de comisión de la casa de subastas al vender", OPT_VENDOR = "Solo vendedor",
     UNIT_MIN = "min", CRAFT_X = "%d creaciones", ORANGE = "naranja", YELLOW = "amarillo", GREEN = "verde", GREY = "gris",
     LEGEND = "Dificultad: naranja / amarillo / verde / gris",
@@ -79,6 +87,10 @@ LOC.pt = {
     G_AUTOLOOTQ = "Autosaque de missão e ouro", G_AUTOHIDE = "Esconder pontos vazios automaticamente", G_HOVER = "Aprender pontos ao passar o mouse no minimapa", G_RANGE = "Alcance", BTN_FULLOPT = "Abrir opções completas",
     CRAFTOPT = "Opções de criação", MODE_TITLE = "Modo do plano", SRC_TITLE = "Fontes de receitas", PRICE_TITLE = "Preços",
     OPT_AUTOTEXT = "Escalar o texto com o tamanho da janela", BTN_RESETSIZE = "Restaurar tamanho da janela e do texto",
+    GO_TRAINER = "Localizar treinador", GO_VENDOR = "Localizar vendedor", FOOT_REQ = "Requer: %s", FOOT_NOREQ = "Não precisa de ferramenta nem estação", FOOT_HAVE = "tem %d",
+    BTN_CRAFT = "Criar", BTN_CRAFTALL = "Criar tudo", MSG_CRAFT_OPEN = "Abrindo a janela da profissão. Clique em Criar de novo.", MSG_CRAFT_FAIL = "Não foi possível iniciar a criação. Abra a janela da profissão e tente de novo.",
+    MSG_NEAREST = "%s mais próximo: %s em %s (%.1f, %.1f). Marcado no mapa.", MSG_NOSPOT = "Local desta receita desconhecido.", FOOT_SELECT = "Clique numa receita para ver os detalhes aqui.",
+    FOCUS = { Anvil = "Bigorna", Forge = "Forja", Loom = "Tear", ["Cooking Fire"] = "Fogueira de cozinha", ["Alchemy Lab"] = "Laboratório de alquimia", ["Tanning Rack"] = "Cavalete de curtimento", ["Spinning Wheel"] = "Roda de fiar", ["Master Forge"] = "Forja mestra", ["Iron Oven"] = "Forno de ferro" },
     TITLE = "Trailsmith Profissões", PLAN = "Plano", MATS = "Materiais", RECIPES = "Receitas", SETTINGS = "Opções",
     FROM = "De", TO = "Até", MYSKILL = "Minha perícia", MAXSKILL = "Máx.",
     MODE_CHEAP = "Mais barato", MODE_PROFIT = "Maior lucro", MODE_FAST = "Menos criações",
@@ -93,7 +105,7 @@ LOC.pt = {
     OPT_GATHER = "Eu mesmo coleto os materiais básicos (contam como grátis)",
     OPT_KNOWN = "Usar só receitas que eu já conheço",
     OPT_SRC_T = "Permitir receitas de treinador", OPT_SRC_V = "Permitir receitas vendidas por vendedores", OPT_SRC_I = "Permitir itens de receita (drops, missões, raras)", OPT_SRC_U = "Permitir receitas de outra fonte ou desconhecida",
-    OPT_PROVIDER = "Fonte de preços", OPT_SKIN = "Visual", OPT_SCALE = "Escala da janela", OPT_ALPHA = "Opacidade da janela", OPT_AUTO = "Automático",
+    OPT_PROVIDER = "Fonte de preços", OPT_SKIN = "Visual", OPT_SCALE = "Escala da janela", OPT_ALPHA = "Opacidade da janela", OPT_AUTO = "Auto",
     OPT_AHCUT = "Descontar os 5% da casa de leilões ao vender", OPT_VENDOR = "Só vendedor",
     UNIT_MIN = "min", CRAFT_X = "%d criações", ORANGE = "laranja", YELLOW = "amarelo", GREEN = "verde", GREY = "cinza",
     LEGEND = "Dificuldade: laranja / amarelo / verde / cinza",
@@ -140,7 +152,7 @@ for _, p in ipairs(PROFS) do PROF_BY_KEY[p.key] = p end
 local issecret = issecretvalue or function() return false end
 local QMARK = "Interface\\Icons\\INV_Misc_QuestionMark"
 local DEFAULTS = {
-    sel = "mining", skin = "dark", scale = 1, alpha = 0.96, fontText = 1, fontNum = 1, key = "K", useKey = true, showAll = false, autoText = true, w = 900, h = 640, provider = "auto", mode = "cheap",
+    sel = "mining", skin = "dark", scale = 1, alpha = 0.96, fontText = 1, fontNum = 1, key = "K", useKey = true, showAll = false, autoText = true, w = 980, h = 680, provider = "auto", mode = "cheap",
     free = false, knownOnly = false, srcT = true, srcV = true, srcI = false, srcU = false, ahCut = true,
     range = {},
 }
@@ -216,10 +228,10 @@ local function Decode(key)
     local d = ns.RecipeData and ns.RecipeData[key]
     if d then
         for _, line in ipairs(d.recipes) do
-            local sp, rq, lo, hi, it, qt, src, si, rg = line:match("^(%d+)|(%d+)|(%d+)|(%d+)|(%d+)|(%d+)|(%a)|(%d+)|(.*)$")
+            local sp, rq, lo, hi, it, qt, src, si, rg, st = line:match("^(%d+)|(%d+)|(%d+)|(%d+)|(%d+)|(%d+)|(%a)|(%d+)|([%d:,]*)|?(%d*)$")
             if sp then
                 local r = { spell = tonumber(sp), req = tonumber(rq), low = tonumber(lo), high = tonumber(hi), item = tonumber(it),
-                    qty = tonumber(qt), src = src, srcItem = tonumber(si), reag = {} }
+                    qty = tonumber(qt), src = src, srcItem = tonumber(si), set = tonumber(st) or 0, reag = {} }
                 for id, n in rg:gmatch("(%d+):(%d+)") do r.reag[#r.reag + 1] = { tonumber(id), tonumber(n) } end
                 out[#out + 1] = r
                 if r.item > 0 then
@@ -492,8 +504,11 @@ end
 
 ---------------------------------------------------------------- interface (estilo padrao do WoW)
 local UI = { tab = "plan", top = "craft", fonts = {}, syncs = {}, factor = 1 }
-local DEFW, DEFH, MINW, MINH = 900, 640, 780, 560
-local M, TOP, BOT, LEFTW, RIGHTW, GAP = 12, 64, 14, 178, 224, 8
+local DEFW, DEFH, MINW, MINH = 980, 680, 900, 600
+local M, TOP, BOT, LEFTW, RIGHTW, GAP = 12, 64, 14, 200, 252, 8
+local Locate -- defined further down
+local FOOT = 96
+local function FootH() return floor(FOOT * max(1, UI.factor or 1)) end
 local TIP_BACKDROP = {
     bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
     tile = true, tileSize = 16, edgeSize = 14, insets = { left = 3, right = 3, top = 3, bottom = 3 },
@@ -578,13 +593,21 @@ local function Tip(frame, fn)
     frame:SetScript("OnLeave", function() if GameTooltip then GameTooltip:Hide() end end)
 end
 
-local function Check(parent, label, get, set)
+local function Check(parent, label, get, set, wrapW)
     local cb = TryCreate("CheckButton", nil, parent, { "UICheckButtonTemplate", "ChatConfigCheckButtonTemplate" })
     cb:SetSize(24, 24)
     local fs = Label(cb, label, "GameFontHighlightSmall")
-    fs:SetPoint("LEFT", cb, "RIGHT", 2, 0)
-    fs:SetPoint("RIGHT", parent, "RIGHT", -8, 0)
-    fs:SetJustifyV("MIDDLE")
+    if wrapW then
+        fs:SetPoint("TOPLEFT", cb, "TOPRIGHT", 2, -5)
+        fs:SetWidth(wrapW)
+        fs:SetWordWrap(true)
+        fs:SetJustifyV("TOP")
+    else
+        fs:SetPoint("LEFT", cb, "RIGHT", 2, 0)
+        fs:SetPoint("RIGHT", parent, "RIGHT", -8, 0)
+        fs:SetJustifyV("MIDDLE")
+    end
+    cb.label = fs
     cb:SetScript("OnClick", function(self) set(self:GetChecked() and true or false) end)
     cb.Sync = function() cb:SetChecked(get()) end
     UI.syncs[#UI.syncs + 1] = cb.Sync
@@ -635,18 +658,21 @@ end
 -- vertical stack of controls whose spacing follows the text size
 local function NewStack(parent, x, y0, width)
     local st = { items = {}, parent = parent, x = x, y0 = y0, width = width }
-    function st:Add(frame, h, dx, gap, stretch)
-        self.items[#self.items + 1] = { f = frame, h = h, dx = dx or 0, gap = gap or 4, stretch = stretch }
+    function st:Add(frame, h, dx, gap, stretch, hfn)
+        self.items[#self.items + 1] = { f = frame, h = h, dx = dx or 0, gap = gap or 4, stretch = stretch, hfn = hfn }
         return frame
     end
     function st:Layout()
         local y = self.y0
         local fct = UI.factor or 1
         for _, it in ipairs(self.items) do
+            y = y + (it.gapBefore or 0)
             it.f:ClearAllPoints()
             it.f:SetPoint("TOPLEFT", self.parent, "TOPLEFT", self.x + it.dx, -y)
             if it.stretch then it.f:SetPoint("TOPRIGHT", self.parent, "TOPRIGHT", -self.x, -y) end
-            y = y + floor(it.h * fct + 0.5) + it.gap
+            local hh = floor(it.h * fct + 0.5)
+            if it.hfn then hh = max(hh, floor(it.hfn() + 6)) end
+            y = y + hh + it.gap
         end
     end
     return st
@@ -828,6 +854,9 @@ local function MakePlanRow(parent)
     row.sub:SetPoint("BOTTOMRIGHT", -8, 4)
     row.sub:SetJustifyH("RIGHT")
     row.sub:SetTextColor(0.7, 0.7, 0.7)
+    row.go = Btn(row, "", 130, 20, function(b) if row.rec then Locate(row.rec) end end)
+    row.go:SetPoint("RIGHT", row.cost, "LEFT", -10, 0)
+    row.go:Hide()
     row.t1 = Label(row, nil, "GameFontHighlight")
     row.t1:SetPoint("TOPLEFT", row.icon, "TOPRIGHT", 8, 0)
     row.t1:SetPoint("RIGHT", row.cost, "LEFT", -8, 0)
@@ -837,6 +866,7 @@ local function MakePlanRow(parent)
     row.t2:SetPoint("RIGHT", row.sub, "LEFT", -8, 0)
     row.t2:SetWordWrap(false)
     Tip(row, function(tt, self) if self.rec then ItemOrSpellTip(tt, self.rec) end end)
+    row:SetScript("OnClick", function(self) if self.rec then UI:Select(self.rec, self.crafts) end end)
     return row
 end
 local function FillPlanRow(row, st, idx)
@@ -849,6 +879,13 @@ local function FillPlanRow(row, st, idx)
         row.t2:SetText(S.NOREC:format(st.from, st.to))
         row.cost:SetText("")
         row.sub:SetText("")
+        row.go:Hide()
+        row.t1:ClearAllPoints()
+        row.t1:SetPoint("TOPLEFT", row.icon, "TOPRIGHT", 8, 0)
+        row.t1:SetPoint("RIGHT", row.cost, "LEFT", -8, 0)
+        row.t2:ClearAllPoints()
+        row.t2:SetPoint("BOTTOMLEFT", row.icon, "BOTTOMRIGHT", 8, 0)
+        row.t2:SetPoint("RIGHT", row.sub, "LEFT", -8, 0)
         return
     end
     local r = st.r
@@ -856,12 +893,32 @@ local function FillPlanRow(row, st, idx)
     row.icon:SetTexture(r.item > 0 and ItemIcon(r.item) or SpellIcon(r.spell))
     local col = BandColor(r, st.from)
     local name = SpellName(r.spell) or (r.item > 0 and ItemName(r.item)) or ("#" .. r.spell)
-    local learn = st.known and "" or ("  |cff66ccff[%s]|r"):format(SrcLabel(r))
-    row.t1:SetText(("|c%s%d – %d|r   %s%s"):format(col, st.from, st.to, name, learn))
+    row.t1:SetText(("|c%s%d – %d|r   %s"):format(col, st.from, st.to, name))
     row.t2:SetTextColor(0.7, 0.7, 0.7)
     row.t2:SetText(MatLine(r, st.crafts))
     row.cost:SetText(st.miss and ("|cffff8080" .. S.NOPRICE .. "|r") or Money(st.cost))
     row.sub:SetText(S.CRAFT_X:format(st.crafts))
+    row.crafts = st.crafts
+    local canLocate = (not st.known) and r.set and r.set > 0 and (r.src == "t" or r.src == "v")
+    row.t1:ClearAllPoints()
+    row.t1:SetPoint("TOPLEFT", row.icon, "TOPRIGHT", 8, 0)
+    row.t2:ClearAllPoints()
+    row.t2:SetPoint("BOTTOMLEFT", row.icon, "BOTTOMRIGHT", 8, 0)
+    if canLocate then
+        row.go:SetText(r.src == "v" and S.GO_VENDOR or S.GO_TRAINER)
+        local w = row.go.fs and row.go.fs:GetStringWidth() or 100
+        row.go:SetWidth(max(90, floor(w + 24)))
+        row.go:Show()
+        row.t1:SetPoint("RIGHT", row.go, "LEFT", -8, 0)
+        row.t2:SetPoint("RIGHT", row.go, "LEFT", -8, 0)
+    else
+        row.go:Hide()
+        row.t1:SetPoint("RIGHT", row.cost, "LEFT", -8, 0)
+        row.t2:SetPoint("RIGHT", row.sub, "LEFT", -8, 0)
+    end
+    if UI.sel and UI.sel.r == r then
+        if row.bg.SetColorTexture then row.bg:SetColorTexture(1, 0.8, 0.2, 0.16) else row.bg:SetTexture(1, 0.8, 0.2, 0.16) end
+    end
 end
 local function LayoutPlanRow(row, rh) IconSize(row, rh) end
 
@@ -931,6 +988,7 @@ local function MakeRecRow(parent)
     row.name:SetPoint("RIGHT", row.bands, "LEFT", -6, 0)
     row.name:SetWordWrap(false)
     Tip(row, function(tt, self) if self.rec then ItemOrSpellTip(tt, self.rec) end end)
+    row:SetScript("OnClick", function(self) if self.rec then UI:Select(self.rec, 1) end end)
     return row
 end
 local function FillRecRow(row, d, idx)
@@ -940,6 +998,9 @@ local function FillRecRow(row, d, idx)
     row.icon:SetTexture(r.item > 0 and ItemIcon(r.item) or SpellIcon(r.spell))
     local name = SpellName(r.spell) or (r.item > 0 and ItemName(r.item)) or ("#" .. r.spell)
     row.name:SetText((d.known and "|cff40c040" or "") .. name .. (d.known and "|r" or ""))
+    if UI.sel and UI.sel.r == r then
+        if row.bg.SetColorTexture then row.bg:SetColorTexture(1, 0.8, 0.2, 0.16) else row.bg:SetTexture(1, 0.8, 0.2, 0.16) end
+    end
     local mid = floor((r.low + r.high) / 2)
     row.bands:SetText(("|cffff8040%d|r |cffffff00%d|r |cff40c040%d|r |cff808080%d|r"):format(r.req, r.low, mid, r.high))
     row.src:SetText(d.known and S.KNOWN or SrcLabel(r))
@@ -1076,6 +1137,165 @@ function UI:BuildSearch()
     end)
 end
 
+---------------------------------------------------------------- localizar treinador / vendedor
+local spotCache = {}
+local function Spot(idx)
+    local c = spotCache[idx]
+    if c then return c end
+    local line = ns.Spots and ns.Spots[idx]
+    if not line then return nil end
+    local name, fac, ui, x, y = line:match("^(.-)|(%d)|(%d+)|(%d+)|(%d+)$")
+    if not name then return nil end
+    c = { name = name, fac = tonumber(fac), ui = tonumber(ui), x = tonumber(x) / 10000, y = tonumber(y) / 10000 }
+    spotCache[idx] = c
+    return c
+end
+
+local function WorldOf(ui, x, y)
+    if C_Map and C_Map.GetWorldPosFromMapPos and CreateVector2D then
+        local ok, cont, pos = pcall(C_Map.GetWorldPosFromMapPos, ui, CreateVector2D(x, y))
+        if ok and cont and type(pos) == "table" and pos.GetXY then
+            local wx, wy = pos:GetXY()
+            return cont, wx, wy
+        end
+    end
+end
+
+local function NearestSpot(setId)
+    local list = ns.SpotSets and ns.SpotSets[setId]
+    if not list then return nil end
+    local faction = UnitFactionGroup and UnitFactionGroup("player")
+    local myMap = C_Map and C_Map.GetBestMapForUnit and C_Map.GetBestMapForUnit("player")
+    local mx, my
+    if myMap and C_Map.GetPlayerMapPosition then
+        local pos = C_Map.GetPlayerMapPosition(myMap, "player")
+        if pos and pos.GetXY then mx, my = pos:GetXY() end
+    end
+    local pc, pwx, pwy
+    if myMap and mx then pc, pwx, pwy = WorldOf(myMap, mx, my) end
+    local best, bestD
+    for id in list:gmatch("%d+") do
+        local sp = Spot(tonumber(id))
+        if sp then
+            local ok = sp.fac == 0 or (faction == "Alliance" and sp.fac == 1) or (faction == "Horde" and sp.fac == 2) or not faction
+            if ok then
+                local d = 1e12
+                if pc then
+                    local c, wx, wy = WorldOf(sp.ui, sp.x, sp.y)
+                    if c == pc and wx then d = ((wx - pwx) ^ 2 + (wy - pwy) ^ 2) ^ 0.5
+                    elseif c then d = 1e9 end
+                elseif myMap and sp.ui == myMap and mx then
+                    d = ((sp.x - mx) ^ 2 + (sp.y - my) ^ 2) ^ 0.5 * 1000
+                end
+                if not bestD or d < bestD then best, bestD = sp, d end
+            end
+        end
+    end
+    return best
+end
+
+local pin
+local function UpdatePin()
+    if not pin or not pin.spot then return end
+    local wm = _G.WorldMapFrame
+    if not wm or not wm:IsShown() then pin:Hide() return end
+    local mapID = wm.GetMapID and wm:GetMapID()
+    local parent = pin:GetParent()
+    if mapID ~= pin.spot.ui or not parent or not parent.GetWidth then pin:Hide() return end
+    pin:ClearAllPoints()
+    pin:SetPoint("CENTER", parent, "TOPLEFT", pin.spot.x * parent:GetWidth(), -pin.spot.y * parent:GetHeight())
+    pin:Show()
+end
+local function PlacePin(sp)
+    local wm = _G.WorldMapFrame
+    if not wm then return end
+    local parent = (wm.GetCanvas and wm:GetCanvas()) or (wm.ScrollContainer and wm.ScrollContainer.Child) or wm
+    if not pin then
+        pin = CreateFrame("Frame", nil, parent)
+        pin:SetSize(30, 30)
+        pin:SetFrameStrata("TOOLTIP")
+        local t = pin:CreateTexture(nil, "OVERLAY")
+        t:SetAllPoints()
+        t:SetTexture("Interface\\GossipFrame\\AvailableQuestIcon")
+        pin:EnableMouse(true)
+        pin:SetScript("OnEnter", function(self)
+            GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+            GameTooltip:SetText(self.spot and self.spot.name or "", 1, 0.82, 0)
+            GameTooltip:Show()
+        end)
+        pin:SetScript("OnLeave", function() GameTooltip:Hide() end)
+        pcall(hooksecurefunc, wm, "OnMapChanged", UpdatePin)
+        wm:HookScript("OnShow", UpdatePin)
+    end
+    pin:SetParent(parent)
+    pin.spot = sp
+    UpdatePin()
+end
+
+Locate = function(r)
+    local sp = r and r.set and r.set > 0 and NearestSpot(r.set)
+    if not sp then print("|cffffd100Trailsmith:|r " .. S.MSG_NOSPOT) return end
+    local info = C_Map and C_Map.GetMapInfo and C_Map.GetMapInfo(sp.ui)
+    local zone = info and info.name or tostring(sp.ui)
+    print("|cffffd100Trailsmith:|r " .. S.MSG_NEAREST:format(r.src == "v" and S.SRC_V or S.SRC_T, sp.name, zone, sp.x * 100, sp.y * 100))
+    pcall(function()
+        if OpenWorldMap then OpenWorldMap(sp.ui)
+        elseif _G.WorldMapFrame then
+            if ShowUIPanel then ShowUIPanel(_G.WorldMapFrame) else _G.WorldMapFrame:Show() end
+            _G.WorldMapFrame:SetMapID(sp.ui)
+        end
+    end)
+    pcall(function()
+        if C_Map and C_Map.CanSetUserWaypointOnMap and C_Map.CanSetUserWaypointOnMap(sp.ui) and UiMapPoint then
+            C_Map.SetUserWaypoint(UiMapPoint.CreateFromCoordinates(sp.ui, sp.x, sp.y))
+            if C_SuperTrack and C_SuperTrack.SetSuperTrackedUserWaypoint then C_SuperTrack.SetSuperTrackedUserWaypoint(true) end
+        end
+    end)
+    pcall(function()
+        local tt = _G.TomTom
+        if tt and tt.AddWaypoint then tt:AddWaypoint(sp.ui, sp.x, sp.y, { title = sp.name, persistent = false, minimap = true, world = true }) end
+    end)
+    pcall(PlacePin, sp)
+end
+ns.Prof.Locate = Locate
+ns.Prof.NearestSpot = NearestSpot
+
+local function FocusLabel(spell)
+    local id = ns.RecipeFocus and ns.RecipeFocus[spell]
+    if not id then return nil end
+    local en = ns.FocusNames and ns.FocusNames[id]
+    if not en then return nil end
+    local t = LOC[lang].FOCUS
+    return (t and t[en]) or en
+end
+
+-- best-effort crafting through whichever trade skill API the client has
+local function TryCraft(r, count)
+    if C_TradeSkillUI and C_TradeSkillUI.CraftRecipe then
+        local ok = pcall(C_TradeSkillUI.CraftRecipe, r.spell, count)
+        if ok then return true end
+    end
+    if GetNumTradeSkills and DoTradeSkill and GetTradeSkillInfo then
+        for i = 1, GetNumTradeSkills() do
+            local _, kind = GetTradeSkillInfo(i)
+            if kind ~= "header" then
+                local link = GetTradeSkillRecipeLink and GetTradeSkillRecipeLink(i)
+                local id = link and tonumber(link:match("enchant:(%d+)") or link:match("spell:(%d+)"))
+                if id == r.spell then DoTradeSkill(i, count) return true end
+            end
+        end
+    end
+    return false
+end
+local function CanMake(r)
+    local n
+    for _, rg in ipairs(r.reag) do
+        local m = floor((GetItemCount and GetItemCount(rg[1]) or 0) / rg[2])
+        if not n or m < n then n = m end
+    end
+    return n or 0
+end
+
 ---------------------------------------------------------------- tecla de atalho
 local keyOwner, toggleBtn
 local function ApplyKey()
@@ -1139,7 +1359,7 @@ function UI:LayoutCraft()
     if not f or not self.cards then return end
     local cw = f:GetWidth() - 2 * M - LEFTW - RIGHTW - 2 * GAP
     local w = floor((cw - 4 * 6) / 5)
-    local ch = floor(52 * max(1, UI.factor or 1))
+    local ch = floor(46 * max(1, UI.factor or 1))
     for i, key in ipairs({ "points", "crafts", "cost", "time", "net" }) do
         local c = self.cards[key]
         c:ClearAllPoints()
@@ -1155,15 +1375,16 @@ function UI:LayoutCraft()
     for _, p in ipairs({ self.planPane, self.matPane, self.recPane }) do
         p:ClearAllPoints()
         p:SetPoint("TOPLEFT", self.craftPane, "TOPLEFT", 0, -self.listTop)
-        p:SetPoint("BOTTOMRIGHT", self.craftPane, "BOTTOMRIGHT", 0, 0)
+        p:SetPoint("BOTTOMRIGHT", self.craftPane, "BOTTOMRIGHT", 0, FootH() + 8)
     end
+    self.foot:SetHeight(FootH())
     self.matHeader:ClearAllPoints()
     self.matHeader:SetPoint("TOPLEFT", self.matPane, "TOPLEFT", 0, 0)
     self.matHeader:SetPoint("TOPRIGHT", self.matPane, "TOPRIGHT", -18, 0)
     self.matHeader:SetHeight(20)
     MatCols(self.matHeader)
 end
-local function ListHeight() return (UI.frame:GetHeight() - TOP - BOT) - (UI.listTop or 120) end
+local function ListHeight() return (UI.frame:GetHeight() - TOP - BOT) - (UI.listTop or 120) - FootH() - 8 end
 
 function UI:Refresh()
     if not self.frame or not self.frame:IsShown() then return end
@@ -1239,6 +1460,7 @@ function UI:Refresh()
     self.cards.net.v:SetText(Money(p.net))
     self.priceLine:SetText(p.provider and S.PRICES:format(p.provider) or S.PRICES_NONE)
     self.noProf:SetText(sk and "" or S.NOPROF)
+    self:RefreshFoot()
     self.planPane:SetShown(self.tab == "plan")
     self.matPane:SetShown(self.tab == "mats")
     self.recPane:SetShown(self.tab == "recipes")
@@ -1249,6 +1471,119 @@ function UI:Refresh()
 end
 
 ---------------------------------------------------------------- construcao
+function UI:Select(r, crafts)
+    self.sel = { r = r, crafts = crafts or 1, key = P.sel }
+    self:Refresh()
+end
+
+function UI:RefreshFoot()
+    local ft = self.foot
+    local sel = self.sel
+    if not sel or sel.key ~= P.sel then
+        -- default: the first real step of the plan
+        sel = nil
+        if current then
+            for _, st in ipairs(current.steps) do
+                if st.r then sel = { r = st.r, crafts = st.crafts, key = P.sel } break end
+            end
+        end
+        self.sel = sel
+    end
+    if not sel then
+        ft.name:SetText(S.FOOT_SELECT)
+        ft.req:SetText("")
+        ft.mats:SetText("")
+        ft.icon:SetTexture(QMARK)
+        ft.locate:Hide()
+        ft.one:Disable() ft.all:Disable() ft.qty:Hide()
+        return
+    end
+    local r = sel.r
+    ft.icon:SetTexture(r.item > 0 and ItemIcon(r.item) or SpellIcon(r.spell))
+    local isKnown = known[r.spell] or SpellKnown(r.spell) or r.src == "a"
+    local name = SpellName(r.spell) or (r.item > 0 and ItemName(r.item)) or ("#" .. r.spell)
+    ft.name:SetText(name .. (isKnown and "" or "  |cff66ccff[" .. SrcLabel(r) .. "]|r"))
+    local focus = FocusLabel(r.spell)
+    ft.req:SetText(focus and ("|cffffd100" .. S.FOOT_REQ:format(focus) .. "|r") or ("|cff909090" .. S.FOOT_NOREQ .. "|r"))
+    local parts = {}
+    for _, rg in ipairs(r.reag) do
+        local have = GetItemCount and GetItemCount(rg[1]) or 0
+        local col = have >= rg[2] and "|cff40c040" or "|cffff8080"
+        parts[#parts + 1] = ("%d× %s %s(%s)|r"):format(rg[2], ItemName(rg[1]) or ("#" .. rg[1]), col, S.FOOT_HAVE:format(have))
+    end
+    ft.mats:SetText(table.concat(parts, ",  "))
+    if (not isKnown) and r.set and r.set > 0 and (r.src == "t" or r.src == "v") then
+        ft.locate:SetText(r.src == "v" and S.GO_VENDOR or S.GO_TRAINER)
+        ft.locate:Show()
+    else
+        ft.locate:Hide()
+    end
+    ft.qty:Show()
+    if isKnown then ft.one:Enable() ft.all:Enable() else ft.one:Disable() ft.all:Disable() end
+end
+
+function UI:BuildFoot(body)
+    local ft = Panel(body, 0.8)
+    ft:SetPoint("BOTTOMLEFT", 0, 0)
+    ft:SetPoint("BOTTOMRIGHT", 0, 0)
+    ft:SetHeight(FOOT)
+    self.foot = ft
+    ft.icon = ft:CreateTexture(nil, "ARTWORK")
+    ft.icon:SetSize(40, 40)
+    ft.icon:SetPoint("TOPLEFT", 10, -10)
+    ft.icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+    ft.all = Btn(ft, S.BTN_CRAFTALL, 100, 24, function()
+        local sel = UI.sel
+        if not sel then return end
+        local n = CanMake(sel.r)
+        if n < 1 then print("|cffffd100Trailsmith:|r " .. S.MISSING) return end
+        if not TryCraft(sel.r, n) then
+            local p = PROF_BY_KEY[P.sel]
+            if p and p.spell and CastSpellByID then pcall(CastSpellByID, p.spell) print("|cffffd100Trailsmith:|r " .. S.MSG_CRAFT_OPEN)
+            else print("|cffffd100Trailsmith:|r " .. S.MSG_CRAFT_FAIL) end
+        end
+    end)
+    ft.all:SetPoint("BOTTOMRIGHT", -10, 10)
+    ft.one = Btn(ft, S.BTN_CRAFT, 80, 24, function()
+        local sel = UI.sel
+        if not sel then return end
+        local q = tonumber(ft.qty:GetText()) or 1
+        if not TryCraft(sel.r, max(1, q)) then
+            local p = PROF_BY_KEY[P.sel]
+            if p and p.spell and CastSpellByID then pcall(CastSpellByID, p.spell) print("|cffffd100Trailsmith:|r " .. S.MSG_CRAFT_OPEN)
+            else print("|cffffd100Trailsmith:|r " .. S.MSG_CRAFT_FAIL) end
+        end
+    end)
+    ft.one:SetPoint("RIGHT", ft.all, "LEFT", -6, 0)
+    ft.qty = TryCreate("EditBox", nil, ft, { "InputBoxTemplate" })
+    ft.qty:SetSize(36, 20)
+    ft.qty:SetPoint("RIGHT", ft.one, "LEFT", -10, 0)
+    ft.qty:SetAutoFocus(false)
+    ft.qty:SetNumeric(true)
+    ft.qty:SetMaxLetters(3)
+    ft.qty:SetText("1")
+    RegFont(ft.qty, "num")
+    ft.qty:SetScript("OnEscapePressed", function(s2) s2:ClearFocus() end)
+    ft.qty:SetScript("OnEnterPressed", function(s2) s2:ClearFocus() end)
+    ft.locate = Btn(ft, "", 150, 22, function() if UI.sel then Locate(UI.sel.r) end end)
+    ft.locate:SetPoint("TOPRIGHT", -10, -10)
+    ft.locate:Hide()
+    ft.name = Label(ft, "", "GameFontNormal")
+    ft.name:SetPoint("TOPLEFT", ft.icon, "TOPRIGHT", 10, 0)
+    ft.name:SetPoint("RIGHT", ft.locate, "LEFT", -8, 0)
+    ft.name:SetWordWrap(false)
+    ft.req = Label(ft, "", "GameFontHighlightSmall")
+    ft.req:SetPoint("TOPLEFT", ft.name, "BOTTOMLEFT", 0, -3)
+    ft.req:SetPoint("RIGHT", ft.locate, "LEFT", -8, 0)
+    ft.req:SetWordWrap(false)
+    ft.mats = Label(ft, "", "GameFontHighlightSmall")
+    ft.mats:SetPoint("TOPLEFT", ft.req, "BOTTOMLEFT", 0, -4)
+    ft.mats:SetPoint("RIGHT", ft.qty, "LEFT", -12, 0)
+    ft.mats:SetPoint("BOTTOM", ft, "BOTTOM", 0, 8)
+    ft.mats:SetWordWrap(true)
+    ft.mats:SetJustifyV("TOP")
+end
+
 function UI:BuildCraft(f)
     local lp = Panel(f, 0.7)
     lp:SetPoint("TOPLEFT", M, -TOP)
@@ -1275,6 +1610,11 @@ function UI:BuildCraft(f)
         b.rank = Label(b, "", "GameFontHighlightSmall", "num")
         b.rank:SetPoint("BOTTOMLEFT", b.icon, "BOTTOMRIGHT", 6, 1)
         b:SetScript("OnClick", function() P.sel = p.key UI:Refresh() end)
+        Tip(b, function(tt)
+            tt:AddLine(ProfLabel(p.key), 1, 0.82, 0)
+            local sk2 = skills[p.key]
+            if sk2 then tt:AddLine(("%d / %d"):format(sk2.rank, sk2.max), 1, 1, 1) end
+        end)
         self.profBtns[i] = b
     end
 
@@ -1285,26 +1625,27 @@ function UI:BuildCraft(f)
     self.rightPanel = rp
     local st = NewStack(rp, 10, 8, RIGHTW)
     self.optStack = st
-    st:Add(Heading(rp, S.CRAFTOPT), 18, 0, 6)
-    st:Add(Label(rp, S.MODE_TITLE, "GameFontNormalSmall"), 14, 0, 2)
+    st:Add(Heading(rp, S.CRAFTOPT), 18, 0, 8)
+    st:Add(Label(rp, S.MODE_TITLE, "GameFontNormalSmall"), 14, 0, 4)
     self.modeBtns = {}
     for _, m in ipairs({ { "cheap", S.MODE_CHEAP }, { "profit", S.MODE_PROFIT }, { "fast", S.MODE_FAST } }) do
         local b = Btn(rp, m[2], RIGHTW - 20, 22, function() P.mode = m[1] UI:Refresh() end)
         b.mode = m[1]
-        st:Add(b, 22, 0, 2, true)
+        st:Add(b, 22, 0, 4, true)
         self.modeBtns[#self.modeBtns + 1] = b
     end
-    st:Add(Label(rp, S.SRC_TITLE, "GameFontNormalSmall"), 14, 0, 2)
+    st:Add(Label(rp, S.SRC_TITLE, "GameFontNormalSmall"), 14, 0, 4, false, nil)
+    st.items[#st.items].gapBefore = 8
     local function Chk(label, key)
-        local cb = Check(rp, label, function() return P[key] end, function(v) P[key] = v UI:Refresh() end)
-        st:Add(cb, 28, 0, 0)
+        local cb = Check(rp, label, function() return P[key] end, function(v) P[key] = v UI:Refresh() end, RIGHTW - 54)
+        st:Add(cb, 24, 0, 2, false, function() return cb.label:GetStringHeight() end)
     end
     Chk(S.OPT_KNOWN, "knownOnly")
     Chk(S.OPT_SRC_T, "srcT")
     Chk(S.OPT_SRC_V, "srcV")
     Chk(S.OPT_SRC_I, "srcI")
     Chk(S.OPT_SRC_U, "srcU")
-    st:Add(Label(rp, S.PRICE_TITLE, "GameFontNormalSmall"), 14, 0, 2)
+    st:Add(Label(rp, S.PRICE_TITLE, "GameFontNormalSmall"), 14, 0, 4)
     Chk(S.OPT_GATHER, "free")
     Chk(S.OPT_AHCUT, "ahCut")
     self.provBtn = Btn(rp, "", RIGHTW - 20, 22, function()
@@ -1338,6 +1679,7 @@ function UI:BuildCraft(f)
     local body = CreateFrame("Frame", nil, cp)
     body:SetAllPoints()
     self.craftBody = body
+    self:BuildFoot(body)
 
     local function Box(label, after, dx)
         local cap = Label(body, label, "GameFontNormal")
@@ -1397,7 +1739,7 @@ function UI:BuildCraft(f)
         cap:SetPoint("TOPLEFT", 8, -7)
         cap:SetPoint("RIGHT", -6, 0)
         cap:SetWordWrap(false)
-        local v = Label(card, "", "GameFontHighlightLarge", "num")
+        local v = Label(card, "", "GameFontHighlight", "num")
         v:SetPoint("BOTTOMLEFT", 8, 7)
         v:SetPoint("RIGHT", -4, 0)
         v:SetWordWrap(false)

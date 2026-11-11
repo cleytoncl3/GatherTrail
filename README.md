@@ -23,6 +23,8 @@ Open with `/tsp` or `/gt prof`. It builds a skill-by-skill leveling plan for eve
 - recipes, reagents, difficulty bands and item prices: DB2 exports of the WoW Forever client build from [wago.tools](https://wago.tools) (the Classic Anniversary build fills in difficulty ranges the Forever client lost);
 - trainer skill requirements, recipe items and vendor lists: the [cmangos classic-db](https://github.com/cmangos/classic-db) project (GPL-2.0).
 
+Trainer and vendor locations come from the same cmangos tables (spawn positions) and are converted to world-map coordinates with the client's own map regions; the required crafting station comes from the spell casting requirements.
+
 Recipes whose source could not be matched use an estimated requirement. To regenerate, download the tables listed at the top of the script into a `wago/` folder and run `node tools/build_recipes.js RecipeData.lua`.
 
 ## Combat Tutor module
