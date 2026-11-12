@@ -1,3 +1,5 @@
+> **Este repositório foi substituído.** A versão atual do Trailsmith está em **https://github.com/cleytoncl3/Trailsmith-Addon** (atualizações, releases e o Update.bat novo). Este aqui ficou arquivado.
+
 # Trailsmith
 
 A toolkit for gatherers and more: a gathering guide for **Mining** and **Herbalism** (WoW Classic / WoW Forever): a directional arrow, a minimap line and minimap / world map icons for the nearest nodes your skill can gather, per-resource filters with Auctionator prices, and an autoloot made for gatherers. It only shows information; it never acts for your character.
