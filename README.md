@@ -1,4 +1,4 @@
-> **Este repositório foi substituído.** A versão atual do Trailsmith está em **https://github.com/cleytoncl3/Trailsmith-Addon** (atualizações, releases e o Update.bat novo). Este aqui ficou arquivado.
+> **This repository was replaced.** The current Trailsmith lives at **https://github.com/cleytoncl3/Trailsmith-Addon** (updates, releases and the new Update.bat). This one is archived.
 
 # Trailsmith
 
